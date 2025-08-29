@@ -9,7 +9,7 @@ website:
         text: Home
       - href: labs\labs-overview.qmd
         text: Labs
-      - href: posts\blog.qmd
+      - href: blog.qmd
         text: Blog
       - href: resources.qmd
         text: Resources
