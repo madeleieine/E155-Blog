@@ -1,0 +1,13 @@
+[
+  {
+    "listing": "/blog.html",
+    "items": [
+      "/posts/initial-reflection.html",
+      "/posts/first-post.html"
+    ]
+  },
+  {
+    "listing": "/labs/labs-overview.html",
+    "items": []
+  }
+]

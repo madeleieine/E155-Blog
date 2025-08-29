@@ -1,0 +1,107 @@
+[
+  {
+    "objectID": "resources.html",
+    "href": "resources.html",
+    "title": "E155 Portfolio",
+    "section": "",
+    "text": "HMC E155 Website\nHMC E85 Website"
+  },
+  {
+    "objectID": "resources.html#course-websites",
+    "href": "resources.html#course-websites",
+    "title": "E155 Portfolio",
+    "section": "",
+    "text": "HMC E155 Website\nHMC E85 Website"
+  },
+  {
+    "objectID": "posts/first-post.html",
+    "href": "posts/first-post.html",
+    "title": "Hello Quarto",
+    "section": "",
+    "text": "I am so excited to be blogging today! :D"
+  },
+  {
+    "objectID": "labs/lab1/lab1.html",
+    "href": "labs/lab1/lab1.html",
+    "title": "Lab 1",
+    "section": "",
+    "text": "Hello world"
+  },
+  {
+    "objectID": "blog.html",
+    "href": "blog.html",
+    "title": "E155 Blog",
+    "section": "",
+    "text": "This is the blog section!\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nInitial Reflection\n\n\nWhat I’m hoping to get out of MicroPs\n\n\n\n\n\nAug 29, 2025\n\n\nMadeleine Kan\n\n\n\n\n\n\n\n\n\n\n\n\nHello Quarto\n\n\nWelcome to my Quarto portfolio\n\n\n\n\n\nAug 27, 2025\n\n\nMadeleine Kan\n\n\n\n\n\nNo matching items"
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "E155 Portfolio",
+    "section": "",
+    "text": "Madeleine Kan is a senior engineering major at Harvey Mudd College. She is studying general engineering with a focus on computer engineering with biomedical applications. She has experience in supply chain process engineering, FPGA and microcontroller programming, and mechanical design and analysis. In the spring of 2025, she worked as part of the UC Berkeley clinic team to upgrade the communication protocol for a low-cost air quality sensor. Since the start of 2024, she has worked in the Quantum Quasars Lab to develop an astronomical random number generator for Bell-type tests of quantum entanglement. She also has tutored for a variety of engineering courses and labs. She is part of the CMS Swim team, specializing in sprint freestyle and butterfly. In her free time, she likes to crochet, learn the piano, and spend time with her friends and family."
+  },
+  {
+    "objectID": "labs/labs-overview.html",
+    "href": "labs/labs-overview.html",
+    "title": "Labs Overview",
+    "section": "",
+    "text": "Here are the E155 Lab Reports.\nHello world"
+  },
+  {
+    "objectID": "labs/labs-overview.html#lab-1-fpga-and-mcu-setup-and-testing",
+    "href": "labs/labs-overview.html#lab-1-fpga-and-mcu-setup-and-testing",
+    "title": "Labs Overview",
+    "section": "Lab 1: FPGA and MCU Setup and Testing",
+    "text": "Lab 1: FPGA and MCU Setup and Testing"
+  },
+  {
+    "objectID": "labs/labs-overview.html#lab-2-multiplexed-7-segment-display",
+    "href": "labs/labs-overview.html#lab-2-multiplexed-7-segment-display",
+    "title": "Labs Overview",
+    "section": "Lab 2: Multiplexed 7-segment Display",
+    "text": "Lab 2: Multiplexed 7-segment Display"
+  },
+  {
+    "objectID": "labs/labs-overview.html#lab-3-keypad-scanner",
+    "href": "labs/labs-overview.html#lab-3-keypad-scanner",
+    "title": "Labs Overview",
+    "section": "Lab 3: Keypad Scanner",
+    "text": "Lab 3: Keypad Scanner"
+  },
+  {
+    "objectID": "labs/labs-overview.html#lab-4-digital-auto",
+    "href": "labs/labs-overview.html#lab-4-digital-auto",
+    "title": "Labs Overview",
+    "section": "Lab 4: Digital Auto",
+    "text": "Lab 4: Digital Auto"
+  },
+  {
+    "objectID": "labs/labs-overview.html#lab-5-interrupts",
+    "href": "labs/labs-overview.html#lab-5-interrupts",
+    "title": "Labs Overview",
+    "section": "Lab 5: Interrupts",
+    "text": "Lab 5: Interrupts"
+  },
+  {
+    "objectID": "labs/labs-overview.html#lab-6-the-internet-of-things-and-serial-peripheral-interface",
+    "href": "labs/labs-overview.html#lab-6-the-internet-of-things-and-serial-peripheral-interface",
+    "title": "Labs Overview",
+    "section": "Lab 6: The Internet of Things and Serial Peripheral Interface",
+    "text": "Lab 6: The Internet of Things and Serial Peripheral Interface"
+  },
+  {
+    "objectID": "labs/labs-overview.html#lab-7-the-advanced-encryption-standard",
+    "href": "labs/labs-overview.html#lab-7-the-advanced-encryption-standard",
+    "title": "Labs Overview",
+    "section": "Lab 7: The Advanced Encryption Standard",
+    "text": "Lab 7: The Advanced Encryption Standard"
+  },
+  {
+    "objectID": "posts/initial-reflection.html",
+    "href": "posts/initial-reflection.html",
+    "title": "Initial Reflection",
+    "section": "",
+    "text": "Firstly, I am hopen to work on developing my FPGA and MCU programming skills. Additionally, I want to work on my technical documentation and communication skills. I also want to work on project design, execution, and evaluation! Overall, I am excited to build a project that I find interesting and learn a lot of useful skills along the way."
+  }
+]
