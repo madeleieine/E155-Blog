@@ -1,0 +1,10 @@
+---
+title: "Lab 4"
+description: "Digital Auto"
+author: "Madeleine Kan"
+date: 10/1/25
+categories:
+    - reflection
+    - labreport
+draft: false
+---

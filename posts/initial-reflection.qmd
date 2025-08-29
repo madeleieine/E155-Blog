@@ -1,0 +1,12 @@
+---
+title: "Initial Reflection"
+description: "What I'm hoping to get out of MicroPs"
+author: "Madeleine Kan"
+date: 8/29/25
+draft: false
+---
+
+Firstly, I am hopen to work on developing my FPGA and MCU programming skills. Additionally, I want
+to work on my technical documentation and communication skills. I also want to work on project design,
+execution, and evaluation! Overall, I am excited to build a project that I find interesting and
+learn a lot of useful skills along the way.

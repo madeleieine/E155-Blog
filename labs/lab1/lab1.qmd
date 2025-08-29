@@ -1,0 +1,11 @@
+---
+title: "Lab 1"
+description: "FPGA and MCU Setup and Testing"
+author: "Madeleine Kan"
+date: 9/3/25
+categories:
+    - reflection
+    - labreport
+draft: false
+---
+Hello world

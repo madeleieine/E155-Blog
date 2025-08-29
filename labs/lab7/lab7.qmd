@@ -1,0 +1,10 @@
+---
+title: "Lab 6"
+description: "The Advanced Encryption Standard"
+author: "Madeleine Kan"
+date: 10/29/25
+categories:
+    - reflection
+    - labreport
+draft: false
+---

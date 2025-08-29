@@ -1,0 +1,10 @@
+---
+title: "Lab 3"
+description: "Keypad Scanner"
+author: "Madeleine Kan"
+date: 9/17/25
+categories:
+    - reflection
+    - labreport
+draft: false
+---
