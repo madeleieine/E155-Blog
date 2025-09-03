@@ -331,10 +331,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="reflection" class="level2">
 <h2 class="anchored" data-anchor-id="reflection">Reflection</h2>
-<p>This lab took me around 20 hours.</p>
+<p>This lab took me a little under 20 hours.</p>
 <p>This lab met all but one proficiency requirement, as specified in the <a href="https://hmc-e155.github.io/lab/lab1/specs.html">Lab 1 spec sheet</a>. The missing proficiency requirement is due to the missing 5V regulator and SMT diodes, which were not available in the digital lab at the time of completion. I will find and solder these on during the next week.</p>
 <p>In terms of the excellence requirements, I provide calculations to show how to maintain the current draw in each diode of the seven-segment display within the recommended operating conditions of 5-20 mA. However, this differs slightly from what I ended up doing. This is because I noticed that the 3.3V output from my PCB was not working as intended; originally, it was outputting 1.4 V instead of 3.3V. I worked with Abe to attach a 3.3V regulator, but then the output started yielding &lt;1V. During this time, I decided to supply the seven-segment display with 5V, thus necessitating the higher resistor value. Later, I moved the entire circuit from the PCB to the breadboard, so I was able to use the 3.3V power source again. However, since I was limited on time, I did not change the resistors back from 330 Ohms to ~100 Ohms. Next week, I will be sure to start the lab earlier and schedule more time to work on it so I can perform more thorough organized work.</p>
-<p>The other excellence requirement I did not meet was the QuestaSim automatic testbench requirement. I started working on a testbench and testvector for seven_segment_display.sv, but I ran into difficulty with reading in the test vectors, and I didn’t have time to debug this. Here is what I ended up with.</p>
+<p>The other excellence requirement I did not meet was the QuestaSim automatic testbench requirement. I started working on a testbench and testvector for seven_segment_display.sv, but I ran into difficulty with reading in the test vectors, and I unfortunately ran out of time to debug this.</p>
 <p>While I didn’t get to complete automated testbenches myself before the check-in time, I did help some peers debug their testbenches, and I have a sense of how I would approach simulating my code for future labs.</p>
 </section>
 <section id="ai-prototype" class="level2">
