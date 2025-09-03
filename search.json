@@ -25,7 +25,49 @@
     "href": "labs/lab1/lab1.html",
     "title": "Lab 1",
     "section": "",
-    "text": "Hello world"
+    "text": "The purpose of Lab1 was to assemble the PCB, establish a connection to the FPGA and MCU, and write a simple program to drive three LEDs as well as a seven-segment display simultaneously using four input switches."
+  },
+  {
+    "objectID": "labs/lab1/lab1.html#introduction",
+    "href": "labs/lab1/lab1.html#introduction",
+    "title": "Lab 1",
+    "section": "",
+    "text": "The purpose of Lab1 was to assemble the PCB, establish a connection to the FPGA and MCU, and write a simple program to drive three LEDs as well as a seven-segment display simultaneously using four input switches."
+  },
+  {
+    "objectID": "labs/lab1/lab1.html#schematic",
+    "href": "labs/lab1/lab1.html#schematic",
+    "title": "Lab 1",
+    "section": "Schematic",
+    "text": "Schematic\nThe circuit diagram to drive the three LEDs and the seven-segment display using four input switches is as follows: \nThe calculations for the current draw of the seven-segment display are:  This is because the seven-segment display is being powered by 3.3V, and each diode within the display experiences a voltage drop of 2V. The resistor values of 330 Ohms I chose resulted in a current draw of 3.93 mA, which is less than the recommended range of 5mA-20mA, but the diodes still shone visibly while remaining well under the maximum allowed current of 20 mA. While different from what I ended up doing, 100 Ohm resistors could be used to yield a current of (1.3V/100 Ohms) = 13 mA, which is within the recommended operating range of the 7-segment display."
+  },
+  {
+    "objectID": "labs/lab1/lab1.html#block-diagram",
+    "href": "labs/lab1/lab1.html#block-diagram",
+    "title": "Lab 1",
+    "section": "Block Diagram",
+    "text": "Block Diagram\nThe block diagram of the systemverilog code is:"
+  },
+  {
+    "objectID": "labs/lab1/lab1.html#code",
+    "href": "labs/lab1/lab1.html#code",
+    "title": "Lab 1",
+    "section": "Code",
+    "text": "Code\nThe systemverilog code itself is:\n/*\nlab1_top.sv\n\nMadeleine Kan\nmkan@hmc.edu\n3 September, 2025\n*/\n\nmodule lab1_top(\n    input logic [3:0] s,\n    output logic [2:0] led,\n    output logic [6:0] seg\n);\n    logic clk_new;\n    logic [6:0] seg_out;\n    // Internal high-speed oscillator\n    HSOSC #(.CLKHF_DIV(2'b01)) // 24MHz from clk divider\n     hf_osc (.CLKHFPU(1'b1), .CLKHFEN(1'b1), .CLKHF(clk));\n    \n    // Counter\n    counter count(clk, clk_new);\n    \n    // 7-segment display\n    seven_segment_display display(s, seg_out);\n    \n    // Assign LED output\n    // assign led[0] = s[0];\n    // assign led[1] = s[1];\n    \n    assign led[0] = s[0] & s[1];\n    // assign led[0] = 1'b1;\n    assign led[1] = s[2] ^ s[3];\n    assign led[2] = clk_new;\n    assign seg = seg_out;\n    //assign seg[6] = seg_out[6];\n    //assign seg[5] = seg_out[5];\n    //assign seg[4] = seg_out[4];\n    //assign seg[3] = seg_out[3];\n    //assign seg[2] = seg_out[2];\n    //assign seg[1] = seg_out[1];\n    //assign seg[0] = seg_out[0];\n    \nendmodule\n\n/*\ncounter.sv\n\nTakes in clk, clock signal\nOutputs clk_new, a new clock signal that rises every 2^23 clk cycles\nMadeleine Kan\nmkan@hmc.edu\n3 September, 2025\n*/\n\nmodule counter\n     (input logic clk,\n     output logic clk_new);\n     \n    logic [23:0] counter;\n    always_ff @(posedge clk)\n        counter &lt;= counter + 24'b1;\n    assign clk_new = counter[23];\nendmodule\n\n/*\nseven_segment_display.sv\nDrives HDSP-521A Seven-Segment Display\nwith common anode (meaining diodes are\npulled to ground to activate)\nMadeleine Kan\nmkan@hmc.edu\n3 September, 2025\n*/\n\nmodule seven_segment_display(\n    input logic [3:0] s,\n    output logic [6:0] seg\n);\n    always_comb\n        case(s) \n            //                abcdefg\n            4'b0000: seg = 7'b0000001; // 0\n            4'b0001: seg = 7'b1001111; // 1\n            4'b0010: seg = 7'b0010010; // 2\n            4'b0011: seg = 7'b0000110; // 3\n            4'b0100: seg = 7'b1001100; // 4\n            4'b0101: seg = 7'b0100100; // 5\n            4'b0110: seg = 7'b0100000; // 6\n            4'b0111: seg = 7'b0001110; // 7\n            4'b1000: seg = 7'b0000000; // 8\n            4'b1001: seg = 7'b0001100; // 9\n            4'b1010: seg = 7'b0001000; // a\n            4'b1011: seg = 7'b1100000; // b\n            4'b1100: seg = 7'b0110001; // c\n            4'b1101: seg = 7'b0000001; // d\n            4'b1110: seg = 7'b0110000; // e\n            4'b1111: seg = 7'b0111000; // f\n            default: seg = 7'b1111111; // none\n        endcase\nendmodule\nThe scratchwork to develop the truth table for the seven_segment_display module was:"
+  },
+  {
+    "objectID": "labs/lab1/lab1.html#reflection",
+    "href": "labs/lab1/lab1.html#reflection",
+    "title": "Lab 1",
+    "section": "Reflection",
+    "text": "Reflection\nThis lab met all but one proficiency requirement, as specified in the Lab 1 spec sheet. The missing proficiency requirement is due to the missing 5V regulator and SMT diodes, which were not available in the digital lab at the time of completion. I will find and solder these on during the next week.\nIn terms of the excellence requirements, I provide calculations to show how to maintain the current draw in each diode of the seven-segment display within the recommended operating conditions of 5-20 mA. However, this differs slightly from what I ended up doing. This is because I noticed that the 3.3V output from my PCB was not working as intended; originally, it was outputting 1.4 V instead of 3.3V. I worked with Abe to attach a 3.3V regulator, but then the output started yielding &lt;1V. During this time, I decided to supply the seven-segment display with 5V, thus necessitating the higher resistor value. Later, I moved the entire circuit from the PCB to the breadboard, so I was able to use the 3.3V power source again. However, since I was limited on time, I did not change the resistors back from 330 Ohms to ~100 Ohms. Next week, I will be sure to start the lab earlier and schedule more time to work on it so I can perform more thorough organized work.\nThe other excellence requirement I did not meet was the QuestaSim automatic testbench requirement. When I originally set up the experiment, I saved my project to Documents so it would be easier for me to find in the file directory. However, when I went to simulate the module, I found that I could not access it since it was not in a Library. I tried to research how to create a library, but I also ran out of time. To remedy this, I could create a new (but equivalent file) in the default directory with the hopes that I would be able to access it via the pre-established library in QuestaSim. While I didn’t get to run automated testbenches myself before the check-in time, I did help some peers debug their testbenches, and I have a sense of how I would approach simulating my code for future labs."
+  },
+  {
+    "objectID": "labs/lab1/lab1.html#ai-prototype",
+    "href": "labs/lab1/lab1.html#ai-prototype",
+    "title": "Lab 1",
+    "section": "AI Prototype",
+    "text": "AI Prototype\nI gave ChatGPT this prompt:\nLLM prompt Write SystemVerilog HDL to leverage the internal high speed oscillator in the Lattice UP5K FPGA and blink an LED at 2 Hz. Take full advantage of SystemVerilog syntax, for example, using logic instead of wire and reg.\nIt generated the following code, accompanied by a high-leve overview of how the clk frequency is customized:\nmodule led_blinker (\n    input logic clk,      // High-speed clock (e.g., 12 MHz)\n    output logic led      // LED output (blinking at 2 Hz)\n);\n\n    // Define a parameter for clock frequency and target frequency for blinking\n    parameter integer HIGH_SPEED_CLK_FREQ = 12000000;  // 12 MHz internal oscillator\n    parameter integer TARGET_FREQ = 1; // 1 Hz (for 2 Hz blinking)\n    \n    // Calculate the division factor (this depends on the input clock and target frequency)\n    localparam integer DIVIDE_FACTOR = HIGH_SPEED_CLK_FREQ / (TARGET_FREQ * 2); // Divide by 2 for full period\n\n    // Counter to divide the clock frequency\n    logic [31:0] counter;  // Counter to keep track of clock cycles\n\n    // Clock divider and LED toggle logic\n    always_ff @(posedge clk) begin\n        if (counter &lt; DIVIDE_FACTOR - 1) begin\n            counter &lt;= counter + 1;\n        end else begin\n            counter &lt;= 0;\n            led &lt;= ~led; // Toggle LED state on every period of the divided clock\n        end\n    end\n\nendmodule\nThe code did synthesize on the first try, which was good, and the description would have been helpful if customizing the frequency of a clock signal in system verilog was completely new to me. However, one issue is that ChatGPT hardcoded the internal clk frequency, and it didn’t actually interface with the Lattice UP5K HSOSC. It also did not include any resources where users could find information about the Lattice UP5K HSOSC, like the official documentation. Additionally, it doesn’t really talk about how the size of the counter vector (N) or the constant that is added to counter every clock cylce (p) can be adjusted to derive a desired clock frequency–it basically assumes that the only way to create a clock signal with a desired frequency is to find an internal clock that is already some power of 2 of that frequency. When I was writing the code to get an LED to blink at 2.4 Hz, I found reading the documentation for the HSOSC, referencing the formula for f_PWM from the E85 textbook, and referencing my old E85 code to be the most helpful. All three of these resources provided valuable information not covered by ChatGPT’s first response. If I were to use AI in my workflow, I would try to research what I’m trying to accomplish so that I can tune my prompt to get more valuable and detailed information."
   },
   {
     "objectID": "blog.html",
@@ -46,7 +88,7 @@
     "href": "labs/labs-overview.html",
     "title": "Labs Overview",
     "section": "",
-    "text": "Here are the E155 Lab Reports.\nHello world"
+    "text": "Here are the E155 Lab Reports.\nSo far, I have completed Lab 1."
   },
   {
     "objectID": "labs/labs-overview.html#lab-1-fpga-and-mcu-setup-and-testing",
