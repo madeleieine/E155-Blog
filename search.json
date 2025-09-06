@@ -14,74 +14,11 @@
     "text": "HMC E155 Website\nHMC E85 Website"
   },
   {
-    "objectID": "posts/first-post.html",
-    "href": "posts/first-post.html",
-    "title": "Hello Quarto",
+    "objectID": "posts/initial-reflection.html",
+    "href": "posts/initial-reflection.html",
+    "title": "Initial Reflection",
     "section": "",
-    "text": "I am so excited to be blogging today! :D"
-  },
-  {
-    "objectID": "labs/lab1/lab1.html",
-    "href": "labs/lab1/lab1.html",
-    "title": "Lab 1",
-    "section": "",
-    "text": "The purpose of Lab1 was to assemble the PCB, establish a connection to the FPGA and MCU, and write a simple program to drive three LEDs as well as a seven-segment display simultaneously using four input switches."
-  },
-  {
-    "objectID": "labs/lab1/lab1.html#introduction",
-    "href": "labs/lab1/lab1.html#introduction",
-    "title": "Lab 1",
-    "section": "",
-    "text": "The purpose of Lab1 was to assemble the PCB, establish a connection to the FPGA and MCU, and write a simple program to drive three LEDs as well as a seven-segment display simultaneously using four input switches."
-  },
-  {
-    "objectID": "labs/lab1/lab1.html#schematic",
-    "href": "labs/lab1/lab1.html#schematic",
-    "title": "Lab 1",
-    "section": "Schematic",
-    "text": "Schematic\nThe circuit diagram to drive the three LEDs and the seven-segment display using four input switches is as follows: \nThe calculations for the current draw of the seven-segment display are:  This is because the seven-segment display is being powered by 3.3V, and each diode within the display experiences a voltage drop of 2V. The resistor values of 330 Ohms I chose resulted in a current draw of 3.93 mA, which is less than the recommended range of 5mA-20mA, but the diodes still shone visibly while remaining well under the maximum allowed current of 20 mA. While different from what I ended up doing, 100 Ohm resistors could be used to yield a current of (1.3V/100 Ohms) = 13 mA, which is within the recommended operating range of the 7-segment display."
-  },
-  {
-    "objectID": "labs/lab1/lab1.html#block-diagram",
-    "href": "labs/lab1/lab1.html#block-diagram",
-    "title": "Lab 1",
-    "section": "Block Diagram",
-    "text": "Block Diagram\nThe block diagram of the systemverilog code is:"
-  },
-  {
-    "objectID": "labs/lab1/lab1.html#code",
-    "href": "labs/lab1/lab1.html#code",
-    "title": "Lab 1",
-    "section": "Code",
-    "text": "Code\nThe systemverilog code itself is:\n/*\nlab1_top.sv\n\nMadeleine Kan\nmkan@hmc.edu\n3 September, 2025\n*/\n\nmodule lab1_top(\n    input logic [3:0] s,\n    output logic [2:0] led,\n    output logic [6:0] seg\n);\n    logic clk_new;\n    logic [6:0] seg_out;\n    // Internal high-speed oscillator\n    HSOSC #(.CLKHF_DIV(2'b01)) // 24MHz from clk divider\n     hf_osc (.CLKHFPU(1'b1), .CLKHFEN(1'b1), .CLKHF(clk));\n    \n    // Counter\n    counter count(clk, clk_new);\n    \n    // 7-segment display\n    seven_segment_display display(s, seg_out);\n    \n    // Assign LED output\n    assign led[0] = s[0] & s[1];\n    assign led[1] = s[2] ^ s[3];\n    assign led[2] = clk_new;\n    assign seg = seg_out;\n    \nendmodule\n\n/*\ncounter.sv\n\nTakes in clk, clock signal\nOutputs clk_new, a new clock signal that rises every 2^23 clk cycles\nMadeleine Kan\nmkan@hmc.edu\n3 September, 2025\n*/\n\nmodule counter\n     (input logic clk,\n     output logic clk_new);\n     \n    logic [23:0] counter;\n    always_ff @(posedge clk)\n        counter &lt;= counter + 24'b1;\n    assign clk_new = counter[23];\nendmodule\n\n/*\nseven_segment_display.sv\nDrives HDSP-521A Seven-Segment Display\nwith common anode (meaining diodes are\npulled to ground to activate)\nMadeleine Kan\nmkan@hmc.edu\n3 September, 2025\n*/\n\nmodule seven_segment_display(\n    input logic [3:0] s,\n    output logic [6:0] seg\n);\n    always_comb\n        case(s) \n            //                abcdefg\n            4'b0000: seg = 7'b0000001; // 0\n            4'b0001: seg = 7'b1001111; // 1\n            4'b0010: seg = 7'b0010010; // 2\n            4'b0011: seg = 7'b0000110; // 3\n            4'b0100: seg = 7'b1001100; // 4\n            4'b0101: seg = 7'b0100100; // 5\n            4'b0110: seg = 7'b0100000; // 6\n            4'b0111: seg = 7'b0001110; // 7\n            4'b1000: seg = 7'b0000000; // 8\n            4'b1001: seg = 7'b0001100; // 9\n            4'b1010: seg = 7'b0001000; // a\n            4'b1011: seg = 7'b1100000; // b\n            4'b1100: seg = 7'b0110001; // c\n            4'b1101: seg = 7'b0000001; // d\n            4'b1110: seg = 7'b0110000; // e\n            4'b1111: seg = 7'b0111000; // f\n            default: seg = 7'b1111111; // none\n        endcase\nendmodule\nThe scratchwork to develop the truth table for the seven_segment_display module was:"
-  },
-  {
-    "objectID": "labs/lab1/lab1.html#reflection",
-    "href": "labs/lab1/lab1.html#reflection",
-    "title": "Lab 1",
-    "section": "Reflection",
-    "text": "Reflection\nThis lab took me a little under 20 hours.\nThis lab met all but one proficiency requirement, as specified in the Lab 1 spec sheet. The missing proficiency requirement is due to the missing 5V regulator and SMT diodes, which were not available in the digital lab at the time of completion. I will find and solder these on during the next week.\nIn terms of the excellence requirements, I provide calculations to show how to maintain the current draw in each diode of the seven-segment display within the recommended operating conditions of 5-20 mA. However, this differs slightly from what I ended up doing. This is because I noticed that the 3.3V output from my PCB was not working as intended; originally, it was outputting 1.4 V instead of 3.3V. I worked with Abe to attach a 3.3V regulator, but then the output started yielding &lt;1V. During this time, I decided to supply the seven-segment display with 5V, thus necessitating the higher resistor value. Later, I moved the entire circuit from the PCB to the breadboard, so I was able to use the 3.3V power source again. However, since I was limited on time, I did not change the resistors back from 330 Ohms to ~100 Ohms. Next week, I will be sure to start the lab earlier and schedule more time to work on it so I can perform more thorough organized work.\nThe other excellence requirement I did not meet was the QuestaSim automatic testbench requirement. I started working on a testbench and testvector for seven_segment_display.sv, but I ran into difficulty with reading in the test vectors, and I unfortunately ran out of time to debug this.\nWhile I didn’t get to complete automated testbenches myself before the check-in time, I did help some peers debug their testbenches, and I have a sense of how I would approach simulating my code for future labs."
-  },
-  {
-    "objectID": "labs/lab1/lab1.html#ai-prototype",
-    "href": "labs/lab1/lab1.html#ai-prototype",
-    "title": "Lab 1",
-    "section": "AI Prototype",
-    "text": "AI Prototype\nI gave ChatGPT this prompt:\nLLM prompt Write SystemVerilog HDL to leverage the internal high speed oscillator in the Lattice UP5K FPGA and blink an LED at 2 Hz. Take full advantage of SystemVerilog syntax, for example, using logic instead of wire and reg.\nIt generated the following code, accompanied by a high-leve overview of how the clk frequency is customized:\nmodule led_blinker (\n    input logic clk,      // High-speed clock (e.g., 12 MHz)\n    output logic led      // LED output (blinking at 2 Hz)\n);\n\n    // Define a parameter for clock frequency and target frequency for blinking\n    parameter integer HIGH_SPEED_CLK_FREQ = 12000000;  // 12 MHz internal oscillator\n    parameter integer TARGET_FREQ = 1; // 1 Hz (for 2 Hz blinking)\n    \n    // Calculate the division factor (this depends on the input clock and target frequency)\n    localparam integer DIVIDE_FACTOR = HIGH_SPEED_CLK_FREQ / (TARGET_FREQ * 2); // Divide by 2 for full period\n\n    // Counter to divide the clock frequency\n    logic [31:0] counter;  // Counter to keep track of clock cycles\n\n    // Clock divider and LED toggle logic\n    always_ff @(posedge clk) begin\n        if (counter &lt; DIVIDE_FACTOR - 1) begin\n            counter &lt;= counter + 1;\n        end else begin\n            counter &lt;= 0;\n            led &lt;= ~led; // Toggle LED state on every period of the divided clock\n        end\n    end\n\nendmodule\nThe code did synthesize on the first try, which was good, and the description would have been helpful if customizing the frequency of a clock signal in system verilog was completely new to me. However, one issue is that ChatGPT hardcoded the internal clk frequency, and it didn’t actually interface with the Lattice UP5K HSOSC. It also did not include any resources where users could find information about the Lattice UP5K HSOSC, like the official documentation. Additionally, it doesn’t really talk about how the size of the counter vector (N) or the constant that is added to counter every clock cylce (p) can be adjusted to derive a desired clock frequency–it basically assumes that the only way to create a clock signal with a desired frequency is to find an internal clock that is already some power of 2 of that frequency. When I was writing the code to get an LED to blink at 2.4 Hz, I found reading the documentation for the HSOSC, referencing the formula for f_PWM from the E85 textbook, and referencing my old E85 code to be the most helpful. All three of these resources provided valuable information not covered by ChatGPT’s first response. If I were to use AI in my workflow, I would try to research what I’m trying to accomplish so that I can tune my prompt to get more valuable and detailed information."
-  },
-  {
-    "objectID": "blog.html",
-    "href": "blog.html",
-    "title": "E155 Blog",
-    "section": "",
-    "text": "This is the blog section!\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nInitial Reflection\n\n\nWhat I’m hoping to get out of MicroPs\n\n\n\n\n\nAug 29, 2025\n\n\nMadeleine Kan\n\n\n\n\n\n\n\n\n\n\n\n\nHello Quarto\n\n\nWelcome to my Quarto portfolio\n\n\n\n\n\nAug 27, 2025\n\n\nMadeleine Kan\n\n\n\n\n\nNo matching items"
-  },
-  {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "E155 Portfolio",
-    "section": "",
-    "text": "Madeleine Kan is a senior engineering major at Harvey Mudd College. She is studying general engineering with a focus on computer engineering with biomedical applications. She has experience in supply chain process engineering, FPGA and microcontroller programming, and mechanical design and analysis. In the spring of 2025, she worked as part of the UC Berkeley clinic team to upgrade the communication protocol for a low-cost air quality sensor. Since the start of 2024, she has worked in the Quantum Quasars Lab to develop an astronomical random number generator for Bell-type tests of quantum entanglement. She also has tutored for a variety of engineering courses and labs. She is part of the CMS Swim team, specializing in sprint freestyle and butterfly. In her free time, she likes to crochet, learn the piano, and spend time with her friends and family."
+    "text": "Firstly, I am hopen to work on developing my FPGA and MCU programming skills. Additionally, I want to work on my technical documentation and communication skills. I also want to work on project design, execution, and evaluation! Overall, I am excited to build a project that I find interesting and learn a lot of useful skills along the way."
   },
   {
     "objectID": "labs/labs-overview.html",
@@ -140,10 +77,94 @@
     "text": "Lab 7: The Advanced Encryption Standard"
   },
   {
-    "objectID": "posts/initial-reflection.html",
-    "href": "posts/initial-reflection.html",
-    "title": "Initial Reflection",
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "E155 Portfolio",
     "section": "",
-    "text": "Firstly, I am hopen to work on developing my FPGA and MCU programming skills. Additionally, I want to work on my technical documentation and communication skills. I also want to work on project design, execution, and evaluation! Overall, I am excited to build a project that I find interesting and learn a lot of useful skills along the way."
+    "text": "Madeleine Kan is a senior engineering major at Harvey Mudd College. She is studying general engineering with a focus on computer engineering with biomedical applications. She has experience in supply chain process engineering, FPGA and microcontroller programming, and mechanical design and analysis. In the spring of 2025, she worked as part of the UC Berkeley clinic team to upgrade the communication protocol for a low-cost air quality sensor. Since the start of 2024, she has worked in the Quantum Quasars Lab to develop an astronomical random number generator for Bell-type tests of quantum entanglement. She also has tutored for a variety of engineering courses and labs. She is part of the CMS Swim team, specializing in sprint freestyle and butterfly. In her free time, she likes to crochet, learn the piano, and spend time with her friends and family."
+  },
+  {
+    "objectID": "blog.html",
+    "href": "blog.html",
+    "title": "E155 Blog",
+    "section": "",
+    "text": "This is the blog section!\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nLab 1 Reflection\n\n\nFPGA and MCU Setup and Testing\n\n\n\n\n\nSep 6, 2025\n\n\nMadeleine Kan\n\n\n\n\n\n\n\n\n\n\n\n\nInitial Reflection\n\n\nWhat I’m hoping to get out of MicroPs\n\n\n\n\n\nAug 29, 2025\n\n\nMadeleine Kan\n\n\n\n\n\n\n\n\n\n\n\n\nHello Quarto\n\n\nWelcome to my Quarto portfolio\n\n\n\n\n\nAug 27, 2025\n\n\nMadeleine Kan\n\n\n\n\n\nNo matching items"
+  },
+  {
+    "objectID": "labs/lab1/lab1.html",
+    "href": "labs/lab1/lab1.html",
+    "title": "Lab 1",
+    "section": "",
+    "text": "The purpose of Lab1 was to assemble the PCB, establish a connection to the FPGA and MCU, and write a simple program to drive three LEDs as well as a seven-segment display simultaneously using four input switches."
+  },
+  {
+    "objectID": "labs/lab1/lab1.html#introduction",
+    "href": "labs/lab1/lab1.html#introduction",
+    "title": "Lab 1",
+    "section": "",
+    "text": "The purpose of Lab1 was to assemble the PCB, establish a connection to the FPGA and MCU, and write a simple program to drive three LEDs as well as a seven-segment display simultaneously using four input switches."
+  },
+  {
+    "objectID": "labs/lab1/lab1.html#schematic",
+    "href": "labs/lab1/lab1.html#schematic",
+    "title": "Lab 1",
+    "section": "Schematic",
+    "text": "Schematic\nThe circuit diagram to drive the three LEDs and the seven-segment display using four input switches is as follows: \nThe calculations for the current draw of the seven-segment display are:  This is because the seven-segment display is being powered by 3.3V, and each diode within the display experiences a voltage drop of 2V. The resistor values of 330 Ohms I chose resulted in a current draw of 3.93 mA, which is less than the recommended range of 5mA-20mA, but the diodes still shone visibly while remaining well under the maximum allowed current of 20 mA. While different from what I ended up doing, 100 Ohm resistors could be used to yield a current of (1.3V/100 Ohms) = 13 mA, which is within the recommended operating range of the 7-segment display."
+  },
+  {
+    "objectID": "labs/lab1/lab1.html#block-diagram",
+    "href": "labs/lab1/lab1.html#block-diagram",
+    "title": "Lab 1",
+    "section": "Block Diagram",
+    "text": "Block Diagram\nThe block diagram of the systemverilog code is:"
+  },
+  {
+    "objectID": "labs/lab1/lab1.html#code",
+    "href": "labs/lab1/lab1.html#code",
+    "title": "Lab 1",
+    "section": "Code",
+    "text": "Code\nThe systemverilog code itself is:\n/*\nlab1_top.sv\n\nDrives three LEDs and a 7-segment display based on inputs from\nfour switches. 7-segment display counts up from 0-F in hex based\non the binary value encoded by the state of the switches.\nThe first LED is lit when the first two switches are pushed simulateously.\nThe second LED is lit when the third XOR the fourth switch is pulsed.\nThe third LED pulses at ~2.8 Hz.\n\nMadeleine Kan\nmkan@hmc.edu\n3 September, 2025\n*/\n\nmodule lab1_top(\n    input logic [3:0] s,\n    output logic [2:0] led,\n    output logic [6:0] seg\n);\n    logic clk_div;\n    logic [6:0] seg_out;\n    // Internal high-speed oscillator\n    HSOSC #(.CLKHF_DIV(2'b01)) // 24MHz from clk divider\n     hf_osc (.CLKHFPU(1'b1), .CLKHFEN(1'b1), .CLKHF(clk));\n    \n    // Counter\n    counter count(clk, clk_div);\n    \n    // 7-segment display\n    seven_segment_display display(s, seg_out);\n    \n    // Assign LED output\n    assign led[0] = s[0] & s[1];\n    assign led[1] = s[2] ^ s[3];\n    assign led[2] = clk_div;\n    assign seg = seg_out;\n    \nendmodule\n\n/*\ncounter.sv\n\nTakes in clk, clock signal\nOutputs clk_new, a new clock signal that rises every 2^23 clk cycles\nMadeleine Kan\nmkan@hmc.edu\n3 September, 2025\n*/\n\nmodule counter\n     (input logic clk,\n     output logic clk_new);\n     \n    logic [23:0] counter;\n    always_ff @(posedge clk)\n        counter &lt;= counter + 24'b1;\n    assign clk_new = counter[23];\nendmodule\n\n/*\nseven_segment_display.sv\nDrives HDSP-521A Seven-Segment Display\nwith common anode (meaining diodes are\npulled to ground to activate)\nMadeleine Kan\nmkan@hmc.edu\n3 September, 2025\n*/\n\n/*\nseven_segment_display.sv\nDrives HDSP-521A Seven-Segment Display\nwith common anode (meaining diodes are\npulled to ground to activate)\nMadeleine Kan\nmkan@hmc.edu\n3 September, 2025\n*/\n\nmodule seven_segment_display(\n    input logic [3:0] s,\n    output logic [6:0] seg\n);\n    always_comb\n        case(s) \n            //                abcdefg\n            4'b0000: seg = 7'b0000001; // 0\n            4'b0001: seg = 7'b1001111; // 1\n            4'b0010: seg = 7'b0010010; // 2\n            4'b0011: seg = 7'b0000110; // 3\n            4'b0100: seg = 7'b1001100; // 4\n            4'b0101: seg = 7'b0100100; // 5\n            4'b0110: seg = 7'b0100000; // 6\n            4'b0111: seg = 7'b0001110; // 7\n            4'b1000: seg = 7'b0000000; // 8\n            4'b1001: seg = 7'b0001100; // 9\n            4'b1010: seg = 7'b0001000; // a\n            4'b1011: seg = 7'b1100000; // b\n            4'b1100: seg = 7'b0110001; // c\n            4'b1101: seg = 7'b1000010; // d\n            4'b1110: seg = 7'b0110000; // e\n            4'b1111: seg = 7'b0111000; // f\n            default: seg = 7'b1111111; // none\n        endcase\nendmodule\nThe scratchwork to develop the truth table for the seven_segment_display module was:"
+  },
+  {
+    "objectID": "labs/lab1/lab1.html#results",
+    "href": "labs/lab1/lab1.html#results",
+    "title": "Lab 1",
+    "section": "Results",
+    "text": "Results\nThe design met all intended design objectives, as verified by the following QuestaSim simulations:\nlab1_top testbench \nseven_segment_display testbench \nAs we can see, all of the testvectors passed the testbenches, demonstrating intended funcitonality of both modules.\nThis lab took me a little under 20 hours."
+  },
+  {
+    "objectID": "labs/lab1/lab1.html#reflection",
+    "href": "labs/lab1/lab1.html#reflection",
+    "title": "Lab 1",
+    "section": "Reflection",
+    "text": "Reflection\nReflection before lab regrade:\nThis lab met all but one proficiency requirement, as specified in the Lab 1 spec sheet. The missing proficiency requirement is due to the missing 5V regulator and SMT diodes, which were not available in the digital lab at the time of completion. I will find and solder these on during the next week.\nIn terms of the excellence requirements, I provide calculations to show how to maintain the current draw in each diode of the seven-segment display within the recommended operating conditions of 5-20 mA. However, this differs slightly from what I ended up doing. This is because I noticed that the 3.3V output from my PCB was not working as intended; originally, it was outputting 1.4 V instead of 3.3V. I worked with Abe to attach a 3.3V regulator, but then the output started yielding &lt;1V. During this time, I decided to supply the seven-segment display with 5V, thus necessitating the higher resistor value. Later, I moved the entire circuit from the PCB to the breadboard, so I was able to use the 3.3V power source again. However, since I was limited on time, I did not change the resistors back from 330 Ohms to ~100 Ohms. Next week, I will be sure to start the lab earlier and schedule more time to work on it so I can perform more thorough organized work.\nThe other excellence requirement I did not meet was the QuestaSim automatic testbench requirement. I started working on a testbench and testvector for seven_segment_display.sv, but I ran into difficulty with reading in the test vectors, and I unfortunately ran out of time to debug this.\nWhile I didn’t get to complete automated testbenches myself before the check-in time, I did help some peers debug their testbenches, and I have a sense of how I would approach simulating my code for future labs.\nReflection post updating lab for regrade\nThis lab meets all proficiency and excellence specifications. The main issues I ran into were as follows: * Hardware issues with the 3.3V regulator * Firmware issues; I forgot to (re)set the top-level module, so the 3 led pins ended up not being driven. This could be seen in the pin assignment window. Since the pins weren’t being driven, they were at 3.3V as a default, but this voltage dropped to 1.8V when the pin was connected to the LED. To fix this, I had to go under the project menu and set the appropriate module as the top-level module and resyntesize. * The testbench couldn’t read the testvector file; this was remedied by referencing the absolute path of the testvector file (rather than the relative path)."
+  },
+  {
+    "objectID": "labs/lab1/lab1.html#ai-prototype",
+    "href": "labs/lab1/lab1.html#ai-prototype",
+    "title": "Lab 1",
+    "section": "AI Prototype",
+    "text": "AI Prototype\nI gave ChatGPT this prompt:\nLLM prompt Write SystemVerilog HDL to leverage the internal high speed oscillator in the Lattice UP5K FPGA and blink an LED at 2 Hz. Take full advantage of SystemVerilog syntax, for example, using logic instead of wire and reg.\nIt generated the following code, accompanied by a high-leve overview of how the clk frequency is customized:\nmodule led_blinker (\n    input logic clk,      // High-speed clock (e.g., 12 MHz)\n    output logic led      // LED output (blinking at 2 Hz)\n);\n\n    // Define a parameter for clock frequency and target frequency for blinking\n    parameter integer HIGH_SPEED_CLK_FREQ = 12000000;  // 12 MHz internal oscillator\n    parameter integer TARGET_FREQ = 1; // 1 Hz (for 2 Hz blinking)\n    \n    // Calculate the division factor (this depends on the input clock and target frequency)\n    localparam integer DIVIDE_FACTOR = HIGH_SPEED_CLK_FREQ / (TARGET_FREQ * 2); // Divide by 2 for full period\n\n    // Counter to divide the clock frequency\n    logic [31:0] counter;  // Counter to keep track of clock cycles\n\n    // Clock divider and LED toggle logic\n    always_ff @(posedge clk) begin\n        if (counter &lt; DIVIDE_FACTOR - 1) begin\n            counter &lt;= counter + 1;\n        end else begin\n            counter &lt;= 0;\n            led &lt;= ~led; // Toggle LED state on every period of the divided clock\n        end\n    end\n\nendmodule\nThe code did synthesize on the first try, which was good, and the description would have been helpful if customizing the frequency of a clock signal in system verilog was completely new to me. However, one issue is that ChatGPT hardcoded the internal clk frequency, and it didn’t actually interface with the Lattice UP5K HSOSC. It also did not include any resources where users could find information about the Lattice UP5K HSOSC, like the official documentation. Additionally, it doesn’t really talk about how the size of the counter vector (N) or the constant that is added to counter every clock cylce (p) can be adjusted to derive a desired clock frequency–it basically assumes that the only way to create a clock signal with a desired frequency is to find an internal clock that is already some power of 2 of that frequency. When I was writing the code to get an LED to blink at 2.4 Hz, I found reading the documentation for the HSOSC, referencing the formula for f_PWM from the E85 textbook, and referencing my old E85 code to be the most helpful. All three of these resources provided valuable information not covered by ChatGPT’s first response. If I were to use AI in my workflow, I would try to research what I’m trying to accomplish so that I can tune my prompt to get more valuable and detailed information."
+  },
+  {
+    "objectID": "labs/lab1/lab1.html#reference",
+    "href": "labs/lab1/lab1.html#reference",
+    "title": "Lab 1",
+    "section": "Reference",
+    "text": "Reference\nCode can be found in this github repository"
+  },
+  {
+    "objectID": "posts/first-post.html",
+    "href": "posts/first-post.html",
+    "title": "Hello Quarto",
+    "section": "",
+    "text": "I am so excited to be blogging today! :D"
+  },
+  {
+    "objectID": "posts/lab1-reflection.html",
+    "href": "posts/lab1-reflection.html",
+    "title": "Lab 1 Reflection",
+    "section": "",
+    "text": "2-3 para reflection\nThis blog was an eye-opening experience for sure. While my friends from the class warned me that it might take a while, I didn’t really internalize what they said. I ended up mismanaging my time, pushing off a lot of the work to the last minute, and ultimately not completing the testvectors. Moving forward, I will do my best to schedule 20 hours for each lab in the days leading up to the check-off date so I don’t have to scramble in the same way. I definitely focus better when I’m well-rested, and I think getting into a good work routine will be helpful (especially when the swim season starts).\nI do think I enjoyed the lab. It felt like a review of the engineering skills I have learned so far, both in E85 with SystemVerilog programming, and from E80 and Clinic with soldering (and de-soldering). It was nice to get to review a variety of these skills all in one lab, and I feel prepared to take on lab 2.\nI didn’t get to the test benches on my first try at the lab (due to aforementioned time management issues), but I am working on that now for the regrade. Between taking E85 a year ago and MicroPs now, I worked a bit on developing a testbench for an astronomical random number generator in the physics lab I research with. It was different from E85 since it used Verilog and a different IDE, but it was exciting to see a real-world application of E85 skills. Another exciting thing in lecture was when prof. Spencer gave an example of a synchronous design challenge, and it was very similar to the project I was working on two summers ago in that same lab! Overall, I am really excited about the applications of computer engineering, and I can’t wait to develop my sills."
   }
 ]
