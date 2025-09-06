@@ -138,9 +138,20 @@ endmodule
 The scratchwork to develop the truth table for the seven_segment_display module was:
 ![](images\seven_segment_display_work.png)
 
+## Results
+
 ## Reflection
 
+The design met all intended design objectives, as verified by the following QuestaSim simulations:
+
+lab1_top testbench
+![](images\top_testbench.png)
+
+seven_segment_display testbench
+![](images\seven_seg_testbench.png)
+
 This lab took me a little under 20 hours.
+(Note: this reflection is from before I updated my lab to meet proficiency and excellence expecatations)
 
 This lab met all but one proficiency requirement, as specified in the [Lab 1 spec sheet](https://hmc-e155.github.io/lab/lab1/specs.html). The missing proficiency requirement is due to the missing 5V regulator and SMT diodes, which were not available in the digital lab at the time of completion. I will find and solder these on during the next week.
 
