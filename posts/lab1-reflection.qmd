@@ -1,0 +1,33 @@
+---
+title: "Initial Reflection"
+description: "What I'm hoping to get out of MicroPs"
+author: "Madeleine Kan"
+date: 8/29/25
+draft: false
+---
+
+2-3 para reflection
+
+This blog was an eye-opening experience for sure. While my friends from the class warned 
+me that it might take a while, I didn't really internalize what they said. I ended up
+mismanaging my time, pushing off a lot of the work to the last minute, and ultimately
+not completing the testvectors. Moving forward, I will do my best to schedule
+20 hours for each lab in the days leading up to the check-off date so I don't have to scramble
+in the same way. I definitely focus better when I'm well-rested, and I think getting
+into a good work routine will be helpful (especially when the swim season starts).
+
+I do think I enjoyed the lab. It felt like a review of the engineering skills I have learned
+so far, both in E85 with SystemVerilog programming, and from E80 and Clinic with soldering
+(and de-soldering). It was nice to get to review a variety of these skills all in one lab,
+and I feel prepared to take on lab 2. 
+
+I didn't get to the test benches on my first try at the lab (due to aforementioned time 
+management issues), but I am working on that now for the regrade.
+Between taking E85 a year ago and MicroPs now, I worked a bit on developing a testbench
+for an astronomical random number generator in the physics lab I research with. It was different
+from E85 since it used Verilog and a different IDE, but it was exciting to see a real-world
+application of E85 skills. Another exciting thing in lecture was when prof. Spencer gave
+an example of a synchronous design challenge, and it was very similar to the project
+I was working on two summers ago in that same lab! Overall, I am really excited about the 
+applications of computer engineering, and I can't wait to develop my sills. 
+
