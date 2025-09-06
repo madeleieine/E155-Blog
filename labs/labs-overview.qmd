@@ -12,7 +12,7 @@ navbar:
 
 Here are the E155 Lab Reports.
 
-Hello world
+So far, I have completed Lab 1.
 
 ## [Lab 1: FPGA and MCU Setup and Testing](lab1\lab1.qmd)
 ## [Lab 2: Multiplexed 7-segment Display](lab2\lab2.qmd)
