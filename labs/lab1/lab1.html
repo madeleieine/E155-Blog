@@ -343,7 +343,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>lab1_top testbench <img src="images\top_testbench.png" class="img-fluid"></p>
 <p>seven_segment_display testbench <img src="images\seven_seg_testbench.png" class="img-fluid"></p>
 <p>As we can see, all of the testvectors passed the testbenches, demonstrating intended funcitonality of both modules.</p>
-<p>This lab took me a little under 20 hours.</p>
+<p>This lab took me around 20 hours.</p>
 </section>
 <section id="reflection" class="level2">
 <h2 class="anchored" data-anchor-id="reflection">Reflection</h2>
@@ -353,7 +353,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>The other excellence requirement I did not meet was the QuestaSim automatic testbench requirement. I started working on a testbench and testvector for seven_segment_display.sv, but I ran into difficulty with reading in the test vectors, and I unfortunately ran out of time to debug this.</p>
 <p>While I didn’t get to complete automated testbenches myself before the check-in time, I did help some peers debug their testbenches, and I have a sense of how I would approach simulating my code for future labs.</p>
 <p><strong>Reflection post updating lab for regrade</strong></p>
-<p>This lab meets all proficiency and excellence specifications. The main issues I ran into were as follows: * Hardware issues with the 3.3V regulator * Firmware issues; I forgot to (re)set the top-level module, so the 3 led pins ended up not being driven. This could be seen in the pin assignment window. Since the pins weren’t being driven, they were at 3.3V as a default, but this voltage dropped to 1.8V when the pin was connected to the LED. To fix this, I had to go under the project menu and set the appropriate module as the top-level module and resyntesize. * The testbench couldn’t read the testvector file; this was remedied by referencing the absolute path of the testvector file (rather than the relative path).</p>
+<p>This lab meets all proficiency and excellence specifications. The main issues I ran into were as follows:</p>
+<ul>
+<li><p>Hardware issues with the 3.3V regulator</p></li>
+<li><p>Firmware issues; I forgot to (re)set the top-level module, so the 3 led pins ended up not being driven. This could be seen in the pin assignment window. Since the pins weren’t being driven, they were at 3.3V as a default, but this voltage dropped to 1.8V when the pin was connected to the LED. To fix this, I had to go under the project menu and set the appropriate module as the top-level module and resyntesize.</p></li>
+<li><p>The testbench couldn’t read the testvector file; this was remedied by referencing the absolute path of the testvector file (rather than the relative path).</p></li>
+</ul>
 </section>
 <section id="ai-prototype" class="level2">
 <h2 class="anchored" data-anchor-id="ai-prototype">AI Prototype</h2>
