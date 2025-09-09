@@ -14,15 +14,15 @@ drive three LEDs as well as a seven-segment display simultaneously using four in
 
 ## Schematic
 The circuit diagram to drive the three LEDs and the seven-segment display using four input switches is as follows:
-![](images\lab1_schematics.png)
+![](images\lab1_schematics_redo.png)
 
 The calculations for the current draw of the seven-segment display are:
-![](images\lab1_current_calcs.png)
+![](images\lab1_current_calcs_redo.png)
 This is because the seven-segment display is being powered by 3.3V, and each diode within the display experiences a voltage drop of 2V. The resistor values of 330 Ohms I chose resulted in a current draw of 3.93 mA, which is less than the recommended range of 5mA-20mA, but the diodes still shone visibly while remaining well under the maximum allowed current of 20 mA. While different from what I ended up doing, 100 Ohm resistors could be used to yield a current of (1.3V/100 Ohms) = 13 mA, which is within the recommended operating range of the 7-segment display.
 
 ## Block Diagram
 The block diagram of the systemverilog code is:
-![](images\lab1_block_diagram.png)
+![](images\lab1_block_diagram_redo.png)
 
 ## Code
 The systemverilog code itself is:
@@ -136,11 +136,9 @@ endmodule
 ```
 
 The scratchwork to develop the truth table for the seven_segment_display module was:
-![](images\seven_segment_display_work.png)
+![](images\seven_segment_display_work_redo.png)
 
 ## Results
-
-## Reflection
 
 The design met all intended design objectives, as verified by the following QuestaSim simulations:
 
@@ -150,8 +148,13 @@ lab1_top testbench
 seven_segment_display testbench
 ![](images\seven_seg_testbench.png)
 
+As we can see, all of the testvectors passed the testbenches, demonstrating intended funcitonality of both modules.
+
 This lab took me a little under 20 hours.
-(Note: this reflection is from before I updated my lab to meet proficiency and excellence expecatations)
+
+## Reflection
+
+**Reflection before lab regrade:**
 
 This lab met all but one proficiency requirement, as specified in the [Lab 1 spec sheet](https://hmc-e155.github.io/lab/lab1/specs.html). The missing proficiency requirement is due to the missing 5V regulator and SMT diodes, which were not available in the digital lab at the time of completion. I will find and solder these on during the next week.
 
@@ -160,6 +163,13 @@ In terms of the excellence requirements, I provide calculations to show how to m
 The other excellence requirement I did not meet was the QuestaSim automatic testbench requirement. I started working on a testbench and testvector for seven_segment_display.sv, but I ran into difficulty with reading in the test vectors, and I unfortunately ran out of time to debug this.
 
 While I didn't get to complete automated testbenches myself before the check-in time, I did help some peers debug their testbenches, and I have a sense of how I would approach simulating my code for future labs.
+
+**Reflection post updating lab for regrade**
+
+This lab meets all proficiency and excellence specifications. The main issues I ran into were as follows:
+* Hardware issues with the 3.3V regulator
+* Firmware issues; I forgot to (re)set the top-level module, so the 3 led pins ended up not being driven. This could be seen in the pin assignment window. Since the pins weren't being driven, they were at 3.3V as a default, but this voltage dropped to 1.8V when the pin was connected to the LED. To fix this, I had to go under the project menu and set the appropriate module as the top-level module and resyntesize.
+* The testbench couldn't read the testvector file; this was remedied by referencing the absolute path of the testvector file (rather than the relative path).
 
 ## AI Prototype
 I gave ChatGPT this prompt:
@@ -201,3 +211,5 @@ endmodule
 
 The code did synthesize on the first try, which was good, and the description would have been helpful if customizing the frequency of a clock signal in system verilog was completely new to me. However, one issue is that ChatGPT hardcoded the internal clk frequency, and it didn't actually interface with the Lattice UP5K HSOSC. It also did not include any resources where users could find information about the Lattice UP5K HSOSC, like the official documentation. Additionally, it doesn't really talk about how the size of the counter vector (N) or the constant that is added to counter every clock cylce (p) can be adjusted to derive a desired clock frequency--it basically assumes that the only way to create a clock signal with a desired frequency is to find an internal clock that is already some power of 2 of that frequency. When I was writing the code to get an LED to blink at 2.4 Hz, I found reading the documentation for the HSOSC, referencing the formula for f_PWM from the E85 textbook, and referencing my old E85 code to be the most helpful. All three of these resources provided valuable information not covered by ChatGPT's first response. If I were to use AI in my workflow, I would try to research what I'm trying to accomplish so that I can tune my prompt to get more valuable and detailed information.
 
+## Reference
+Code can be found in [this github repository](https://github.com/madeleieine/e155-lab1)

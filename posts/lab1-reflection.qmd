@@ -1,8 +1,8 @@
 ---
-title: "Initial Reflection"
-description: "What I'm hoping to get out of MicroPs"
+title: "Lab 1 Reflection"
+description: "FPGA and MCU Setup and Testing"
 author: "Madeleine Kan"
-date: 8/29/25
+date: 9/6/25
 draft: false
 ---
 
