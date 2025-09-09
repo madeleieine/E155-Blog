@@ -150,7 +150,7 @@ seven_segment_display testbench
 
 As we can see, all of the testvectors passed the testbenches, demonstrating intended funcitonality of both modules.
 
-This lab took me a little under 20 hours.
+This lab took me around 20 hours.
 
 ## Reflection
 
@@ -167,8 +167,11 @@ While I didn't get to complete automated testbenches myself before the check-in 
 **Reflection post updating lab for regrade**
 
 This lab meets all proficiency and excellence specifications. The main issues I ran into were as follows:
+
 * Hardware issues with the 3.3V regulator
+
 * Firmware issues; I forgot to (re)set the top-level module, so the 3 led pins ended up not being driven. This could be seen in the pin assignment window. Since the pins weren't being driven, they were at 3.3V as a default, but this voltage dropped to 1.8V when the pin was connected to the LED. To fix this, I had to go under the project menu and set the appropriate module as the top-level module and resyntesize.
+
 * The testbench couldn't read the testvector file; this was remedied by referencing the absolute path of the testvector file (rather than the relative path).
 
 ## AI Prototype
