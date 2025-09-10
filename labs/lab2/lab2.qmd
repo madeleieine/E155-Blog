@@ -83,12 +83,17 @@ mkan@hmc.edu
 */
 
 module counter #(parameter N = 17)
-	 (input logic clk,
+	 (input logic clk, reset
 	 output logic clk_div);
 	 
 	logic [N:0] counter;
 	always_ff @(posedge clk) begin
-		counter <= counter + 1'b1;
+        if (reset == 1'b1) begin // active low
+            counter <= 1'b0;
+        end
+        else begin
+		    counter <= counter + 1'b1;
+        end
 		clk_div <= counter[N];
 	end
 endmodule
@@ -199,7 +204,8 @@ endmodule
 ```
 
 ## Results
-The design met all requirements, as demonstrated by the following testbench waveforms.
+The design met all requirements*, as demonstrated by the following testbench waveforms.
+*Note: I struggled to validate the clock/oscillator functionality in simulation. While I can verify that it worked based on the hardware, I do need to work on developing testbenches for internal clock dependent components.
 
 LED_driver results:
 ![](images\led_driver_testbench_better.png)
