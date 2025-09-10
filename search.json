@@ -116,7 +116,7 @@
     "href": "labs/lab2/lab2.html#results",
     "title": "Lab 2",
     "section": "Results",
-    "text": "Results\nThe design met all requirements, as demonstrated by the following testbench waveforms.\nLED_driver results: \nmux results: \nseven_segment_display results:"
+    "text": "Results\nThe design met all requirements, as demonstrated by the following testbench waveforms. Note: I struggled to validate the clock/oscillator functionality in simulation. While I can verify that it worked based on the hardware, I do need to work on developing testbenches for internal clock dependent components.\nLED_driver results: \nmux results: \nseven_segment_display results:"
   },
   {
     "objectID": "labs/lab2/lab2.html#summary",
