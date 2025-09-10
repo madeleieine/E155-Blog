@@ -481,8 +481,8 @@ At this point, I had to log in and create a new conversation. I provided ChatGPT
 In accompaniment, ChatGPT also provided a good description of the modules I uploaded. The comments for this module were much more thorough than the comments from the first module. Perhaps this is because the modules I uploaded had descriptions at the top so ChatGPT copied that? Since I originally included HSOSC in the top module (instead of its own module), the code that ChatGPT wrote still requires a clk input, so the clk frequency remains unspecified. In general, the way the code was organized and the variables were named was different from what I would have chosen, but the design still seems fundamentally equivalent. Additionally, the code compiled on the first try, which was exciting.
 
 ## Resources
-[Lab Code] (https://github.com/madeleieine/e155-lab2/tree/main)
+[Lab Code](https://github.com/madeleieine/e155-lab2/tree/main)
 
-[seven-segment display datasheet](https://docs.broadcom.com/doc/HDSP-521A-523A-Dual-Digit-General-Purpose-7-Segment-Display-DS)
+[Seven Segment display datasheet](https://docs.broadcom.com/doc/HDSP-521A-523A-Dual-Digit-General-Purpose-7-Segment-Display-DS)
 
 [PNP transistor datasheet](https://www.digikey.com/htmldatasheets/production/99318/0/0/1/2n3906-datasheet.html?gclid=01d3c1f4ecef10d0bf6da94b18a2a830&gclsrc=3p.ds&msclkid=01d3c1f4ecef10d0bf6da94b18a2a830)
