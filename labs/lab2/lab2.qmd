@@ -492,7 +492,7 @@ endmodule
 
 This code looks pretty similar to what I ended up doing! I do think the code could be a bit more idiomatic -- for instance, using a mux instead of a case statement to driev the anodes -- to more directly reflect the inferred hardware. The use of a two-bit number for the anodes is different from what I chose, but it seems like a good design choice since it already takes care of the default case (ensuring that the two anodes are always opposite each other). The explanation was helpful, and ChatGPT included an important note about the desired clock frequency. In addition, the code compiled.
 
-At this point, I had to log in and create a new conversation. I provided ChatGPT with the same prompt, appended with "use the seven segment decoder and oscillator provided in the attached filles", and I attached my seven-segment decoder and count modules from lab1. ChatGPT provided the following code:
+At this point, I had to log in and create a new conversation. I provided ChatGPT with the same prompt, appended with "use the seven segment decoder and oscillator provided in the attached filles", and I attached my seven-segment decoder and count modules from lab1. This was exciting since I didn't know that this was a feature of ChatGPT. In response to this prompt, ChatGPT provided the following code:
 
 ```systemverilog
 
