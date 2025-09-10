@@ -1,14 +1,15 @@
 [
   {
-    "listing": "/labs/labs-overview.html",
-    "items": []
-  },
-  {
     "listing": "/blog.html",
     "items": [
+      "/posts/lab2-reflection.html",
       "/posts/lab1-reflection.html",
       "/posts/initial-reflection.html",
       "/posts/first-post.html"
     ]
+  },
+  {
+    "listing": "/labs/labs-overview.html",
+    "items": []
   }
 ]

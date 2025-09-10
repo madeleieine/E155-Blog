@@ -14,151 +14,18 @@
     "text": "HMC E155 Website\nHMC E85 Website"
   },
   {
-    "objectID": "posts/initial-reflection.html",
-    "href": "posts/initial-reflection.html",
-    "title": "Initial Reflection",
+    "objectID": "posts/lab1-reflection.html",
+    "href": "posts/lab1-reflection.html",
+    "title": "Lab 1 Reflection",
     "section": "",
-    "text": "Firstly, I am hopen to work on developing my FPGA and MCU programming skills. Additionally, I want to work on my technical documentation and communication skills. I also want to work on project design, execution, and evaluation! Overall, I am excited to build a project that I find interesting and learn a lot of useful skills along the way."
+    "text": "2-3 para reflection\nThis blog was an eye-opening experience for sure. While my friends from the class warned me that it might take a while, I didn’t really internalize what they said. I ended up mismanaging my time, pushing off a lot of the work to the last minute, and ultimately not completing the testvectors. Moving forward, I will do my best to schedule 20 hours for each lab in the days leading up to the check-off date so I don’t have to scramble in the same way. I definitely focus better when I’m well-rested, and I think getting into a good work routine will be helpful (especially when the swim season starts).\nI do think I enjoyed the lab. It felt like a review of the engineering skills I have learned so far, both in E85 with SystemVerilog programming, and from E80 and Clinic with soldering (and de-soldering). It was nice to get to review a variety of these skills all in one lab, and I feel prepared to take on lab 2.\nI didn’t get to the test benches on my first try at the lab (due to aforementioned time management issues), but I am working on that now for the regrade. Between taking E85 a year ago and MicroPs now, I worked a bit on developing a testbench for an astronomical random number generator in the physics lab I research with. It was different from E85 since it used Verilog and a different IDE, but it was exciting to see a real-world application of E85 skills. Another exciting thing in lecture was when prof. Spencer gave an example of a synchronous design challenge, and it was very similar to the project I was working on two summers ago in that same lab! Overall, I am really excited about the applications of computer engineering, and I can’t wait to develop my sills."
   },
   {
-    "objectID": "labs/labs-overview.html",
-    "href": "labs/labs-overview.html",
-    "title": "Labs Overview",
+    "objectID": "posts/first-post.html",
+    "href": "posts/first-post.html",
+    "title": "Hello Quarto",
     "section": "",
-    "text": "Here are the E155 Lab Reports.\nSo far, I have completed Lab 1."
-  },
-  {
-    "objectID": "labs/labs-overview.html#lab-1-fpga-and-mcu-setup-and-testing",
-    "href": "labs/labs-overview.html#lab-1-fpga-and-mcu-setup-and-testing",
-    "title": "Labs Overview",
-    "section": "Lab 1: FPGA and MCU Setup and Testing",
-    "text": "Lab 1: FPGA and MCU Setup and Testing"
-  },
-  {
-    "objectID": "labs/labs-overview.html#lab-2-multiplexed-7-segment-display",
-    "href": "labs/labs-overview.html#lab-2-multiplexed-7-segment-display",
-    "title": "Labs Overview",
-    "section": "Lab 2: Multiplexed 7-segment Display",
-    "text": "Lab 2: Multiplexed 7-segment Display"
-  },
-  {
-    "objectID": "labs/labs-overview.html#lab-3-keypad-scanner",
-    "href": "labs/labs-overview.html#lab-3-keypad-scanner",
-    "title": "Labs Overview",
-    "section": "Lab 3: Keypad Scanner",
-    "text": "Lab 3: Keypad Scanner"
-  },
-  {
-    "objectID": "labs/labs-overview.html#lab-4-digital-auto",
-    "href": "labs/labs-overview.html#lab-4-digital-auto",
-    "title": "Labs Overview",
-    "section": "Lab 4: Digital Auto",
-    "text": "Lab 4: Digital Auto"
-  },
-  {
-    "objectID": "labs/labs-overview.html#lab-5-interrupts",
-    "href": "labs/labs-overview.html#lab-5-interrupts",
-    "title": "Labs Overview",
-    "section": "Lab 5: Interrupts",
-    "text": "Lab 5: Interrupts"
-  },
-  {
-    "objectID": "labs/labs-overview.html#lab-6-the-internet-of-things-and-serial-peripheral-interface",
-    "href": "labs/labs-overview.html#lab-6-the-internet-of-things-and-serial-peripheral-interface",
-    "title": "Labs Overview",
-    "section": "Lab 6: The Internet of Things and Serial Peripheral Interface",
-    "text": "Lab 6: The Internet of Things and Serial Peripheral Interface"
-  },
-  {
-    "objectID": "labs/labs-overview.html#lab-7-the-advanced-encryption-standard",
-    "href": "labs/labs-overview.html#lab-7-the-advanced-encryption-standard",
-    "title": "Labs Overview",
-    "section": "Lab 7: The Advanced Encryption Standard",
-    "text": "Lab 7: The Advanced Encryption Standard"
-  },
-  {
-    "objectID": "labs/lab2/lab2.html",
-    "href": "labs/lab2/lab2.html",
-    "title": "Lab 2",
-    "section": "",
-    "text": "The purpose of lab 2 was to use time-multiplexing to drive two seven-segment displays based on inputs from two sets of four DIP switches using only one seven-segment display module. Additionally, the sum of the two displayed numbers is depicted in binary across five LEDs."
-  },
-  {
-    "objectID": "labs/lab2/lab2.html#introduction",
-    "href": "labs/lab2/lab2.html#introduction",
-    "title": "Lab 2",
-    "section": "",
-    "text": "The purpose of lab 2 was to use time-multiplexing to drive two seven-segment displays based on inputs from two sets of four DIP switches using only one seven-segment display module. Additionally, the sum of the two displayed numbers is depicted in binary across five LEDs."
-  },
-  {
-    "objectID": "labs/lab2/lab2.html#schematic",
-    "href": "labs/lab2/lab2.html#schematic",
-    "title": "Lab 2",
-    "section": "Schematic",
-    "text": "Schematic\nThe circuit diagram to drive the two seven-segment displays and five LEDs based on eight input switches is as follows:\n\nThe calculations for resistors to control the current draw/sink on all FPGA pins are as follows:"
-  },
-  {
-    "objectID": "labs/lab2/lab2.html#block-diagram",
-    "href": "labs/lab2/lab2.html#block-diagram",
-    "title": "Lab 2",
-    "section": "Block Diagram",
-    "text": "Block Diagram\nThe block diagram for the SystemVerilog modules used in this design is as follows:"
-  },
-  {
-    "objectID": "labs/lab2/lab2.html#code",
-    "href": "labs/lab2/lab2.html#code",
-    "title": "Lab 2",
-    "section": "Code:",
-    "text": "Code:\nHere is the code implementation of the block diagram above:\n/*\nlab2_mk_top.sv\n\nDrives give LEDs and two 7-segment displays based on inputs from\neight switches. 7-segment displays count up from 0-F in hex based\non the binary value encoded by the state of the switches: the first four\ncorrespond to the first 7-segment display, and the second four switches to\nthe second 7-segment display. The five LEDs represent the sum of the values \nencoded by the two sets of four switches.\n\nMadeleine Kan\nmkan@hmc.edu\n7 September, 2025\n*/\n`timescale 1ns/1ns\nmodule lab2_mk_top(\n    input logic [3:0] s0, s1,\n    output logic [4:0] led,\n    output logic [6:0] seg,\n    output logic anode0, anode1\n);\n    logic clk, clk_div, anode0_int, anode1_int;\n    logic [4:0] led_int;\n    logic [6:0] seg_int;\n\n    // Internal high-speed oscillator\n    HSOSC #(.CLKHF_DIV(2'b01)) // 24MHz from clk divider\n     hf_osc (.CLKHFPU(1'b1), .CLKHFEN(1'b1), .CLKHF(clk));\n    \n    // Counter, changes ~91Hz\n    counter count(clk, clk_div);\n    led_driver driver(clk_div, s0, s1, led_int, seg_int, anode0_int, anode1_int);\n    \n    always_ff @(posedge clk) begin\n        anode0 &lt;= anode0_int;\n        anode1 &lt;= anode1_int;\n        led &lt;= led_int;\n        seg &lt;= seg_int;\n    end\n\nendmodule\n\n/*\ncounter.sv\n\nTakes in clk, clock signal\nOutputs clk_new, a new clock signal that rises every 2^N clk cycles\nMadeleine Kan\nmkan@hmc.edu\n3 September, 2025\n*/\n\nmodule counter #(parameter N = 17)\n     (input logic clk, reset\n     output logic clk_div);\n     \n    logic [N:0] counter;\n    always_ff @(posedge clk) begin\n        if (reset == 1'b1) begin // active low\n            counter &lt;= 1'b0;\n        end\n        else begin\n            counter &lt;= counter + 1'b1;\n        end\n        clk_div &lt;= counter[N];\n    end\nendmodule\n\n/*\nled_driver.sv\n\nDrives give LEDs and two 7-segment displays based on inputs from\neight switches. 7-segment displays count up from 0-F in hex based\non the binary value encoded by the state of the switches: the first four\ncorrespond to the first 7-segment display, and the second four switches to\nthe second 7-segment display. The five LEDs represent the sum of the values \nencoded by the two sets of four switches. Which set of switches (s0 or s1)\nare read and which 7-seg display is visible (depending on anode0 and anode1)\ndepends on if clk is 0 or 1\n\nMadeleine Kan\nmkan@hmc.edu\n9 September, 2025\n*/\n`timescale 1ns/1ns\nmodule led_driver(\n    input logic clk,\n    input logic [3:0] s0, s1,\n    output logic [4:0] led,\n    output logic [6:0] seg,\n    output logic anode0, anode1\n);\n    logic [3:0] s_in;\n    logic [6:0] seg_out;\n    \n    // Assign LED output\n    assign led = s0 + s1;\n    \n    // Mux input\n    mux mux0(s0, s1, clk, s_in); \n    // Feed input to seven_segment_display\n    seven_segment_display display0(s_in, seg_out);\n\n    // Control seven-segment display common anodes\n    assign anode0 = ~clk;\n    assign anode1 = clk;\n    \n    // drive seven-segment displays\n    assign seg = seg_out;\n    \nendmodule\n\n/*\nmux.sv\n\nSynchronous enabled mux with 2 inputs\nall inputs and outputs are 4 bits wide\n\nMadeleine Kan\nmkan@hmc.edu\n7 September, 2025\n*/\n\n`timescale 1ns/1ns\n\nmodule mux(\n    input logic [3:0] in0, [3:0] in1, \n    input logic en,\n    output logic [3:0] out);\n    \n    assign out =  en ? in1 : in0;\nendmodule\n\n/*\nseven_segment_display.sv\nDrives HDSP-521A Seven-Segment Display\nwith common anode (meaining diodes are\npulled to ground to activate)\nMadeleine Kan\nmkan@hmc.edu\n3 September, 2025\n*/\n\nmodule seven_segment_display(\n    input logic [3:0] s,\n    output logic [6:0] seg\n);\n    always_comb\n        case(s) \n            //                abcdefg\n            4'b0000: seg = 7'b0000001; // 0\n            4'b0001: seg = 7'b1001111; // 1\n            4'b0010: seg = 7'b0010010; // 2\n            4'b0011: seg = 7'b0000110; // 3\n            4'b0100: seg = 7'b1001100; // 4\n            4'b0101: seg = 7'b0100100; // 5\n            4'b0110: seg = 7'b0100000; // 6\n            4'b0111: seg = 7'b0001111; // 7\n            4'b1000: seg = 7'b0000000; // 8\n            4'b1001: seg = 7'b0001100; // 9\n            4'b1010: seg = 7'b0001000; // a\n            4'b1011: seg = 7'b1100000; // b\n            4'b1100: seg = 7'b0110001; // c\n            4'b1101: seg = 7'b1000010; // d\n            4'b1110: seg = 7'b0110000; // e\n            4'b1111: seg = 7'b0111000; // f\n            default: seg = 7'b1111111; // none\n        endcase\nendmodule"
-  },
-  {
-    "objectID": "labs/lab2/lab2.html#results",
-    "href": "labs/lab2/lab2.html#results",
-    "title": "Lab 2",
-    "section": "Results",
-    "text": "Results\nThe design met all requirements, as demonstrated by the following testbench waveforms. Note: I struggled to validate the clock/oscillator functionality in simulation. While I can verify that it worked based on the hardware, I do need to work on developing testbenches for internal clock dependent components.\nLED_driver results: \nmux results: \nseven_segment_display results:"
-  },
-  {
-    "objectID": "labs/lab2/lab2.html#summary",
-    "href": "labs/lab2/lab2.html#summary",
-    "title": "Lab 2",
-    "section": "Summary",
-    "text": "Summary\nThis lab took me ~20 hours. During it, I learned about the intricacies of synchronous design, both in hardware and in simulation. I also learned about important power considerations when driving circuits from an FPGA."
-  },
-  {
-    "objectID": "labs/lab2/lab2.html#testbench-code",
-    "href": "labs/lab2/lab2.html#testbench-code",
-    "title": "Lab 2",
-    "section": "Testbench Code",
-    "text": "Testbench Code\nBelow is the code I used to validate my design.\n/*\nTestbench for led_driver.sv\n7 September 2025\nMadeleine Kan\nmkan@g.hmc.edu\n*/\n`timescale 1ns/1ns\n\nmodule led_driver_testbench();\n    logic clk;\n    logic [3:0] s0, s1, s_exp;\n    logic [4:0] led, led_exp;\n    logic [6:0] seg, seg_exp;\n    logic anode0, anode1, anode0_exp, anode1_exp;\n    logic [31:0] errors, vectornum;\n    logic [6:0] tv;\n    led_driver dut(clk, s0, s1, led, seg, anode0, anode1);\n    \n    initial\n        begin\n            errors=0;\n            vectornum=0;\n            for(tv=9'b000000000; tv&lt;=9'b111111111; tv = tv+1'b1) begin\n                clk = tv[0];\n                #1\n                s1 = tv[8:5];\n                s0 = tv[4:1];\n                assign led_exp = s0+s1;\n                assign anode0_exp = ~clk;\n                assign anode1_exp = clk;   \n                assign s_exp = clk?s1:s0;\n                #1\n                case(s_exp)\n                    //                abcdefg\n                    4'b0000: seg_exp = 7'b0000001; // 0\n                    4'b0001: seg_exp = 7'b1001111; // 1\n                    4'b0010: seg_exp = 7'b0010010; // 2\n                    4'b0011: seg_exp = 7'b0000110; // 3\n                    4'b0100: seg_exp = 7'b1001100; // 4\n                    4'b0101: seg_exp = 7'b0100100; // 5\n                    4'b0110: seg_exp = 7'b0100000; // 6\n                    4'b0111: seg_exp = 7'b0001111; // 7\n                    4'b1000: seg_exp = 7'b0000000; // 8\n                    4'b1001: seg_exp = 7'b0001100; // 9\n                    4'b1010: seg_exp = 7'b0001000; // a\n                    4'b1011: seg_exp = 7'b1100000; // b\n                    4'b1100: seg_exp = 7'b0110001; // c\n                    4'b1101: seg_exp = 7'b1000010; // d\n                    4'b1110: seg_exp = 7'b0110000; // e\n                    4'b1111: seg_exp = 7'b0111000; // f\n                    default: seg_exp = 7'b1111111; // none\n                endcase\n                #5;\n                assert({led, seg, anode0, anode1} === {led_exp, seg_exp, anode0_exp, anode1_exp}) else begin\n                    $display(\"Error: clk = %b, s0 = %b, s1 = %b\", clk, s0, s1);\n                    $display(\" outputs: (led, seg, anode0, anode1) = %b(%b expected)\", {led, seg, anode0, anode1}, {led_exp, seg_exp, anode0_exp, anode1_exp});\n                    errors = errors + 1;\n                end\n                if (tv == 7'b1111111) begin\n                    vectornum = vectornum + 1;\n                    $display(\"%d tests completed with %d errors\", vectornum, errors);\n                    $stop;\n                end\n                else begin\n                    vectornum = vectornum + 1;\n                end\n            end\n            $display(\"%d tests completed with %d errors\", vectornum, errors);\n            $stop;\n        end\nendmodule\n\n/*\nTestbench for mux.sv\n3-bit input, 1-bit output\n7 September 2025\nMadeleine Kan\nmkan@g.hmc.edu\n*/\n`timescale 1ns/1ns\n\nmodule mux_testbench();\n    logic [3:0] in0, in1;\n    logic en;\n    logic [3:0] out, out_exp;\n    logic [31:0] errors, vectornum;\n    logic [8:0] tv;\n    mux dut(in0, in1, en, out);\n    initial\n        begin\n            errors=0;\n            vectornum=0;\n            for(tv=9'b000000000; tv&lt;=9'b111111111; tv = tv+1'b1) begin\n                en = tv[0];\n                #5;\n                in1 = tv[8:5];\n                in0 = tv[4:1];\n                assign out_exp = en? in1 : in0;\n                #5;\n                assert(out == out_exp) else begin\n                    $display(\"Error: inputs = %b\", tv);\n                    $display(\" outputs = %b(%b expected)\", out, in1);\n                    errors = errors + 1;\n                end\n                if (tv == 9'b111111111) begin\n                    vectornum = vectornum + 1;\n                    $display(\"%d tests completed with %d errors\", vectornum, errors);\n                    $stop;\n                end\n                else begin\n                    vectornum = vectornum + 1;\n                end\n            end\n            $display(\"%d tests completed with %d errors\", vectornum, errors);\n            $stop;\n        end\nendmodule\n\n/*\nTestbench for seven_segment_display.sv\n4-bit input, 7-bit output\n3 September 2025\nMadeleine Kan\nmkan@g.hmc.edu\n*/\nmodule seven_segment_display_testbench();\n    logic clk, reset;\n    logic [3:0] s;\n    logic [6:0] seg, seg_exp;\n    logic [31:0] vectornum, errors;\n    logic [10:0] testvectors[10000:0];\n    seven_segment_display dut(s, seg);\n    always\n        begin\n            clk=1; #5; \n            clk=0; #5;\n        end\n    initial\n        begin\n            $readmemb(\"C:/Users/mkan/Documents/GitHub/e155-lab2/lab2/source/impl_1/seg_exp.tv\", testvectors);\n            vectornum=0; \n            errors=0;\n            reset=1; #5; \n            reset=0;\n        end\n    always @(posedge clk)\n        begin\n            #1;\n            {s, seg_exp} = testvectors[vectornum];\n        end\n    always @(negedge clk)\n        if (~reset) begin\n            if (seg !== seg_exp) begin\n                $display(\"Error: inputs = %b\", seg);\n                $display(\" outputs = %b(%b expected)\", seg, seg_exp);\n                errors = errors + 1;\n            end\n            vectornum = vectornum + 1;\n            if (testvectors[vectornum] === 11'bx) begin\n                $display(\"%d tests completed with %d errors\", vectornum, errors);\n                $stop;\n            end\n        end\nendmodule\nAdditionally, here is the seg_exp testvector file I referenced in the seven segment display testbench.\n// s[3:0]  seg_exp[6:0]\n0000_0000001\n0001_1001111\n0010_0010010\n0011_0000110\n0100_1001100\n0101_0100100\n0110_0100000\n0111_0001111\n1000_0000000\n1001_0001100\n1010_0001000\n1011_1100000\n1100_0110001\n1101_1000010\n1110_0110000\n1111_0111000"
-  },
-  {
-    "objectID": "labs/lab2/lab2.html#ai-reflection",
-    "href": "labs/lab2/lab2.html#ai-reflection",
-    "title": "Lab 2",
-    "section": "AI reflection",
-    "text": "AI reflection\nFirst, I prompted ChatGPT by saying “Hello! Please write SystemVerilog HDL to time multiplex a single seven segment decoder (That decodes form four bits to a common anode seven segment dispaly) to decode two sets of input bits and drive two sets of seven output bits.” It responded with a brief explanation and the following code:\nmodule seven_segment_multiplexer (\n    input logic clk,\n    input logic rst,\n    input logic [3:0] data1,\n    input logic [3:0] data2,\n    output logic [6:0] segments,\n    output logic [1:0] anode\n);\n\n    // Internal signal to hold selected 4-bit input\n    logic [3:0] current_input;\n    logic       select_display;\n\n    // Toggle between displays\n    always_ff @(posedge clk or posedge rst) begin\n        if (rst)\n            select_display &lt;= 0;\n        else\n            select_display &lt;= ~select_display;\n    end\n\n    // Select input based on current display\n    always_comb begin\n        case (select_display)\n            1'b0: begin\n                current_input = data1;\n                anode = 2'b10; // Activate first display (active low)\n            end\n            1'b1: begin\n                current_input = data2;\n                anode = 2'b01; // Activate second display (active low)\n            end\n        endcase\n    end\n\n    // Seven segment decoder (common anode: active low)\n    always_comb begin\n        case (current_input)\n            4'h0: segments = 7'b0000001;\n            4'h1: segments = 7'b1001111;\n            4'h2: segments = 7'b0010010;\n            4'h3: segments = 7'b0000110;\n            4'h4: segments = 7'b1001100;\n            4'h5: segments = 7'b0100100;\n            4'h6: segments = 7'b0100000;\n            4'h7: segments = 7'b0001111;\n            4'h8: segments = 7'b0000000;\n            4'h9: segments = 7'b0000100;\n            4'hA: segments = 7'b0001000;\n            4'hB: segments = 7'b1100000;\n            4'hC: segments = 7'b0110001;\n            4'hD: segments = 7'b1000010;\n            4'hE: segments = 7'b0110000;\n            4'hF: segments = 7'b0111000;\n            default: segments = 7'b1111111; // All segments off\n        endcase\n    end\n\nendmodule\nThis code looks pretty similar to what I ended up doing! I do think the code could be a bit more idiomatic – for instance, using a mux instead of a case statement to driev the anodes – to more directly reflect the inferred hardware. The use of a two-bit number for the anodes is different from what I chose, but it seems like a good design choice since it already takes care of the default case (ensuring that the two anodes are always opposite each other). The explanation was helpful, and ChatGPT included an important note about the desired clock frequency. In addition, the code compiled.\nAt this point, I had to log in and create a new conversation. I provided ChatGPT with the same prompt, appended with “use the seven segment decoder and oscillator provided in the attached filles”, and I attached my seven-segment decoder and count modules from lab1. ChatGPT provided the following code:\n\nIn accompaniment, ChatGPT also provided a good description of the modules I uploaded. The comments for this module were much more thorough than the comments from the first module. Perhaps this is because the modules I uploaded had descriptions at the top so ChatGPT copied that? Since I originally included HSOSC in the top module (instead of its own module), the code that ChatGPT wrote still requires a clk input, so the clk frequency remains unspecified. In general, the way the code was organized and the variables were named was different from what I would have chosen, but the design still seems fundamentally equivalent. Additionally, the code compiled on the first try, which was exciting."
-  },
-  {
-    "objectID": "labs/lab2/lab2.html#resources",
-    "href": "labs/lab2/lab2.html#resources",
-    "title": "Lab 2",
-    "section": "Resources",
-    "text": "Resources\nLab Code\nSeven Segment display datasheet\nPNP transistor datasheet"
-  },
-  {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "E155 Portfolio",
-    "section": "",
-    "text": "Madeleine Kan is a senior engineering major at Harvey Mudd College. She is studying general engineering with a focus on computer engineering with biomedical applications. She has experience in supply chain process engineering, FPGA and microcontroller programming, and mechanical design and analysis. In the spring of 2025, she worked as part of the UC Berkeley clinic team to upgrade the communication protocol for a low-cost air quality sensor. Since the start of 2024, she has worked in the Quantum Quasars Lab to develop an astronomical random number generator for Bell-type tests of quantum entanglement. She also has tutored for a variety of engineering courses and labs. She is part of the CMS Swim team, specializing in sprint freestyle and butterfly. In her free time, she likes to crochet, learn the piano, and spend time with her friends and family."
-  },
-  {
-    "objectID": "blog.html",
-    "href": "blog.html",
-    "title": "E155 Blog",
-    "section": "",
-    "text": "This is the blog section!\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nLab 1 Reflection\n\n\nFPGA and MCU Setup and Testing\n\n\n\n\n\nSep 6, 2025\n\n\nMadeleine Kan\n\n\n\n\n\n\n\n\n\n\n\n\nInitial Reflection\n\n\nWhat I’m hoping to get out of MicroPs\n\n\n\n\n\nAug 29, 2025\n\n\nMadeleine Kan\n\n\n\n\n\n\n\n\n\n\n\n\nHello Quarto\n\n\nWelcome to my Quarto portfolio\n\n\n\n\n\nAug 27, 2025\n\n\nMadeleine Kan\n\n\n\n\n\nNo matching items"
+    "text": "I am so excited to be blogging today! :D"
   },
   {
     "objectID": "labs/lab1/lab1.html",
@@ -224,17 +91,150 @@
     "text": "Reference\nCode can be found in this github repository"
   },
   {
-    "objectID": "posts/first-post.html",
-    "href": "posts/first-post.html",
-    "title": "Hello Quarto",
+    "objectID": "blog.html",
+    "href": "blog.html",
+    "title": "E155 Blog",
     "section": "",
-    "text": "I am so excited to be blogging today! :D"
+    "text": "This is the blog section!\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nLab 1 Reflection\n\n\nFPGA and MCU Setup and Testing\n\n\n\n\n\nSep 6, 2025\n\n\nMadeleine Kan\n\n\n\n\n\n\n\n\n\n\n\n\nInitial Reflection\n\n\nWhat I’m hoping to get out of MicroPs\n\n\n\n\n\nAug 29, 2025\n\n\nMadeleine Kan\n\n\n\n\n\n\n\n\n\n\n\n\nHello Quarto\n\n\nWelcome to my Quarto portfolio\n\n\n\n\n\nAug 27, 2025\n\n\nMadeleine Kan\n\n\n\n\n\nNo matching items"
   },
   {
-    "objectID": "posts/lab1-reflection.html",
-    "href": "posts/lab1-reflection.html",
-    "title": "Lab 1 Reflection",
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "E155 Portfolio",
     "section": "",
-    "text": "2-3 para reflection\nThis blog was an eye-opening experience for sure. While my friends from the class warned me that it might take a while, I didn’t really internalize what they said. I ended up mismanaging my time, pushing off a lot of the work to the last minute, and ultimately not completing the testvectors. Moving forward, I will do my best to schedule 20 hours for each lab in the days leading up to the check-off date so I don’t have to scramble in the same way. I definitely focus better when I’m well-rested, and I think getting into a good work routine will be helpful (especially when the swim season starts).\nI do think I enjoyed the lab. It felt like a review of the engineering skills I have learned so far, both in E85 with SystemVerilog programming, and from E80 and Clinic with soldering (and de-soldering). It was nice to get to review a variety of these skills all in one lab, and I feel prepared to take on lab 2.\nI didn’t get to the test benches on my first try at the lab (due to aforementioned time management issues), but I am working on that now for the regrade. Between taking E85 a year ago and MicroPs now, I worked a bit on developing a testbench for an astronomical random number generator in the physics lab I research with. It was different from E85 since it used Verilog and a different IDE, but it was exciting to see a real-world application of E85 skills. Another exciting thing in lecture was when prof. Spencer gave an example of a synchronous design challenge, and it was very similar to the project I was working on two summers ago in that same lab! Overall, I am really excited about the applications of computer engineering, and I can’t wait to develop my sills."
+    "text": "Madeleine Kan is a senior engineering major at Harvey Mudd College. She is studying general engineering with a focus on computer engineering with biomedical applications. She has experience in supply chain process engineering, FPGA and microcontroller programming, and mechanical design and analysis. In the spring of 2025, she worked as part of the UC Berkeley clinic team to upgrade the communication protocol for a low-cost air quality sensor. Since the start of 2024, she has worked in the Quantum Quasars Lab to develop an astronomical random number generator for Bell-type tests of quantum entanglement. She also has tutored for a variety of engineering courses and labs. She is part of the CMS Swim team, specializing in sprint freestyle and butterfly. In her free time, she likes to crochet, learn the piano, and spend time with her friends and family."
+  },
+  {
+    "objectID": "labs/lab2/lab2.html",
+    "href": "labs/lab2/lab2.html",
+    "title": "Lab 2",
+    "section": "",
+    "text": "The purpose of lab 2 was to use time-multiplexing to drive two seven-segment displays based on inputs from two sets of four DIP switches using only one seven-segment display module. Additionally, the sum of the two displayed numbers is depicted in binary across five LEDs."
+  },
+  {
+    "objectID": "labs/lab2/lab2.html#introduction",
+    "href": "labs/lab2/lab2.html#introduction",
+    "title": "Lab 2",
+    "section": "",
+    "text": "The purpose of lab 2 was to use time-multiplexing to drive two seven-segment displays based on inputs from two sets of four DIP switches using only one seven-segment display module. Additionally, the sum of the two displayed numbers is depicted in binary across five LEDs."
+  },
+  {
+    "objectID": "labs/lab2/lab2.html#schematic",
+    "href": "labs/lab2/lab2.html#schematic",
+    "title": "Lab 2",
+    "section": "Schematic",
+    "text": "Schematic\nThe circuit diagram to drive the two seven-segment displays and five LEDs based on eight input switches is as follows:\n\nThe calculations for resistors to control the current draw/sink on all FPGA pins are as follows:"
+  },
+  {
+    "objectID": "labs/lab2/lab2.html#block-diagram",
+    "href": "labs/lab2/lab2.html#block-diagram",
+    "title": "Lab 2",
+    "section": "Block Diagram",
+    "text": "Block Diagram\nThe block diagram for the SystemVerilog modules used in this design is as follows:"
+  },
+  {
+    "objectID": "labs/lab2/lab2.html#code",
+    "href": "labs/lab2/lab2.html#code",
+    "title": "Lab 2",
+    "section": "Code:",
+    "text": "Code:\nHere is the code implementation of the block diagram above:\n/*\nlab2_mk_top.sv\n\nDrives give LEDs and two 7-segment displays based on inputs from\neight switches. 7-segment displays count up from 0-F in hex based\non the binary value encoded by the state of the switches: the first four\ncorrespond to the first 7-segment display, and the second four switches to\nthe second 7-segment display. The five LEDs represent the sum of the values \nencoded by the two sets of four switches.\n\nMadeleine Kan\nmkan@hmc.edu\n7 September, 2025\n*/\n`timescale 1ns/1ns\nmodule lab2_mk_top(\n    input logic [3:0] s0, s1,\n    output logic [4:0] led,\n    output logic [6:0] seg,\n    output logic anode0, anode1\n);\n    logic clk, clk_div, anode0_int, anode1_int;\n    logic [4:0] led_int;\n    logic [6:0] seg_int;\n\n    // Internal high-speed oscillator\n    HSOSC #(.CLKHF_DIV(2'b01)) // 24MHz from clk divider\n     hf_osc (.CLKHFPU(1'b1), .CLKHFEN(1'b1), .CLKHF(clk));\n    \n    // Counter, changes ~91Hz\n    counter count(clk, clk_div);\n    led_driver driver(clk_div, s0, s1, led_int, seg_int, anode0_int, anode1_int);\n    \n    always_ff @(posedge clk) begin\n        anode0 &lt;= anode0_int;\n        anode1 &lt;= anode1_int;\n        led &lt;= led_int;\n        seg &lt;= seg_int;\n    end\n\nendmodule\n/*\ncounter.sv\n\nTakes in clk, clock signal\nOutputs clk_new, a new clock signal that rises every 2^N clk cycles\nMadeleine Kan\nmkan@hmc.edu\n3 September, 2025\n*/\n\nmodule counter #(parameter N = 17)\n     (input logic clk, reset\n     output logic clk_div);\n     \n    logic [N:0] counter;\n    always_ff @(posedge clk) begin\n        if (reset == 1'b1) begin // active low\n            counter &lt;= 1'b0;\n        end\n        else begin\n            counter &lt;= counter + 1'b1;\n        end\n    end\n    assign clk_div = counter[N]\nendmodule\n\n/*\nled_driver.sv\n\nDrives give LEDs and two 7-segment displays based on inputs from\neight switches. 7-segment displays count up from 0-F in hex based\non the binary value encoded by the state of the switches: the first four\ncorrespond to the first 7-segment display, and the second four switches to\nthe second 7-segment display. The five LEDs represent the sum of the values \nencoded by the two sets of four switches. Which set of switches (s0 or s1)\nare read and which 7-seg display is visible (depending on anode0 and anode1)\ndepends on if clk is 0 or 1\n\nMadeleine Kan\nmkan@hmc.edu\n9 September, 2025\n*/\n`timescale 1ns/1ns\nmodule led_driver(\n    input logic clk,\n    input logic [3:0] s0, s1,\n    output logic [4:0] led,\n    output logic [6:0] seg,\n    output logic anode0, anode1\n);\n    logic [3:0] s_in;\n    logic [6:0] seg_out;\n    \n    // Assign LED output\n    assign led = s0 + s1;\n    \n    // Mux input\n    mux mux0(s0, s1, clk, s_in); \n    // Feed input to seven_segment_display\n    seven_segment_display display0(s_in, seg_out);\n\n    // Control seven-segment display common anodes\n    assign anode0 = ~clk;\n    assign anode1 = clk;\n    \n    // drive seven-segment displays\n    assign seg = seg_out;\n    \nendmodule\n\n/*\nmux.sv\n\nSynchronous enabled mux with 2 inputs\nall inputs and outputs are 4 bits wide\n\nMadeleine Kan\nmkan@hmc.edu\n7 September, 2025\n*/\n\n`timescale 1ns/1ns\n\nmodule mux(\n    input logic [3:0] in0, [3:0] in1, \n    input logic en,\n    output logic [3:0] out);\n    \n    assign out =  en ? in1 : in0;\nendmodule\n/*\nseven_segment_display.sv\nDrives HDSP-521A Seven-Segment Display\nwith common anode (meaining diodes are\npulled to ground to activate)\nMadeleine Kan\nmkan@hmc.edu\n3 September, 2025\n*/\n\nmodule seven_segment_display(\n    input logic [3:0] s,\n    output logic [6:0] seg\n);\n    always_comb\n        case(s) \n            //                abcdefg\n            4'b0000: seg = 7'b0000001; // 0\n            4'b0001: seg = 7'b1001111; // 1\n            4'b0010: seg = 7'b0010010; // 2\n            4'b0011: seg = 7'b0000110; // 3\n            4'b0100: seg = 7'b1001100; // 4\n            4'b0101: seg = 7'b0100100; // 5\n            4'b0110: seg = 7'b0100000; // 6\n            4'b0111: seg = 7'b0001111; // 7\n            4'b1000: seg = 7'b0000000; // 8\n            4'b1001: seg = 7'b0001100; // 9\n            4'b1010: seg = 7'b0001000; // a\n            4'b1011: seg = 7'b1100000; // b\n            4'b1100: seg = 7'b0110001; // c\n            4'b1101: seg = 7'b1000010; // d\n            4'b1110: seg = 7'b0110000; // e\n            4'b1111: seg = 7'b0111000; // f\n            default: seg = 7'b1111111; // none\n        endcase\nendmodule"
+  },
+  {
+    "objectID": "labs/lab2/lab2.html#results",
+    "href": "labs/lab2/lab2.html#results",
+    "title": "Lab 2",
+    "section": "Results",
+    "text": "Results\nThe design met all requirements, as demonstrated by the following testbench waveforms. Note: I struggled to validate the clock/oscillator functionality in simulation. While I can verify that it worked based on the hardware, I do need to work on developing testbenches for internal clock dependent components.\nLED_driver results: \nmux results: \nseven_segment_display results:"
+  },
+  {
+    "objectID": "labs/lab2/lab2.html#summary",
+    "href": "labs/lab2/lab2.html#summary",
+    "title": "Lab 2",
+    "section": "Summary",
+    "text": "Summary\nThis lab took me ~20 hours. During it, I learned about the intricacies of synchronous design, both in hardware and in simulation. I also learned about important power considerations when driving circuits from an FPGA."
+  },
+  {
+    "objectID": "labs/lab2/lab2.html#testbench-code",
+    "href": "labs/lab2/lab2.html#testbench-code",
+    "title": "Lab 2",
+    "section": "Testbench Code",
+    "text": "Testbench Code\nBelow is the code I used to validate my design.\n/*\nTestbench for led_driver.sv\n7 September 2025\nMadeleine Kan\nmkan@g.hmc.edu\n*/\n`timescale 1ns/1ns\n\nmodule led_driver_testbench();\n    logic clk;\n    logic [3:0] s0, s1, s_exp;\n    logic [4:0] led, led_exp;\n    logic [6:0] seg, seg_exp;\n    logic anode0, anode1, anode0_exp, anode1_exp;\n    logic [31:0] errors, vectornum;\n    logic [6:0] tv;\n    led_driver dut(clk, s0, s1, led, seg, anode0, anode1);\n    \n    initial\n        begin\n            errors=0;\n            vectornum=0;\n            for(tv=9'b000000000; tv&lt;=9'b111111111; tv = tv+1'b1) begin\n                clk = tv[0];\n                #1\n                s1 = tv[8:5];\n                s0 = tv[4:1];\n                assign led_exp = s0+s1;\n                assign anode0_exp = ~clk;\n                assign anode1_exp = clk;   \n                assign s_exp = clk?s1:s0;\n                #1\n                case(s_exp)\n                    //                abcdefg\n                    4'b0000: seg_exp = 7'b0000001; // 0\n                    4'b0001: seg_exp = 7'b1001111; // 1\n                    4'b0010: seg_exp = 7'b0010010; // 2\n                    4'b0011: seg_exp = 7'b0000110; // 3\n                    4'b0100: seg_exp = 7'b1001100; // 4\n                    4'b0101: seg_exp = 7'b0100100; // 5\n                    4'b0110: seg_exp = 7'b0100000; // 6\n                    4'b0111: seg_exp = 7'b0001111; // 7\n                    4'b1000: seg_exp = 7'b0000000; // 8\n                    4'b1001: seg_exp = 7'b0001100; // 9\n                    4'b1010: seg_exp = 7'b0001000; // a\n                    4'b1011: seg_exp = 7'b1100000; // b\n                    4'b1100: seg_exp = 7'b0110001; // c\n                    4'b1101: seg_exp = 7'b1000010; // d\n                    4'b1110: seg_exp = 7'b0110000; // e\n                    4'b1111: seg_exp = 7'b0111000; // f\n                    default: seg_exp = 7'b1111111; // none\n                endcase\n                #5;\n                assert({led, seg, anode0, anode1} === {led_exp, seg_exp, anode0_exp, anode1_exp}) else begin\n                    $display(\"Error: clk = %b, s0 = %b, s1 = %b\", clk, s0, s1);\n                    $display(\" outputs: (led, seg, anode0, anode1) = %b(%b expected)\", {led, seg, anode0, anode1}, {led_exp, seg_exp, anode0_exp, anode1_exp});\n                    errors = errors + 1;\n                end\n                if (tv == 7'b1111111) begin\n                    vectornum = vectornum + 1;\n                    $display(\"%d tests completed with %d errors\", vectornum, errors);\n                    $stop;\n                end\n                else begin\n                    vectornum = vectornum + 1;\n                end\n            end\n            $display(\"%d tests completed with %d errors\", vectornum, errors);\n            $stop;\n        end\nendmodule\n/*\nTestbench for mux.sv\n3-bit input, 1-bit output\n7 September 2025\nMadeleine Kan\nmkan@g.hmc.edu\n*/\n`timescale 1ns/1ns\n\nmodule mux_testbench();\n    logic [3:0] in0, in1;\n    logic en;\n    logic [3:0] out, out_exp;\n    logic [31:0] errors, vectornum;\n    logic [8:0] tv;\n    mux dut(in0, in1, en, out);\n    initial\n        begin\n            errors=0;\n            vectornum=0;\n            for(tv=9'b000000000; tv&lt;=9'b111111111; tv = tv+1'b1) begin\n                en = tv[0];\n                #5;\n                in1 = tv[8:5];\n                in0 = tv[4:1];\n                assign out_exp = en? in1 : in0;\n                #5;\n                assert(out == out_exp) else begin\n                    $display(\"Error: inputs = %b\", tv);\n                    $display(\" outputs = %b(%b expected)\", out, in1);\n                    errors = errors + 1;\n                end\n                if (tv == 9'b111111111) begin\n                    vectornum = vectornum + 1;\n                    $display(\"%d tests completed with %d errors\", vectornum, errors);\n                    $stop;\n                end\n                else begin\n                    vectornum = vectornum + 1;\n                end\n            end\n            $display(\"%d tests completed with %d errors\", vectornum, errors);\n            $stop;\n        end\nendmodule\n\n/*\nTestbench for seven_segment_display.sv\n4-bit input, 7-bit output\n3 September 2025\nMadeleine Kan\nmkan@g.hmc.edu\n*/\nmodule seven_segment_display_testbench();\n    logic clk, reset;\n    logic [3:0] s;\n    logic [6:0] seg, seg_exp;\n    logic [31:0] vectornum, errors;\n    logic [10:0] testvectors[10000:0];\n    seven_segment_display dut(s, seg);\n    always\n        begin\n            clk=1; #5; \n            clk=0; #5;\n        end\n    initial\n        begin\n            $readmemb(\"C:/Users/mkan/Documents/GitHub/e155-lab2/lab2/source/impl_1/seg_exp.tv\", testvectors);\n            vectornum=0; \n            errors=0;\n            reset=1; #5; \n            reset=0;\n        end\n    always @(posedge clk)\n        begin\n            #1;\n            {s, seg_exp} = testvectors[vectornum];\n        end\n    always @(negedge clk)\n        if (~reset) begin\n            if (seg !== seg_exp) begin\n                $display(\"Error: inputs = %b\", seg);\n                $display(\" outputs = %b(%b expected)\", seg, seg_exp);\n                errors = errors + 1;\n            end\n            vectornum = vectornum + 1;\n            if (testvectors[vectornum] === 11'bx) begin\n                $display(\"%d tests completed with %d errors\", vectornum, errors);\n                $stop;\n            end\n        end\nendmodule\nAdditionally, here is the seg_exp testvector file I referenced in the seven segment display testbench.\n// s[3:0]  seg_exp[6:0]\n0000_0000001\n0001_1001111\n0010_0010010\n0011_0000110\n0100_1001100\n0101_0100100\n0110_0100000\n0111_0001111\n1000_0000000\n1001_0001100\n1010_0001000\n1011_1100000\n1100_0110001\n1101_1000010\n1110_0110000\n1111_0111000"
+  },
+  {
+    "objectID": "labs/lab2/lab2.html#ai-reflection",
+    "href": "labs/lab2/lab2.html#ai-reflection",
+    "title": "Lab 2",
+    "section": "AI reflection",
+    "text": "AI reflection\nFirst, I prompted ChatGPT by saying “Hello! Please write SystemVerilog HDL to time multiplex a single seven segment decoder (That decodes form four bits to a common anode seven segment dispaly) to decode two sets of input bits and drive two sets of seven output bits.” It responded with a brief explanation and the following code:\nmodule seven_segment_multiplexer (\n    input logic clk,\n    input logic rst,\n    input logic [3:0] data1,\n    input logic [3:0] data2,\n    output logic [6:0] segments,\n    output logic [1:0] anode\n);\n\n    // Internal signal to hold selected 4-bit input\n    logic [3:0] current_input;\n    logic       select_display;\n\n    // Toggle between displays\n    always_ff @(posedge clk or posedge rst) begin\n        if (rst)\n            select_display &lt;= 0;\n        else\n            select_display &lt;= ~select_display;\n    end\n\n    // Select input based on current display\n    always_comb begin\n        case (select_display)\n            1'b0: begin\n                current_input = data1;\n                anode = 2'b10; // Activate first display (active low)\n            end\n            1'b1: begin\n                current_input = data2;\n                anode = 2'b01; // Activate second display (active low)\n            end\n        endcase\n    end\n\n    // Seven segment decoder (common anode: active low)\n    always_comb begin\n        case (current_input)\n            4'h0: segments = 7'b0000001;\n            4'h1: segments = 7'b1001111;\n            4'h2: segments = 7'b0010010;\n            4'h3: segments = 7'b0000110;\n            4'h4: segments = 7'b1001100;\n            4'h5: segments = 7'b0100100;\n            4'h6: segments = 7'b0100000;\n            4'h7: segments = 7'b0001111;\n            4'h8: segments = 7'b0000000;\n            4'h9: segments = 7'b0000100;\n            4'hA: segments = 7'b0001000;\n            4'hB: segments = 7'b1100000;\n            4'hC: segments = 7'b0110001;\n            4'hD: segments = 7'b1000010;\n            4'hE: segments = 7'b0110000;\n            4'hF: segments = 7'b0111000;\n            default: segments = 7'b1111111; // All segments off\n        endcase\n    end\n\nendmodule\nThis code looks pretty similar to what I ended up doing! I do think the code could be a bit more idiomatic – for instance, using a mux instead of a case statement to driev the anodes – to more directly reflect the inferred hardware. The use of a two-bit number for the anodes is different from what I chose, but it seems like a good design choice since it already takes care of the default case (ensuring that the two anodes are always opposite each other). The explanation was helpful, and ChatGPT included an important note about the desired clock frequency. In addition, the code compiled.\nAt this point, I had to log in and create a new conversation. I provided ChatGPT with the same prompt, appended with “use the seven segment decoder and oscillator provided in the attached filles”, and I attached my seven-segment decoder and count modules from lab1. This was exciting since I didn’t know that this was a feature of ChatGPT. In response to this prompt, ChatGPT provided the following code:\n\nIn accompaniment, ChatGPT also provided a good description of the modules I uploaded. The comments for this module were much more thorough than the comments from the first module. Perhaps this is because the modules I uploaded had descriptions at the top so ChatGPT copied that? Since I originally included HSOSC in the top module (instead of its own module), the code that ChatGPT wrote still requires a clk input, so the clk frequency remains unspecified. In general, the way the code was organized and the variables were named was different from what I would have chosen, but the design still seems fundamentally equivalent. Additionally, the code compiled on the first try, which was exciting."
+  },
+  {
+    "objectID": "labs/lab2/lab2.html#resources",
+    "href": "labs/lab2/lab2.html#resources",
+    "title": "Lab 2",
+    "section": "Resources",
+    "text": "Resources\nLab Code\nSeven Segment display datasheet\nPNP transistor datasheet"
+  },
+  {
+    "objectID": "labs/labs-overview.html",
+    "href": "labs/labs-overview.html",
+    "title": "Labs Overview",
+    "section": "",
+    "text": "Here are the E155 Lab Reports.\nSo far, I have completed Lab 1."
+  },
+  {
+    "objectID": "labs/labs-overview.html#lab-1-fpga-and-mcu-setup-and-testing",
+    "href": "labs/labs-overview.html#lab-1-fpga-and-mcu-setup-and-testing",
+    "title": "Labs Overview",
+    "section": "Lab 1: FPGA and MCU Setup and Testing",
+    "text": "Lab 1: FPGA and MCU Setup and Testing"
+  },
+  {
+    "objectID": "labs/labs-overview.html#lab-2-multiplexed-7-segment-display",
+    "href": "labs/labs-overview.html#lab-2-multiplexed-7-segment-display",
+    "title": "Labs Overview",
+    "section": "Lab 2: Multiplexed 7-segment Display",
+    "text": "Lab 2: Multiplexed 7-segment Display"
+  },
+  {
+    "objectID": "labs/labs-overview.html#lab-3-keypad-scanner",
+    "href": "labs/labs-overview.html#lab-3-keypad-scanner",
+    "title": "Labs Overview",
+    "section": "Lab 3: Keypad Scanner",
+    "text": "Lab 3: Keypad Scanner"
+  },
+  {
+    "objectID": "labs/labs-overview.html#lab-4-digital-auto",
+    "href": "labs/labs-overview.html#lab-4-digital-auto",
+    "title": "Labs Overview",
+    "section": "Lab 4: Digital Auto",
+    "text": "Lab 4: Digital Auto"
+  },
+  {
+    "objectID": "labs/labs-overview.html#lab-5-interrupts",
+    "href": "labs/labs-overview.html#lab-5-interrupts",
+    "title": "Labs Overview",
+    "section": "Lab 5: Interrupts",
+    "text": "Lab 5: Interrupts"
+  },
+  {
+    "objectID": "labs/labs-overview.html#lab-6-the-internet-of-things-and-serial-peripheral-interface",
+    "href": "labs/labs-overview.html#lab-6-the-internet-of-things-and-serial-peripheral-interface",
+    "title": "Labs Overview",
+    "section": "Lab 6: The Internet of Things and Serial Peripheral Interface",
+    "text": "Lab 6: The Internet of Things and Serial Peripheral Interface"
+  },
+  {
+    "objectID": "labs/labs-overview.html#lab-7-the-advanced-encryption-standard",
+    "href": "labs/labs-overview.html#lab-7-the-advanced-encryption-standard",
+    "title": "Labs Overview",
+    "section": "Lab 7: The Advanced Encryption Standard",
+    "text": "Lab 7: The Advanced Encryption Standard"
+  },
+  {
+    "objectID": "posts/initial-reflection.html",
+    "href": "posts/initial-reflection.html",
+    "title": "Initial Reflection",
+    "section": "",
+    "text": "Firstly, I am hopen to work on developing my FPGA and MCU programming skills. Additionally, I want to work on my technical documentation and communication skills. I also want to work on project design, execution, and evaluation! Overall, I am excited to build a project that I find interesting and learn a lot of useful skills along the way."
   }
 ]
