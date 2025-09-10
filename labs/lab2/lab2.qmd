@@ -8,3 +8,481 @@ categories:
     - labreport
 draft: false
 ---
+## Introduction
+The purpose of lab 2 was to use time-multiplexing to drive two seven-segment displays based on inputs from two sets of four DIP switches using only one seven-segment display module. Additionally, the sum of the two displayed numbers is depicted in binary across five LEDs.
+
+## Schematic
+The circuit diagram to drive the two seven-segment displays and five LEDs based on eight input switches is as follows: 
+
+![](images\schematic.png)
+
+The calculations for resistors to control the current draw/sink on all FPGA pins are as follows:
+
+![](images\calculations.png)
+
+## Block Diagram
+The block diagram for the SystemVerilog modules used in this design is as follows:
+
+![](images\block_diagram.png)
+
+
+## Code:
+Here is the code implementation of the block diagram above:
+
+```systemverilog
+/*
+lab2_mk_top.sv
+
+Drives give LEDs and two 7-segment displays based on inputs from
+eight switches. 7-segment displays count up from 0-F in hex based
+on the binary value encoded by the state of the switches: the first four
+correspond to the first 7-segment display, and the second four switches to
+the second 7-segment display. The five LEDs represent the sum of the values 
+encoded by the two sets of four switches.
+
+Madeleine Kan
+mkan@hmc.edu
+7 September, 2025
+*/
+`timescale 1ns/1ns
+module lab2_mk_top(
+	input logic [3:0] s0, s1,
+	output logic [4:0] led,
+	output logic [6:0] seg,
+	output logic anode0, anode1
+);
+	logic clk, clk_div, anode0_int, anode1_int;
+	logic [4:0] led_int;
+	logic [6:0] seg_int;
+
+	// Internal high-speed oscillator
+	HSOSC #(.CLKHF_DIV(2'b01)) // 24MHz from clk divider
+	 hf_osc (.CLKHFPU(1'b1), .CLKHFEN(1'b1), .CLKHF(clk));
+	
+	// Counter, changes ~91Hz
+	counter count(clk, clk_div);
+	led_driver driver(clk_div, s0, s1, led_int, seg_int, anode0_int, anode1_int);
+	
+	always_ff @(posedge clk) begin
+		anode0 <= anode0_int;
+		anode1 <= anode1_int;
+		led <= led_int;
+		seg <= seg_int;
+	end
+
+endmodule
+
+/*
+counter.sv
+
+Takes in clk, clock signal
+Outputs clk_new, a new clock signal that rises every 2^N clk cycles
+Madeleine Kan
+mkan@hmc.edu
+3 September, 2025
+*/
+
+module counter #(parameter N = 17)
+	 (input logic clk,
+	 output logic clk_div);
+	 
+	logic [N:0] counter;
+	always_ff @(posedge clk) begin
+		counter <= counter + 1'b1;
+		clk_div <= counter[N];
+	end
+endmodule
+
+/*
+led_driver.sv
+
+Drives give LEDs and two 7-segment displays based on inputs from
+eight switches. 7-segment displays count up from 0-F in hex based
+on the binary value encoded by the state of the switches: the first four
+correspond to the first 7-segment display, and the second four switches to
+the second 7-segment display. The five LEDs represent the sum of the values 
+encoded by the two sets of four switches. Which set of switches (s0 or s1)
+are read and which 7-seg display is visible (depending on anode0 and anode1)
+depends on if clk is 0 or 1
+
+Madeleine Kan
+mkan@hmc.edu
+9 September, 2025
+*/
+`timescale 1ns/1ns
+module led_driver(
+	input logic clk,
+	input logic [3:0] s0, s1,
+	output logic [4:0] led,
+	output logic [6:0] seg,
+	output logic anode0, anode1
+);
+	logic [3:0] s_in;
+	logic [6:0] seg_out;
+	
+	// Assign LED output
+	assign led = s0 + s1;
+	
+	// Mux input
+	mux mux0(s0, s1, clk, s_in); 
+	// Feed input to seven_segment_display
+	seven_segment_display display0(s_in, seg_out);
+
+	// Control seven-segment display common anodes
+	assign anode0 = ~clk;
+	assign anode1 = clk;
+	
+	// drive seven-segment displays
+	assign seg = seg_out;
+	
+endmodule
+
+/*
+mux.sv
+
+Synchronous enabled mux with 2 inputs
+all inputs and outputs are 4 bits wide
+
+Madeleine Kan
+mkan@hmc.edu
+7 September, 2025
+*/
+
+`timescale 1ns/1ns
+
+module mux(
+	input logic [3:0] in0, [3:0] in1, 
+	input logic en,
+	output logic [3:0] out);
+	
+	assign out =  en ? in1 : in0;
+endmodule
+
+/*
+seven_segment_display.sv
+Drives HDSP-521A Seven-Segment Display
+with common anode (meaining diodes are
+pulled to ground to activate)
+Madeleine Kan
+mkan@hmc.edu
+3 September, 2025
+*/
+
+module seven_segment_display(
+	input logic [3:0] s,
+	output logic [6:0] seg
+);
+	always_comb
+		case(s) 
+			//				  abcdefg
+			4'b0000: seg = 7'b0000001; // 0
+			4'b0001: seg = 7'b1001111; // 1
+			4'b0010: seg = 7'b0010010; // 2
+			4'b0011: seg = 7'b0000110; // 3
+			4'b0100: seg = 7'b1001100; // 4
+			4'b0101: seg = 7'b0100100; // 5
+			4'b0110: seg = 7'b0100000; // 6
+			4'b0111: seg = 7'b0001111; // 7
+			4'b1000: seg = 7'b0000000; // 8
+			4'b1001: seg = 7'b0001100; // 9
+			4'b1010: seg = 7'b0001000; // a
+			4'b1011: seg = 7'b1100000; // b
+			4'b1100: seg = 7'b0110001; // c
+			4'b1101: seg = 7'b1000010; // d
+			4'b1110: seg = 7'b0110000; // e
+			4'b1111: seg = 7'b0111000; // f
+			default: seg = 7'b1111111; // none
+		endcase
+endmodule
+
+
+```
+
+## Results
+The design met all requirements, as demonstrated by the following testbench waveforms.
+
+LED_driver results:
+![](images\led_driver_testbench_better.png)
+
+mux results:
+![](images\mux_testbench_better.png)
+
+seven_segment_display results:
+![](images\seven_seg_testbench.png)
+
+## Summary
+This lab took me ~20 hours. During it, I learned about the intricacies of synchronous design, both in hardware and in simulation. I also learned about important power considerations when driving circuits from an FPGA.
+
+## Testbench Code
+Below is the code I used to validate my design.
+
+```systemverilog
+/*
+Testbench for led_driver.sv
+7 September 2025
+Madeleine Kan
+mkan@g.hmc.edu
+*/
+`timescale 1ns/1ns
+
+module led_driver_testbench();
+	logic clk;
+	logic [3:0] s0, s1, s_exp;
+	logic [4:0] led, led_exp;
+	logic [6:0] seg, seg_exp;
+	logic anode0, anode1, anode0_exp, anode1_exp;
+	logic [31:0] errors, vectornum;
+	logic [6:0] tv;
+	led_driver dut(clk, s0, s1, led, seg, anode0, anode1);
+	
+	initial
+		begin
+			errors=0;
+			vectornum=0;
+			for(tv=9'b000000000; tv<=9'b111111111; tv = tv+1'b1) begin
+				clk = tv[0];
+				#1
+				s1 = tv[8:5];
+				s0 = tv[4:1];
+				assign led_exp = s0+s1;
+				assign anode0_exp = ~clk;
+				assign anode1_exp = clk;   
+				assign s_exp = clk?s1:s0;
+				#1
+				case(s_exp)
+					//				  abcdefg
+					4'b0000: seg_exp = 7'b0000001; // 0
+					4'b0001: seg_exp = 7'b1001111; // 1
+					4'b0010: seg_exp = 7'b0010010; // 2
+					4'b0011: seg_exp = 7'b0000110; // 3
+					4'b0100: seg_exp = 7'b1001100; // 4
+					4'b0101: seg_exp = 7'b0100100; // 5
+					4'b0110: seg_exp = 7'b0100000; // 6
+					4'b0111: seg_exp = 7'b0001111; // 7
+					4'b1000: seg_exp = 7'b0000000; // 8
+					4'b1001: seg_exp = 7'b0001100; // 9
+					4'b1010: seg_exp = 7'b0001000; // a
+					4'b1011: seg_exp = 7'b1100000; // b
+					4'b1100: seg_exp = 7'b0110001; // c
+					4'b1101: seg_exp = 7'b1000010; // d
+					4'b1110: seg_exp = 7'b0110000; // e
+					4'b1111: seg_exp = 7'b0111000; // f
+					default: seg_exp = 7'b1111111; // none
+				endcase
+				#5;
+				assert({led, seg, anode0, anode1} === {led_exp, seg_exp, anode0_exp, anode1_exp}) else begin
+					$display("Error: clk = %b, s0 = %b, s1 = %b", clk, s0, s1);
+					$display(" outputs: (led, seg, anode0, anode1) = %b(%b expected)", {led, seg, anode0, anode1}, {led_exp, seg_exp, anode0_exp, anode1_exp});
+					errors = errors + 1;
+				end
+				if (tv == 7'b1111111) begin
+					vectornum = vectornum + 1;
+					$display("%d tests completed with %d errors", vectornum, errors);
+					$stop;
+				end
+				else begin
+					vectornum = vectornum + 1;
+				end
+			end
+			$display("%d tests completed with %d errors", vectornum, errors);
+			$stop;
+		end
+endmodule
+
+/*
+Testbench for mux.sv
+3-bit input, 1-bit output
+7 September 2025
+Madeleine Kan
+mkan@g.hmc.edu
+*/
+`timescale 1ns/1ns
+
+module mux_testbench();
+	logic [3:0] in0, in1;
+	logic en;
+	logic [3:0] out, out_exp;
+	logic [31:0] errors, vectornum;
+	logic [8:0] tv;
+	mux dut(in0, in1, en, out);
+	initial
+		begin
+			errors=0;
+			vectornum=0;
+			for(tv=9'b000000000; tv<=9'b111111111; tv = tv+1'b1) begin
+				en = tv[0];
+				#5;
+				in1 = tv[8:5];
+				in0 = tv[4:1];
+				assign out_exp = en? in1 : in0;
+				#5;
+				assert(out == out_exp) else begin
+					$display("Error: inputs = %b", tv);
+					$display(" outputs = %b(%b expected)", out, in1);
+					errors = errors + 1;
+				end
+				if (tv == 9'b111111111) begin
+					vectornum = vectornum + 1;
+					$display("%d tests completed with %d errors", vectornum, errors);
+					$stop;
+				end
+				else begin
+					vectornum = vectornum + 1;
+				end
+			end
+			$display("%d tests completed with %d errors", vectornum, errors);
+			$stop;
+		end
+endmodule
+
+/*
+Testbench for seven_segment_display.sv
+4-bit input, 7-bit output
+3 September 2025
+Madeleine Kan
+mkan@g.hmc.edu
+*/
+module seven_segment_display_testbench();
+	logic clk, reset;
+	logic [3:0] s;
+	logic [6:0] seg, seg_exp;
+	logic [31:0] vectornum, errors;
+	logic [10:0] testvectors[10000:0];
+	seven_segment_display dut(s, seg);
+	always
+		begin
+			clk=1; #5; 
+			clk=0; #5;
+		end
+	initial
+		begin
+			$readmemb("C:/Users/mkan/Documents/GitHub/e155-lab2/lab2/source/impl_1/seg_exp.tv", testvectors);
+			vectornum=0; 
+			errors=0;
+			reset=1; #5; 
+			reset=0;
+		end
+	always @(posedge clk)
+		begin
+			#1;
+			{s, seg_exp} = testvectors[vectornum];
+		end
+	always @(negedge clk)
+		if (~reset) begin
+			if (seg !== seg_exp) begin
+				$display("Error: inputs = %b", seg);
+				$display(" outputs = %b(%b expected)", seg, seg_exp);
+				errors = errors + 1;
+			end
+			vectornum = vectornum + 1;
+			if (testvectors[vectornum] === 11'bx) begin
+				$display("%d tests completed with %d errors", vectornum, errors);
+				$stop;
+			end
+		end
+endmodule
+```
+
+Additionally, here is the seg_exp testvector file I referenced in the seven segment display testbench.
+```
+// s[3:0]  seg_exp[6:0]
+0000_0000001
+0001_1001111
+0010_0010010
+0011_0000110
+0100_1001100
+0101_0100100
+0110_0100000
+0111_0001111
+1000_0000000
+1001_0001100
+1010_0001000
+1011_1100000
+1100_0110001
+1101_1000010
+1110_0110000
+1111_0111000
+```
+
+## AI reflection
+
+First, I prompted ChatGPT by saying "Hello! Please write SystemVerilog HDL to time multiplex a single seven segment decoder (That decodes form four bits to a common anode seven segment dispaly) to decode two sets of input bits and drive two sets of seven output bits." It responded with a brief explanation and the following code:
+
+```systemverilog
+module seven_segment_multiplexer (
+    input logic clk,
+    input logic rst,
+    input logic [3:0] data1,
+    input logic [3:0] data2,
+    output logic [6:0] segments,
+    output logic [1:0] anode
+);
+
+    // Internal signal to hold selected 4-bit input
+    logic [3:0] current_input;
+    logic       select_display;
+
+    // Toggle between displays
+    always_ff @(posedge clk or posedge rst) begin
+        if (rst)
+            select_display <= 0;
+        else
+            select_display <= ~select_display;
+    end
+
+    // Select input based on current display
+    always_comb begin
+        case (select_display)
+            1'b0: begin
+                current_input = data1;
+                anode = 2'b10; // Activate first display (active low)
+            end
+            1'b1: begin
+                current_input = data2;
+                anode = 2'b01; // Activate second display (active low)
+            end
+        endcase
+    end
+
+    // Seven segment decoder (common anode: active low)
+    always_comb begin
+        case (current_input)
+            4'h0: segments = 7'b0000001;
+            4'h1: segments = 7'b1001111;
+            4'h2: segments = 7'b0010010;
+            4'h3: segments = 7'b0000110;
+            4'h4: segments = 7'b1001100;
+            4'h5: segments = 7'b0100100;
+            4'h6: segments = 7'b0100000;
+            4'h7: segments = 7'b0001111;
+            4'h8: segments = 7'b0000000;
+            4'h9: segments = 7'b0000100;
+            4'hA: segments = 7'b0001000;
+            4'hB: segments = 7'b1100000;
+            4'hC: segments = 7'b0110001;
+            4'hD: segments = 7'b1000010;
+            4'hE: segments = 7'b0110000;
+            4'hF: segments = 7'b0111000;
+            default: segments = 7'b1111111; // All segments off
+        endcase
+    end
+
+endmodule
+```
+
+This code looks pretty similar to what I ended up doing! I do think the code could be a bit more idiomatic -- for instance, using a mux instead of a case statement to driev the anodes -- to more directly reflect the inferred hardware. The use of a two-bit number for the anodes is different from what I chose, but it seems like a good design choice since it already takes care of the default case (ensuring that the two anodes are always opposite each other). The explanation was helpful, and ChatGPT included an important note about the desired clock frequency. In addition, the code compiled.
+
+At this point, I had to log in and create a new conversation. I provided ChatGPT with the same prompt, appended with "use the seven segment decoder and oscillator provided in the attached filles", and I attached my seven-segment decoder and count modules from lab1. ChatGPT provided the following code:
+
+```systemverilog
+
+```
+
+In accompaniment, ChatGPT also provided a good description of the modules I uploaded. The comments for this module were much more thorough than the comments from the first module. Perhaps this is because the modules I uploaded had descriptions at the top so ChatGPT copied that? Since I originally included HSOSC in the top module (instead of its own module), the code that ChatGPT wrote still requires a clk input, so the clk frequency remains unspecified. In general, the way the code was organized and the variables were named was different from what I would have chosen, but the design still seems fundamentally equivalent. Additionally, the code compiled on the first try, which was exciting.
+
+## Resources
+[Lab Code] (https://github.com/madeleieine/e155-lab2/tree/main)
+
+[seven-segment display datasheet](https://docs.broadcom.com/doc/HDSP-521A-523A-Dual-Digit-General-Purpose-7-Segment-Display-DS)
+
+[PNP transistor datasheet](https://www.digikey.com/htmldatasheets/production/99318/0/0/1/2n3906-datasheet.html?gclid=01d3c1f4ecef10d0bf6da94b18a2a830&gclsrc=3p.ds&msclkid=01d3c1f4ecef10d0bf6da94b18a2a830)
