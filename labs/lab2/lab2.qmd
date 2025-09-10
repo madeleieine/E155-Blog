@@ -71,7 +71,9 @@ module lab2_mk_top(
 	end
 
 endmodule
+```
 
+```systemverilog
 /*
 counter.sv
 
@@ -94,9 +96,12 @@ module counter #(parameter N = 17)
         else begin
 		    counter <= counter + 1'b1;
         end
-		clk_div <= counter[N];
 	end
+    assign clk_div = counter[N]
 endmodule
+```
+
+```systemverilog
 
 /*
 led_driver.sv
@@ -141,6 +146,9 @@ module led_driver(
 	assign seg = seg_out;
 	
 endmodule
+```
+
+```systemverilog
 
 /*
 mux.sv
@@ -162,7 +170,9 @@ module mux(
 	
 	assign out =  en ? in1 : in0;
 endmodule
+```
 
+```systemverilog
 /*
 seven_segment_display.sv
 Drives HDSP-521A Seven-Segment Display
@@ -199,7 +209,6 @@ module seven_segment_display(
 			default: seg = 7'b1111111; // none
 		endcase
 endmodule
-
 
 ```
 
@@ -294,7 +303,9 @@ module led_driver_testbench();
 			$stop;
 		end
 endmodule
+```
 
+```systemverilog
 /*
 Testbench for mux.sv
 3-bit input, 1-bit output
@@ -340,6 +351,9 @@ module mux_testbench();
 			$stop;
 		end
 endmodule
+```
+
+```systemverilog
 
 /*
 Testbench for seven_segment_display.sv
