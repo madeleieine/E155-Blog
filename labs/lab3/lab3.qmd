@@ -2,9 +2,115 @@
 title: "Lab 3"
 description: "Keypad Scanner"
 author: "Madeleine Kan"
-date: 9/17/25
+date: 9/24/25
 categories:
     - reflection
     - labreport
 draft: false
 ---
+## Introduction
+The purpose of Lab3 was to develop a scanner to read two inputs from a keypad and display them on a seven-segment display.
+
+## Schematic
+The circuit diagram is as follows:
+
+The calculations for the current-limiting resistors are as follows:
+
+## Block Diagram
+Here is the block diagram for the overall software architecture:
+![](images\block_diagram.png)
+
+Here is the ScanFSM state transition diagram:
+![](images\scan_fsm.png)
+
+Here is the DebounceFSM state transition diagram:
+
+## Code:
+Here is the code implementation of the system described above:
+```systemverilog
+lab3_top.sv
+```
+
+```systemverilog
+counter.sv
+```
+
+```systemverilog
+scan_fsm.sv
+```
+
+```systemverilog
+debounce_fsm.sv
+```
+
+```systemverilog
+led_processor.sv
+```
+
+```systemverilog
+led_driver.sv
+```
+
+```systemverilog
+mux.sv
+```
+
+```systemverilog
+seven_segment_display.sv
+```
+
+## Results
+Unfortunately, the hardware design did not work. However, the simulations did work! Here are the waveforms:
+lab3_top testbench:
+
+counter testbench:
+
+scan_fsm testbench:
+
+debounce_fsm testbench:
+
+led_processor testbench:
+
+led_driver testbench:
+
+mux testbench:
+
+seven_segment_display testbench:
+
+## Summary
+I have so far spent like 26 hours on this lab. I learned a lot about synchrounous design and partitioning complicated tasks into simultaneous finite state machines.
+
+## Testbench Code
+```systemverilog
+lab3_top_testbench.sv
+```
+
+```systemverilog
+counter_testbench.sv
+```
+
+```systemverilog
+scan_fsm_testbench.sv
+```
+
+```systemverilog
+debounce_fsm_testbench.sv
+```
+
+```systemverilog
+led_processor_testbench.sv
+```
+
+```systemverilog
+led_driver_testbench.sv
+```
+
+```systemverilog
+mux_testbench.sv
+```
+
+```systemverilog
+seven_segment_display_testbench.sv
+```
+
+## AI Reflection
