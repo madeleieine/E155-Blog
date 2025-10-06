@@ -7,8 +7,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Madeleine Kan">
-<meta name="dcterms.date" content="2025-10-01">
-<meta name="description" content="Digital Auto">
+<meta name="dcterms.date" content="2025-10-06">
+<meta name="description" content="Digital Audio">
 
 <title>Lab 4 – E155 Portfolio</title>
 <style>
@@ -22,6 +22,41 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -119,8 +154,24 @@ ul.task-list li input[type="checkbox"] {
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a></li>
+  <li><a href="#schematic" id="toc-schematic" class="nav-link" data-scroll-target="#schematic">Schematic</a></li>
+  <li><a href="#calculations" id="toc-calculations" class="nav-link" data-scroll-target="#calculations">Calculations</a></li>
+  <li><a href="#code" id="toc-code" class="nav-link" data-scroll-target="#code">Code:</a></li>
+  <li><a href="#results" id="toc-results" class="nav-link" data-scroll-target="#results">Results</a></li>
+  <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary">Summary</a></li>
+  <li><a href="#ai-reflection" id="toc-ai-reflection" class="nav-link" data-scroll-target="#ai-reflection">AI Reflection</a>
+  <ul class="collapse">
+  <li><a href="#gpio-mapping-tips" id="toc-gpio-mapping-tips" class="nav-link" data-scroll-target="#gpio-mapping-tips">🔌 GPIO Mapping Tips</a></li>
+  <li><a href="#example-generating-440-hz-with-tim2" id="toc-example-generating-440-hz-with-tim2" class="nav-link" data-scroll-target="#example-generating-440-hz-with-tim2">🧮 Example: Generating 440 Hz with TIM2</a></li>
+  </ul></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -136,7 +187,7 @@ ul.task-list li input[type="checkbox"] {
 
 <div>
   <div class="description">
-    Digital Auto
+    Digital Audio
   </div>
 </div>
 
@@ -153,7 +204,7 @@ ul.task-list li input[type="checkbox"] {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">October 1, 2025</p>
+      <p class="date">October 6, 2025</p>
     </div>
   </div>
   
@@ -165,8 +216,558 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
+<section id="introduction" class="level2">
+<h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
+<p>The purpose of Lab 4 was to program an STM32 MCU to play a sequence of specified frequencies and durations. Currently, it is capable of playing excerpts from Fur Elise by Beethoven and Hopes and Dreams by Toby Fox.</p>
+</section>
+<section id="schematic" class="level2">
+<h2 class="anchored" data-anchor-id="schematic">Schematic</h2>
+<p>The circuit diagram is as follows: <img src="images\schematic.png" class="img-fluid" style="width:50.0%"></p>
+</section>
+<section id="calculations" class="level2">
+<h2 class="anchored" data-anchor-id="calculations">Calculations</h2>
+<p>Minimum and maximum duration and frequencies:</p>
+<p><img src="images\min_calcs.png" class="img-fluid" style="width:45.0%"> <img src="images\max_calcs.png" class="img-fluid" style="width:45.0%"></p>
+<p>Frequency calculation for 220, 660, and 100 Hz (within 1% error):</p>
+<p><img src="images\220Hz_calcs.png" class="img-fluid" style="width:33.0%"> <img src="images\660Hz_calcs.png" class="img-fluid" style="width:33.0%"> <img src="images\1000Hz_calcs.png" class="img-fluid" style="width:33.0%"></p>
+</section>
+<section id="code" class="level2">
+<h2 class="anchored" data-anchor-id="code">Code:</h2>
+<p>Updated GPIO.h library header file:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode c code-with-copy"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">// STM32L432KC_GPIO.h</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co">// Header for GPIO functions</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co">// Madeleine Kan</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co">// mkan@hmc.edu</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co">// 10/6/25</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="pp">#ifndef STM32L4_GPIO_H</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="pp">#define STM32L4_GPIO_H</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;stdint.h&gt;</span><span class="pp"> </span><span class="co">// Include stdint header</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co">///////////////////////////////////////////////////////////////////////////////</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co">// Definitions</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="co">///////////////////////////////////////////////////////////////////////////////</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="co">// Values for GPIO pins ("val" arguments)</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="pp">#define GPIO_LOW    </span><span class="dv">0</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="pp">#define GPIO_HIGH   </span><span class="dv">1</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="co">// Base addresses for GPIO ports</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="pp">#define GPIOB_BASE  </span><span class="op">(</span><span class="bn">0x48000400</span><span class="bu">UL</span><span class="op">)</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="pp">#define GPIOA_BASE  </span><span class="op">(</span><span class="bn">0x48000000</span><span class="bu">UL</span><span class="op">)</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="co">// see button interrupt tutorial, pin A + more generality</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="co">// Arbitrary GPIO functions for pinMode()</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="pp">#define GPIO_INPUT  </span><span class="dv">0</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="pp">#define GPIO_OUTPUT </span><span class="dv">1</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="pp">#define GPIO_ALT    </span><span class="dv">2</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="pp">#define GPIO_ANALOG </span><span class="dv">3</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="co">///////////////////////////////////////////////////////////////////////////////</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="co">// Bitfield struct for GPIO</span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a><span class="co">///////////////////////////////////////////////////////////////////////////////</span></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a><span class="co">// GPIO register structs here</span></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a><span class="kw">typedef</span> <span class="kw">struct</span> <span class="op">{</span></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>    <span class="dt">volatile</span> <span class="dt">uint32_t</span> MODER<span class="op">;</span>   <span class="co">// GPIO Offset 0x00 GPIO port mode register</span></span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>    <span class="dt">volatile</span> <span class="dt">uint32_t</span> OTYPER<span class="op">;</span>  <span class="co">// GPIO Offset 0x04</span></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>    <span class="dt">volatile</span> <span class="dt">uint32_t</span> OSPEEDR<span class="op">;</span> <span class="co">// GPIO Offset 0x08</span></span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>    <span class="dt">volatile</span> <span class="dt">uint32_t</span> PURPDR<span class="op">;</span>  <span class="co">// GPIO Offset 0x0C</span></span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>    <span class="dt">volatile</span> <span class="dt">uint32_t</span> IDR<span class="op">;</span>     <span class="co">// GPIO Offset 0x10</span></span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>    <span class="dt">volatile</span> <span class="dt">uint32_t</span> ODR<span class="op">;</span>     <span class="co">// GPIO Offset 0x14</span></span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>    <span class="dt">volatile</span> <span class="dt">uint32_t</span> BSRR<span class="op">;</span>    <span class="co">// GPIO Offset 0x18</span></span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>    <span class="dt">volatile</span> <span class="dt">uint32_t</span> LCKR<span class="op">;</span>    <span class="co">// GPIO Offset 0x1C</span></span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>    <span class="dt">volatile</span> <span class="dt">uint32_t</span> AFRL<span class="op">;</span>    <span class="co">// GPIO Offset 0x20</span></span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>    <span class="dt">volatile</span> <span class="dt">uint32_t</span> AFRH<span class="op">;</span>    <span class="co">// GPIO Offset 0x24</span></span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> GPIO<span class="op">;</span></span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a><span class="co">// Pointers to GPIO-sized chunks of memory for each peripheral</span></span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a><span class="pp">#define GPIOB </span><span class="op">((</span><span class="pp">GPIO </span><span class="op">*)</span><span class="pp"> GPIOB_BASE</span><span class="op">)</span></span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a><span class="pp">#define GPIOA </span><span class="op">((</span><span class="pp">GPIO </span><span class="op">*)</span><span class="pp"> GPIOA_BASE</span><span class="op">)</span></span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a><span class="pp">#define GPIO GPIOA</span></span>
+<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a><span class="co">///////////////////////////////////////////////////////////////////////////////</span></span>
+<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a><span class="co">// Function prototypes</span></span>
+<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a><span class="co">///////////////////////////////////////////////////////////////////////////////</span></span>
+<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> pinMode<span class="op">(</span><span class="dt">int</span> pin<span class="op">,</span> <span class="dt">int</span> function<span class="op">);</span></span>
+<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-61"><a href="#cb1-61" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> digitalRead<span class="op">(</span><span class="dt">int</span> pin<span class="op">);</span></span>
+<span id="cb1-62"><a href="#cb1-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-63"><a href="#cb1-63" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> digitalWrite<span class="op">(</span><span class="dt">int</span> pin<span class="op">,</span> <span class="dt">int</span> val<span class="op">);</span></span>
+<span id="cb1-64"><a href="#cb1-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-65"><a href="#cb1-65" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> togglePin<span class="op">(</span><span class="dt">int</span> pin<span class="op">);</span></span>
+<span id="cb1-66"><a href="#cb1-66" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-67"><a href="#cb1-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-68"><a href="#cb1-68" aria-hidden="true" tabindex="-1"></a><span class="pp">#endif</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Updated RCC.c library file:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode c code-with-copy"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">// STM32L432KC_RCC.c</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co">// Source code for RCC functions</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co">// Madeleine Kan</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co">// mkan@hmc.edu</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co">// 10/6/25</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">"STM32L432KC_RCC.h"</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> configureClock<span class="op">(){</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="co">// MSI is automatically set as systemclock</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    RCC<span class="op">-&gt;</span>APB2ENR <span class="op">|=</span> <span class="op">(</span><span class="dv">1</span> <span class="op">&lt;&lt;</span> <span class="dv">17</span><span class="op">);</span> <span class="co">// tim16 timer clk enable</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    RCC<span class="op">-&gt;</span>APB2ENR <span class="op">|=</span> <span class="op">(</span><span class="dv">1</span> <span class="op">&lt;&lt;</span> <span class="dv">16</span><span class="op">);</span> <span class="co">// tim15 timer clk enable</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>New TIMER.c library file:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode c code-with-copy"><code class="sourceCode c"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">// TIMER.c</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co">// Source code for Timer functions (delay and output 50% PWM at desired frequency)</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co">// Madeleine Kan</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co">// mkan@hmc.edu</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co">// 10/6/25</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">"STM32L432KC_TIMER.h"</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> configureTimer<span class="op">(</span>TIM_TypeDef<span class="op">*</span> TIMx<span class="op">,</span> <span class="dt">int</span> PWM<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>PWM <span class="op">==</span> <span class="dv">1</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    TIMx<span class="op">-&gt;</span>CCMR1 <span class="op">|=</span> <span class="op">(</span><span class="bn">0b110</span> <span class="op">&lt;&lt;</span> <span class="dv">4</span><span class="op">);</span>    <span class="co">// set PWM mode 1 (active high)</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    TIMx<span class="op">-&gt;</span>CCMR1 <span class="op">|=</span> <span class="op">(</span><span class="dv">1</span> <span class="op">&lt;&lt;</span> <span class="dv">3</span><span class="op">);</span>    <span class="co">// output compare 1 preload enable</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    TIMx<span class="op">-&gt;</span>BDTR <span class="op">|=</span> <span class="op">(</span><span class="dv">1</span> <span class="op">&lt;&lt;</span> <span class="dv">15</span><span class="op">);</span>    <span class="co">// main output enable</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    <span class="co">// TIMx-&gt;CCER |= (1 &lt;&lt; 1); // CC1E, enable OC1 signal </span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    TIMx<span class="op">-&gt;</span>CCER <span class="op">|=</span> <span class="op">(</span><span class="dv">1</span> <span class="op">&lt;&lt;</span> <span class="dv">0</span><span class="op">);</span> <span class="co">// CC1E, enable OC1 signal </span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>  <span class="co">// preload value copied into active capture/compare register when update event occurs</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>  <span class="co">// update generation... cleared by hardware, care of enable and disabling counter</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>  TIMx<span class="op">-&gt;</span>EGR <span class="op">|=</span> <span class="op">(</span><span class="dv">1</span> <span class="op">&lt;&lt;</span> <span class="dv">0</span><span class="op">);</span>    <span class="co">// reinitialize counter, generate update of registers</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>  <span class="co">// enable counter</span></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>  TIMx<span class="op">-&gt;</span>CR1 <span class="op">|=</span> <span class="op">(</span><span class="dv">1</span> <span class="op">&lt;&lt;</span> <span class="dv">0</span><span class="op">);</span>    <span class="co">// write 1 to CEN</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>  <span class="co">// set URS to overflow/underflow only ... maybe relevant for upcout nmode?</span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>  <span class="co">// TIMx-&gt;CR1 |= (1 &lt;&lt; 2);</span></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a><span class="co">// output PWM signal at desired frequency</span></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> setTimerFreq<span class="op">(</span>TIM_TypeDef<span class="op">*</span> TIMx<span class="op">,</span> <span class="dt">uint16_t</span> freq<span class="op">,</span> <span class="dt">uint16_t</span> prescale_val<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>  <span class="co">// (4 MHz) / (prescaler_val * auto_reload_val)</span></span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>  <span class="co">// must span 220-1000 Hz with 1% accuracy</span></span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>  <span class="co">//uint16_t prescale_val;</span></span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>  <span class="dt">uint16_t</span> auto_reload_val<span class="op">;</span></span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>freq <span class="op">&gt;</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>    auto_reload_val <span class="op">=</span> <span class="dv">4000000</span> <span class="op">/</span> freq<span class="op">;</span></span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>    auto_reload_val <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>  <span class="dt">uint16_t</span> duty_cycle <span class="op">=</span> auto_reload_val <span class="op">/</span> <span class="dv">2</span><span class="op">;</span></span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>  <span class="co">//// clear counter</span></span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>  <span class="co">//TIMx-&gt;CNT &amp;= ~(0b1111111111111111 &lt;&lt; 0);</span></span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a>  <span class="co">// wite ARR</span></span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a>  TIMx<span class="op">-&gt;</span>ARR <span class="op">&amp;=</span> <span class="op">~(</span><span class="bn">0b1111111111111111</span> <span class="op">&lt;&lt;</span> <span class="dv">0</span><span class="op">);</span>    <span class="co">// clear ARR</span></span>
+<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a>  TIMx<span class="op">-&gt;</span>ARR <span class="op">|=</span> <span class="op">(</span>auto_reload_val <span class="op">&lt;&lt;</span> <span class="dv">0</span><span class="op">);</span>        <span class="co">// set ARR</span></span>
+<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a>  <span class="co">// counter clock frequency (CK_CNT) = f_CKPSC / (PSC[15:0] + 1)</span></span>
+<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a>  TIMx<span class="op">-&gt;</span>PSC <span class="op">|=</span> <span class="op">(</span>prescale_val <span class="op">&lt;&lt;</span> <span class="dv">0</span><span class="op">);</span>    <span class="co">// set psc3q</span></span>
+<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a>  <span class="co">// value is compared to timx_cnt, signaled on oc1 output</span></span>
+<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a>  TIMx<span class="op">-&gt;</span>CCR1 <span class="op">&amp;=</span> <span class="op">~(</span><span class="bn">0b1111111111111111</span> <span class="op">&lt;&lt;</span> <span class="dv">0</span><span class="op">);</span>    <span class="co">// clear CCR1</span></span>
+<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a>  TIMx<span class="op">-&gt;</span>CCR1 <span class="op">|=</span> <span class="op">(</span>duty_cycle <span class="op">&lt;&lt;</span> <span class="dv">0</span><span class="op">);</span>             <span class="co">// set PWM count</span></span>
+<span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a>  <span class="co">// update generation... cleared by hardware, care of enable and disabling counter</span></span>
+<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a>  TIMx<span class="op">-&gt;</span>EGR <span class="op">|=</span> <span class="op">(</span><span class="dv">1</span> <span class="op">&lt;&lt;</span> <span class="dv">0</span><span class="op">);</span>    <span class="co">// reinitialize counter, generate update of registers</span></span>
+<span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a>  <span class="co">// clear counter</span></span>
+<span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a>  TIMx<span class="op">-&gt;</span>CNT <span class="op">&amp;=</span> <span class="op">~(</span><span class="bn">0b1111111111111111</span> <span class="op">&lt;&lt;</span> <span class="dv">0</span><span class="op">);</span></span>
+<span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb3-58"><a href="#cb3-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-59"><a href="#cb3-59" aria-hidden="true" tabindex="-1"></a><span class="co">// delay for speceified number of milliseconds</span></span>
+<span id="cb3-60"><a href="#cb3-60" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> delay_millis<span class="op">(</span>TIM_TypeDef<span class="op">*</span> TIMx<span class="op">,</span> <span class="dt">uint16_t</span> ms<span class="op">,</span> <span class="dt">uint16_t</span> prescale_val<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb3-61"><a href="#cb3-61" aria-hidden="true" tabindex="-1"></a>  <span class="co">// (4 MHz) / (prescaler_val * auto_reload_val)</span></span>
+<span id="cb3-62"><a href="#cb3-62" aria-hidden="true" tabindex="-1"></a>  <span class="co">// must span 220-1000 Hz with 1% accuracy</span></span>
+<span id="cb3-63"><a href="#cb3-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-64"><a href="#cb3-64" aria-hidden="true" tabindex="-1"></a>  <span class="dt">uint16_t</span> auto_reload_val<span class="op">;</span></span>
+<span id="cb3-65"><a href="#cb3-65" aria-hidden="true" tabindex="-1"></a>  auto_reload_val <span class="op">=</span> ms<span class="op">;</span></span>
+<span id="cb3-66"><a href="#cb3-66" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-67"><a href="#cb3-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-68"><a href="#cb3-68" aria-hidden="true" tabindex="-1"></a>  <span class="co">// wite ARR</span></span>
+<span id="cb3-69"><a href="#cb3-69" aria-hidden="true" tabindex="-1"></a>  TIMx<span class="op">-&gt;</span>ARR <span class="op">&amp;=</span> <span class="op">~(</span><span class="bn">0b1111111111111111</span> <span class="op">&lt;&lt;</span> <span class="dv">0</span><span class="op">);</span>    <span class="co">// clear ARR</span></span>
+<span id="cb3-70"><a href="#cb3-70" aria-hidden="true" tabindex="-1"></a>  TIMx<span class="op">-&gt;</span>ARR <span class="op">|=</span> <span class="op">(</span>auto_reload_val <span class="op">&lt;&lt;</span> <span class="dv">0</span><span class="op">);</span>        <span class="co">// set ARR</span></span>
+<span id="cb3-71"><a href="#cb3-71" aria-hidden="true" tabindex="-1"></a>  <span class="co">// counter clock frequency (CK_CNT) = f_CKPSC / (PSC[15:0] + 1)</span></span>
+<span id="cb3-72"><a href="#cb3-72" aria-hidden="true" tabindex="-1"></a>  TIMx<span class="op">-&gt;</span>PSC <span class="op">|=</span> <span class="op">(</span>prescale_val <span class="op">&lt;&lt;</span> <span class="dv">0</span><span class="op">);</span>    <span class="co">// set psc3q</span></span>
+<span id="cb3-73"><a href="#cb3-73" aria-hidden="true" tabindex="-1"></a>  <span class="co">// update generation... cleared by hardware, care of enable and disabling counter</span></span>
+<span id="cb3-74"><a href="#cb3-74" aria-hidden="true" tabindex="-1"></a>  TIMx<span class="op">-&gt;</span>EGR <span class="op">|=</span> <span class="op">(</span><span class="dv">1</span> <span class="op">&lt;&lt;</span> <span class="dv">0</span><span class="op">);</span>    <span class="co">// reinitialize counter, generate update of registers</span></span>
+<span id="cb3-75"><a href="#cb3-75" aria-hidden="true" tabindex="-1"></a>  TIMx<span class="op">-&gt;</span>SR <span class="op">&amp;=</span> <span class="op">~(</span><span class="dv">1</span> <span class="op">&gt;&gt;</span> <span class="dv">0</span><span class="op">);</span> <span class="co">// reset duration UIF</span></span>
+<span id="cb3-76"><a href="#cb3-76" aria-hidden="true" tabindex="-1"></a>  <span class="co">// clear counter</span></span>
+<span id="cb3-77"><a href="#cb3-77" aria-hidden="true" tabindex="-1"></a>  TIMx<span class="op">-&gt;</span>CNT <span class="op">&amp;=</span> <span class="op">~(</span><span class="bn">0b1111111111111111</span> <span class="op">&lt;&lt;</span> <span class="dv">0</span><span class="op">);</span></span>
+<span id="cb3-78"><a href="#cb3-78" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-79"><a href="#cb3-79" aria-hidden="true" tabindex="-1"></a>  <span class="cf">while</span> <span class="op">((</span>TIMx<span class="op">-&gt;</span>SR <span class="op">&gt;&gt;</span> <span class="dv">0</span> <span class="op">&amp;</span> <span class="dv">1</span><span class="op">)</span> <span class="op">!=</span> <span class="dv">1</span><span class="op">);</span> <span class="co">// wait for UIF to be 1</span></span>
+<span id="cb3-80"><a href="#cb3-80" aria-hidden="true" tabindex="-1"></a>  TIMx<span class="op">-&gt;</span>SR <span class="op">&amp;=</span> <span class="op">~(</span><span class="dv">1</span> <span class="op">&gt;&gt;</span> <span class="dv">0</span><span class="op">);</span> <span class="co">// reset duration UIF</span></span>
+<span id="cb3-81"><a href="#cb3-81" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>New TIMER.h library header file</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode c code-with-copy"><code class="sourceCode c"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">// TIMER.h</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co">// Header for TIMER functions</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="pp">#ifndef STM32L4_TIMER_H</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="pp">#define STM32L4_TIMER_H</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;stdint.h&gt;</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="co">///////////////////////////////////////////////////////////////////////////////</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co">// Definitions</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="co">///////////////////////////////////////////////////////////////////////////////</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="pp">#define __IO </span><span class="dt">volatile</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="co">// Base addresses... programmers manual p60</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="pp">#define TIM15_BASE </span><span class="op">(</span><span class="bn">0x40014000</span><span class="bu">UL</span><span class="op">)</span><span class="pp"> </span><span class="co">// base address of TIM15 </span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="pp">#define TIM16_BASE </span><span class="op">(</span><span class="bn">0x40014400</span><span class="bu">UL</span><span class="op">)</span><span class="pp"> </span><span class="co">// base address of TIM16 </span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="co">/**</span></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a><span class="co">  * </span><span class="an">@brief</span><span class="co"> Reset and Clock Control</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a><span class="co">  */</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a><span class="kw">typedef</span> <span class="kw">struct</span></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>  __IO <span class="dt">uint32_t</span> CR1<span class="op">;</span>         <span class="co">/*!&lt; TIM control register 1,                   Address offset: 0x00 */</span></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>  __IO <span class="dt">uint32_t</span> CR2<span class="op">;</span>         <span class="co">/*!&lt; TIM control register 2,                   Address offset: 0x04 */</span></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>  __IO <span class="dt">uint32_t</span> SMCR<span class="op">;</span>        <span class="co">/*!&lt; TIM slave mode control register,          Address offset: 0x08 */</span></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>  __IO <span class="dt">uint32_t</span> DIER<span class="op">;</span>        <span class="co">/*!&lt; TIM DMA/interrupt enable register,        Address offset: 0x0C */</span></span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>  __IO <span class="dt">uint32_t</span> SR<span class="op">;</span>          <span class="co">/*!&lt; TIM status register,                      Address offset: 0x10 */</span></span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>  __IO <span class="dt">uint32_t</span> EGR<span class="op">;</span>         <span class="co">/*!&lt; TIM event generation register,            Address offset: 0x14 */</span></span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>  __IO <span class="dt">uint32_t</span> CCMR1<span class="op">;</span>       <span class="co">/*!&lt; TIM capture/compare mode register 1,      Address offset: 0x18 */</span></span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>  __IO <span class="dt">uint32_t</span> CCMR2<span class="op">;</span>       <span class="co">/*!&lt; TIM capture/compare mode register 2,      Address offset: 0x1C */</span></span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>  __IO <span class="dt">uint32_t</span> CCER<span class="op">;</span>        <span class="co">/*!&lt; TIM capture/compare enable register,      Address offset: 0x20 */</span></span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>  __IO <span class="dt">uint32_t</span> CNT<span class="op">;</span>         <span class="co">/*!&lt; TIM counter register,                     Address offset: 0x24 */</span></span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>  __IO <span class="dt">uint32_t</span> PSC<span class="op">;</span>         <span class="co">/*!&lt; TIM prescaler,                            Address offset: 0x28 */</span></span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>  __IO <span class="dt">uint32_t</span> ARR<span class="op">;</span>         <span class="co">/*!&lt; TIM auto-reload register,                 Address offset: 0x2C */</span></span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>  __IO <span class="dt">uint32_t</span> RCR<span class="op">;</span>         <span class="co">/*!&lt; TIM repetition counter register,          Address offset: 0x30 */</span></span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>  __IO <span class="dt">uint32_t</span> CCR1<span class="op">;</span>        <span class="co">/*!&lt; TIM capture/compare register 1,           Address offset: 0x34 */</span></span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>  __IO <span class="dt">uint32_t</span> CCR2<span class="op">;</span>        <span class="co">/*!&lt; TIM capture/compare register 2,           Address offset: 0x38 */</span></span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>  __IO <span class="dt">uint32_t</span> CCR3<span class="op">;</span>        <span class="co">/*!&lt; TIM capture/compare register 3,           Address offset: 0x3C */</span></span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>  __IO <span class="dt">uint32_t</span> CCR4<span class="op">;</span>        <span class="co">/*!&lt; TIM capture/compare register 4,           Address offset: 0x40 */</span></span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>  __IO <span class="dt">uint32_t</span> BDTR<span class="op">;</span>        <span class="co">/*!&lt; TIM break and dead-time register,         Address offset: 0x44 */</span></span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a>  __IO <span class="dt">uint32_t</span> DCR<span class="op">;</span>         <span class="co">/*!&lt; TIM DMA control register,                 Address offset: 0x48 */</span></span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a>  __IO <span class="dt">uint32_t</span> DMAR<span class="op">;</span>        <span class="co">/*!&lt; TIM DMA address for full transfer,        Address offset: 0x4C */</span></span>
+<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a>  __IO <span class="dt">uint32_t</span> OR1<span class="op">;</span>         <span class="co">/*!&lt; TIM option register 1,                    Address offset: 0x50 */</span></span>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a>  __IO <span class="dt">uint32_t</span> CCMR3<span class="op">;</span>       <span class="co">/*!&lt; TIM capture/compare mode register 3,      Address offset: 0x54 */</span></span>
+<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a>  __IO <span class="dt">uint32_t</span> CCR5<span class="op">;</span>        <span class="co">/*!&lt; TIM capture/compare register5,            Address offset: 0x58 */</span></span>
+<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a>  __IO <span class="dt">uint32_t</span> CCR6<span class="op">;</span>        <span class="co">/*!&lt; TIM capture/compare register6,            Address offset: 0x5C */</span></span>
+<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a>  __IO <span class="dt">uint32_t</span> OR2<span class="op">;</span>         <span class="co">/*!&lt; TIM option register 2,                    Address offset: 0x60 */</span></span>
+<span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a>  __IO <span class="dt">uint32_t</span> OR3<span class="op">;</span>         <span class="co">/*!&lt; TIM option register 3,                    Address offset: 0x64 */</span></span>
+<span id="cb4-51"><a href="#cb4-51" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> TIM_TypeDef<span class="op">;</span></span>
+<span id="cb4-52"><a href="#cb4-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-53"><a href="#cb4-53" aria-hidden="true" tabindex="-1"></a><span class="pp">#define TIM15 </span><span class="op">((</span><span class="pp">TIM_TypeDef </span><span class="op">*)</span><span class="pp">TIM15_BASE</span><span class="op">)</span></span>
+<span id="cb4-54"><a href="#cb4-54" aria-hidden="true" tabindex="-1"></a><span class="pp">#define TIM16 </span><span class="op">((</span><span class="pp">TIM_TypeDef </span><span class="op">*)</span><span class="pp">TIM16_BASE</span><span class="op">)</span></span>
+<span id="cb4-55"><a href="#cb4-55" aria-hidden="true" tabindex="-1"></a><span class="co">///////////////////////////////////////////////////////////////////////////////</span></span>
+<span id="cb4-56"><a href="#cb4-56" aria-hidden="true" tabindex="-1"></a><span class="co">// Function prototypes</span></span>
+<span id="cb4-57"><a href="#cb4-57" aria-hidden="true" tabindex="-1"></a><span class="co">///////////////////////////////////////////////////////////////////////////////</span></span>
+<span id="cb4-58"><a href="#cb4-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-59"><a href="#cb4-59" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> configureTimer<span class="op">(</span>TIM_TypeDef <span class="op">*</span> TIMx<span class="op">,</span> <span class="dt">int</span> PWM<span class="op">);</span></span>
+<span id="cb4-60"><a href="#cb4-60" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> setTimerFreq<span class="op">(</span>TIM_TypeDef <span class="op">*</span> TIMx<span class="op">,</span> <span class="dt">uint16_t</span> freq<span class="op">,</span> <span class="dt">uint16_t</span> prescale_val<span class="op">);</span></span>
+<span id="cb4-61"><a href="#cb4-61" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> delay_millis<span class="op">(</span>TIM_TypeDef <span class="op">*</span> TIMx<span class="op">,</span> <span class="dt">uint16_t</span> ms<span class="op">,</span> <span class="dt">uint16_t</span> prescale_val<span class="op">);</span></span>
+<span id="cb4-62"><a href="#cb4-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-63"><a href="#cb4-63" aria-hidden="true" tabindex="-1"></a><span class="pp">#endif</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>main.c Source code:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode c code-with-copy"><code class="sourceCode c"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">/*********************************************************************</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co">*                    SEGGER Microcontroller GmbH                     *</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co">*                        The Embedded Experts                        *</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co">**********************************************************************</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co">-------------------------- </span><span class="re">END</span><span class="co">-OF-HEADER -----------------------------</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="co">File    : main.c</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="co">Purpose : Play specified song</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="co">Madeleiene Kan</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="co">mkan@hmc.edu</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="co">10/6/25</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="co">*/</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a><span class="co">// Includes for libraries</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">"C:\Users\mkan\Documents\GitHub\e155-lab4\lib\STM32L432KC_FLASH.h"</span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">"C:\Users\mkan\Documents\GitHub\e155-lab4\lib\STM32L432KC_RCC.h"</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">"C:\Users\mkan\Documents\GitHub\e155-lab4\lib\STM32L432KC_TIMER.h"</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">"C:\Users\mkan\Documents\GitHub\e155-lab4\lib\STM32L432KC_GPIO.h"</span></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;stdio.h&gt;</span></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;stdint.h&gt;</span></span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a><span class="co">// Define macros for constants</span></span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a><span class="pp">#define LED_PIN           </span><span class="dv">6</span></span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a><span class="pp">#define DELAY_DURATION_MS    </span><span class="dv">500</span></span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a><span class="dt">const</span> <span class="dt">int</span> notes<span class="op">[][</span><span class="dv">2</span><span class="op">]</span> <span class="op">=</span> <span class="op">{</span></span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">659</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">623</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">659</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">623</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">659</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">494</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">587</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">523</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">440</span><span class="op">,</span>   <span class="dv">250</span><span class="op">},</span></span>
+<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a><span class="op">{</span>  <span class="dv">0</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">262</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">330</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">440</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">494</span><span class="op">,</span>   <span class="dv">250</span><span class="op">},</span></span>
+<span id="cb5-43"><a href="#cb5-43" aria-hidden="true" tabindex="-1"></a><span class="op">{</span>  <span class="dv">0</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-44"><a href="#cb5-44" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">330</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-45"><a href="#cb5-45" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">416</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-46"><a href="#cb5-46" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">494</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-47"><a href="#cb5-47" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">523</span><span class="op">,</span>   <span class="dv">250</span><span class="op">},</span></span>
+<span id="cb5-48"><a href="#cb5-48" aria-hidden="true" tabindex="-1"></a><span class="op">{</span>  <span class="dv">0</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-49"><a href="#cb5-49" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">330</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-50"><a href="#cb5-50" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">659</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-51"><a href="#cb5-51" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">623</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-52"><a href="#cb5-52" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">659</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-53"><a href="#cb5-53" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">623</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-54"><a href="#cb5-54" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">659</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-55"><a href="#cb5-55" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">494</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-56"><a href="#cb5-56" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">587</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-57"><a href="#cb5-57" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">523</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-58"><a href="#cb5-58" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">440</span><span class="op">,</span>   <span class="dv">250</span><span class="op">},</span></span>
+<span id="cb5-59"><a href="#cb5-59" aria-hidden="true" tabindex="-1"></a><span class="op">{</span>  <span class="dv">0</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-60"><a href="#cb5-60" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">262</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-61"><a href="#cb5-61" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">330</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-62"><a href="#cb5-62" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">440</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-63"><a href="#cb5-63" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">494</span><span class="op">,</span>   <span class="dv">250</span><span class="op">},</span></span>
+<span id="cb5-64"><a href="#cb5-64" aria-hidden="true" tabindex="-1"></a><span class="op">{</span>  <span class="dv">0</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-65"><a href="#cb5-65" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">330</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-66"><a href="#cb5-66" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">523</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-67"><a href="#cb5-67" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">494</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-68"><a href="#cb5-68" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">440</span><span class="op">,</span>   <span class="dv">250</span><span class="op">},</span></span>
+<span id="cb5-69"><a href="#cb5-69" aria-hidden="true" tabindex="-1"></a><span class="op">{</span>  <span class="dv">0</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-70"><a href="#cb5-70" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">494</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-71"><a href="#cb5-71" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">523</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-72"><a href="#cb5-72" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">587</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-73"><a href="#cb5-73" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">659</span><span class="op">,</span>   <span class="dv">375</span><span class="op">},</span></span>
+<span id="cb5-74"><a href="#cb5-74" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">392</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-75"><a href="#cb5-75" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">699</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-76"><a href="#cb5-76" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">659</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-77"><a href="#cb5-77" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">587</span><span class="op">,</span>   <span class="dv">375</span><span class="op">},</span></span>
+<span id="cb5-78"><a href="#cb5-78" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">349</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-79"><a href="#cb5-79" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">659</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-80"><a href="#cb5-80" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">587</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-81"><a href="#cb5-81" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">523</span><span class="op">,</span>   <span class="dv">375</span><span class="op">},</span></span>
+<span id="cb5-82"><a href="#cb5-82" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">330</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-83"><a href="#cb5-83" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">587</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-84"><a href="#cb5-84" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">523</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-85"><a href="#cb5-85" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">494</span><span class="op">,</span>   <span class="dv">250</span><span class="op">},</span></span>
+<span id="cb5-86"><a href="#cb5-86" aria-hidden="true" tabindex="-1"></a><span class="op">{</span>  <span class="dv">0</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-87"><a href="#cb5-87" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">330</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-88"><a href="#cb5-88" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">659</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-89"><a href="#cb5-89" aria-hidden="true" tabindex="-1"></a><span class="op">{</span>  <span class="dv">0</span><span class="op">,</span>   <span class="dv">250</span><span class="op">},</span></span>
+<span id="cb5-90"><a href="#cb5-90" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">659</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-91"><a href="#cb5-91" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">1319</span><span class="op">,</span>  <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-92"><a href="#cb5-92" aria-hidden="true" tabindex="-1"></a><span class="op">{</span>  <span class="dv">0</span><span class="op">,</span>   <span class="dv">250</span><span class="op">},</span></span>
+<span id="cb5-93"><a href="#cb5-93" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">623</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-94"><a href="#cb5-94" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">659</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-95"><a href="#cb5-95" aria-hidden="true" tabindex="-1"></a><span class="op">{</span>  <span class="dv">0</span><span class="op">,</span>   <span class="dv">250</span><span class="op">},</span></span>
+<span id="cb5-96"><a href="#cb5-96" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">623</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-97"><a href="#cb5-97" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">659</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-98"><a href="#cb5-98" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">623</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-99"><a href="#cb5-99" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">659</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-100"><a href="#cb5-100" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">623</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-101"><a href="#cb5-101" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">659</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-102"><a href="#cb5-102" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">494</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-103"><a href="#cb5-103" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">587</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-104"><a href="#cb5-104" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">523</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-105"><a href="#cb5-105" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">440</span><span class="op">,</span>   <span class="dv">250</span><span class="op">},</span></span>
+<span id="cb5-106"><a href="#cb5-106" aria-hidden="true" tabindex="-1"></a><span class="op">{</span>  <span class="dv">0</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-107"><a href="#cb5-107" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">262</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-108"><a href="#cb5-108" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">330</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-109"><a href="#cb5-109" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">440</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-110"><a href="#cb5-110" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">494</span><span class="op">,</span>   <span class="dv">250</span><span class="op">},</span></span>
+<span id="cb5-111"><a href="#cb5-111" aria-hidden="true" tabindex="-1"></a><span class="op">{</span>  <span class="dv">0</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-112"><a href="#cb5-112" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">330</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-113"><a href="#cb5-113" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">416</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-114"><a href="#cb5-114" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">494</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-115"><a href="#cb5-115" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">523</span><span class="op">,</span>   <span class="dv">250</span><span class="op">},</span></span>
+<span id="cb5-116"><a href="#cb5-116" aria-hidden="true" tabindex="-1"></a><span class="op">{</span>  <span class="dv">0</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-117"><a href="#cb5-117" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">330</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-118"><a href="#cb5-118" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">659</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-119"><a href="#cb5-119" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">623</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-120"><a href="#cb5-120" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">659</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-121"><a href="#cb5-121" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">623</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-122"><a href="#cb5-122" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">659</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-123"><a href="#cb5-123" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">494</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-124"><a href="#cb5-124" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">587</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-125"><a href="#cb5-125" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">523</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-126"><a href="#cb5-126" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">440</span><span class="op">,</span>   <span class="dv">250</span><span class="op">},</span></span>
+<span id="cb5-127"><a href="#cb5-127" aria-hidden="true" tabindex="-1"></a><span class="op">{</span>  <span class="dv">0</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-128"><a href="#cb5-128" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">262</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-129"><a href="#cb5-129" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">330</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-130"><a href="#cb5-130" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">440</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-131"><a href="#cb5-131" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">494</span><span class="op">,</span>   <span class="dv">250</span><span class="op">},</span></span>
+<span id="cb5-132"><a href="#cb5-132" aria-hidden="true" tabindex="-1"></a><span class="op">{</span>  <span class="dv">0</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-133"><a href="#cb5-133" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">330</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-134"><a href="#cb5-134" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">523</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-135"><a href="#cb5-135" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">494</span><span class="op">,</span>   <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-136"><a href="#cb5-136" aria-hidden="true" tabindex="-1"></a><span class="op">{</span><span class="dv">440</span><span class="op">,</span>   <span class="dv">500</span><span class="op">},</span></span>
+<span id="cb5-137"><a href="#cb5-137" aria-hidden="true" tabindex="-1"></a><span class="op">{</span>  <span class="dv">0</span><span class="op">,</span>   <span class="dv">0</span><span class="op">}};</span></span>
+<span id="cb5-138"><a href="#cb5-138" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-139"><a href="#cb5-139" aria-hidden="true" tabindex="-1"></a><span class="dt">const</span> <span class="dt">int</span> hopes<span class="op">[][</span><span class="dv">2</span><span class="op">]</span> <span class="op">=</span> <span class="op">{</span></span>
+<span id="cb5-140"><a href="#cb5-140" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span><span class="dv">349</span><span class="op">,</span> <span class="dv">250</span><span class="op">},</span> <span class="co">// F4</span></span>
+<span id="cb5-141"><a href="#cb5-141" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span>  <span class="dv">0</span><span class="op">,</span> <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-142"><a href="#cb5-142" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span><span class="dv">698</span><span class="op">,</span> <span class="dv">250</span><span class="op">},</span> <span class="co">// F5</span></span>
+<span id="cb5-143"><a href="#cb5-143" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span>  <span class="dv">0</span><span class="op">,</span> <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-144"><a href="#cb5-144" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span><span class="dv">523</span><span class="op">,</span> <span class="dv">500</span><span class="op">},</span> <span class="co">// C4</span></span>
+<span id="cb5-145"><a href="#cb5-145" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span>  <span class="dv">0</span><span class="op">,</span> <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-146"><a href="#cb5-146" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span><span class="dv">466</span><span class="op">,</span> <span class="dv">250</span><span class="op">},</span> <span class="co">// B4 flat</span></span>
+<span id="cb5-147"><a href="#cb5-147" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span>  <span class="dv">0</span><span class="op">,</span> <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-148"><a href="#cb5-148" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span><span class="dv">698</span><span class="op">,</span> <span class="dv">250</span><span class="op">},</span></span>
+<span id="cb5-149"><a href="#cb5-149" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span>  <span class="dv">0</span><span class="op">,</span> <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-150"><a href="#cb5-150" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span><span class="dv">349</span><span class="op">,</span> <span class="dv">500</span><span class="op">},</span></span>
+<span id="cb5-151"><a href="#cb5-151" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span>  <span class="dv">0</span><span class="op">,</span> <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-152"><a href="#cb5-152" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span><span class="dv">349</span><span class="op">,</span> <span class="dv">250</span><span class="op">},</span></span>
+<span id="cb5-153"><a href="#cb5-153" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span>  <span class="dv">0</span><span class="op">,</span> <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-154"><a href="#cb5-154" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span><span class="dv">440</span><span class="op">,</span> <span class="dv">250</span><span class="op">},</span> <span class="co">// A4</span></span>
+<span id="cb5-155"><a href="#cb5-155" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span>  <span class="dv">0</span><span class="op">,</span> <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-156"><a href="#cb5-156" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span><span class="dv">880</span><span class="op">,</span> <span class="dv">375</span><span class="op">},</span> <span class="co">// A5</span></span>
+<span id="cb5-157"><a href="#cb5-157" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span>  <span class="dv">0</span><span class="op">,</span> <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-158"><a href="#cb5-158" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span><span class="dv">932</span><span class="op">,</span> <span class="dv">125</span><span class="op">},</span> <span class="co">// B6 flat</span></span>
+<span id="cb5-159"><a href="#cb5-159" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span>  <span class="dv">0</span><span class="op">,</span> <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-160"><a href="#cb5-160" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span><span class="dv">880</span><span class="op">,</span> <span class="dv">250</span><span class="op">},</span> <span class="co">// A5</span></span>
+<span id="cb5-161"><a href="#cb5-161" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span>  <span class="dv">0</span><span class="op">,</span> <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-162"><a href="#cb5-162" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span><span class="dv">698</span><span class="op">,</span> <span class="dv">250</span><span class="op">},</span> <span class="co">// F5</span></span>
+<span id="cb5-163"><a href="#cb5-163" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span>  <span class="dv">0</span><span class="op">,</span> <span class="dv">125</span><span class="op">},</span></span>
+<span id="cb5-164"><a href="#cb5-164" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span><span class="dv">1174</span><span class="op">,</span> <span class="dv">63</span><span class="op">},</span> <span class="co">// D6</span></span>
+<span id="cb5-165"><a href="#cb5-165" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span>  <span class="dv">0</span><span class="op">,</span> <span class="dv">30</span><span class="op">},</span></span>
+<span id="cb5-166"><a href="#cb5-166" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span><span class="dv">932</span><span class="op">,</span> <span class="dv">63</span><span class="op">},</span> <span class="co">// B6 flat</span></span>
+<span id="cb5-167"><a href="#cb5-167" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span>  <span class="dv">0</span><span class="op">,</span> <span class="dv">30</span><span class="op">},</span></span>
+<span id="cb5-168"><a href="#cb5-168" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span><span class="dv">880</span><span class="op">,</span> <span class="dv">63</span><span class="op">},</span></span>
+<span id="cb5-169"><a href="#cb5-169" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span>  <span class="dv">0</span><span class="op">,</span> <span class="dv">30</span><span class="op">},</span></span>
+<span id="cb5-170"><a href="#cb5-170" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span><span class="dv">698</span><span class="op">,</span> <span class="dv">63</span><span class="op">},</span> <span class="co">//F5</span></span>
+<span id="cb5-171"><a href="#cb5-171" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span>  <span class="dv">0</span><span class="op">,</span> <span class="dv">30</span><span class="op">},</span></span>
+<span id="cb5-172"><a href="#cb5-172" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span><span class="dv">587</span><span class="op">,</span> <span class="dv">63</span><span class="op">},</span> <span class="co">//D5</span></span>
+<span id="cb5-173"><a href="#cb5-173" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span>  <span class="dv">0</span><span class="op">,</span> <span class="dv">30</span><span class="op">},</span></span>
+<span id="cb5-174"><a href="#cb5-174" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span><span class="dv">523</span><span class="op">,</span> <span class="dv">63</span><span class="op">},</span> <span class="co">//C5</span></span>
+<span id="cb5-175"><a href="#cb5-175" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-176"><a href="#cb5-176" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span><span class="dv">0</span><span class="op">,</span> <span class="dv">0</span><span class="op">}</span></span>
+<span id="cb5-177"><a href="#cb5-177" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb5-178"><a href="#cb5-178" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-179"><a href="#cb5-179" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> main<span class="op">(</span><span class="dt">void</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-180"><a href="#cb5-180" aria-hidden="true" tabindex="-1"></a>    configureFlash<span class="op">();</span></span>
+<span id="cb5-181"><a href="#cb5-181" aria-hidden="true" tabindex="-1"></a>    configureClock<span class="op">();</span></span>
+<span id="cb5-182"><a href="#cb5-182" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Turn on clock to GPIOA</span></span>
+<span id="cb5-183"><a href="#cb5-183" aria-hidden="true" tabindex="-1"></a>    RCC<span class="op">-&gt;</span>AHB2ENR <span class="op">|=</span> <span class="op">(</span><span class="dv">1</span> <span class="op">&lt;&lt;</span> <span class="dv">0</span><span class="op">);</span></span>
+<span id="cb5-184"><a href="#cb5-184" aria-hidden="true" tabindex="-1"></a>    pinMode<span class="op">(</span>LED_PIN<span class="op">,</span> GPIO_ALT<span class="op">);</span></span>
+<span id="cb5-185"><a href="#cb5-185" aria-hidden="true" tabindex="-1"></a>    GPIO<span class="op">-&gt;</span>AFRL <span class="op">|=</span> <span class="op">(</span><span class="bn">0b1110</span> <span class="op">&lt;&lt;</span> <span class="dv">4</span><span class="op">*</span>LED_PIN<span class="op">);</span> <span class="co">// set alternate function for  PA6 to AF14</span></span>
+<span id="cb5-186"><a href="#cb5-186" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-187"><a href="#cb5-187" aria-hidden="true" tabindex="-1"></a>    <span class="co">// configure timers</span></span>
+<span id="cb5-188"><a href="#cb5-188" aria-hidden="true" tabindex="-1"></a>    <span class="dt">uint16_t</span> presc_freq <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb5-189"><a href="#cb5-189" aria-hidden="true" tabindex="-1"></a>    <span class="dt">uint16_t</span> presc_dur <span class="op">=</span> <span class="dv">4000</span><span class="op">;</span></span>
+<span id="cb5-190"><a href="#cb5-190" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-191"><a href="#cb5-191" aria-hidden="true" tabindex="-1"></a>    configureTimer<span class="op">(</span>TIM15<span class="op">,</span> <span class="dv">0</span><span class="op">);</span> <span class="co">// upcount mode</span></span>
+<span id="cb5-192"><a href="#cb5-192" aria-hidden="true" tabindex="-1"></a>    configureTimer<span class="op">(</span>TIM16<span class="op">,</span> <span class="dv">1</span><span class="op">);</span> <span class="co">// PWM mode</span></span>
+<span id="cb5-193"><a href="#cb5-193" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb5-194"><a href="#cb5-194" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Play Fur Elise</span></span>
+<span id="cb5-195"><a href="#cb5-195" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i<span class="op">&lt;(</span><span class="kw">sizeof</span><span class="op">(</span>notes<span class="op">)/</span><span class="kw">sizeof</span><span class="op">(</span>notes<span class="op">[</span><span class="dv">0</span><span class="op">]));</span> i<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb5-196"><a href="#cb5-196" aria-hidden="true" tabindex="-1"></a>       <span class="dt">uint16_t</span> freq <span class="op">=</span> <span class="op">(</span><span class="dt">uint16_t</span><span class="op">)</span> notes<span class="op">[</span>i<span class="op">][</span><span class="dv">0</span><span class="op">];</span></span>
+<span id="cb5-197"><a href="#cb5-197" aria-hidden="true" tabindex="-1"></a>       <span class="dt">uint16_t</span> ms <span class="op">=</span> <span class="op">(</span><span class="dt">uint16_t</span><span class="op">)</span> notes<span class="op">[</span>i<span class="op">][</span><span class="dv">1</span><span class="op">];</span></span>
+<span id="cb5-198"><a href="#cb5-198" aria-hidden="true" tabindex="-1"></a>       setTimerFreq<span class="op">(</span>TIM16<span class="op">,</span> freq<span class="op">,</span> presc_freq<span class="op">);</span></span>
+<span id="cb5-199"><a href="#cb5-199" aria-hidden="true" tabindex="-1"></a>       delay_millis<span class="op">(</span>TIM15<span class="op">,</span> ms<span class="op">,</span> presc_dur<span class="op">);</span>  </span>
+<span id="cb5-200"><a href="#cb5-200" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb5-201"><a href="#cb5-201" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-202"><a href="#cb5-202" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Play Hopes and Dreams</span></span>
+<span id="cb5-203"><a href="#cb5-203" aria-hidden="true" tabindex="-1"></a>      <span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i<span class="op">&lt;(</span><span class="kw">sizeof</span><span class="op">(</span>hopes<span class="op">)/</span><span class="kw">sizeof</span><span class="op">(</span>hopes<span class="op">[</span><span class="dv">0</span><span class="op">]));</span> i<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb5-204"><a href="#cb5-204" aria-hidden="true" tabindex="-1"></a>        <span class="dt">uint16_t</span> freq <span class="op">=</span> <span class="op">(</span><span class="dt">uint16_t</span><span class="op">)</span> hopes<span class="op">[</span>i<span class="op">][</span><span class="dv">0</span><span class="op">];</span></span>
+<span id="cb5-205"><a href="#cb5-205" aria-hidden="true" tabindex="-1"></a>        <span class="dt">uint16_t</span> ms <span class="op">=</span> <span class="op">(</span><span class="dt">uint16_t</span><span class="op">)</span> hopes<span class="op">[</span>i<span class="op">][</span><span class="dv">1</span><span class="op">];</span></span>
+<span id="cb5-206"><a href="#cb5-206" aria-hidden="true" tabindex="-1"></a>        setTimerFreq<span class="op">(</span>TIM16<span class="op">,</span> freq<span class="op">,</span> presc_freq<span class="op">);</span></span>
+<span id="cb5-207"><a href="#cb5-207" aria-hidden="true" tabindex="-1"></a>        delay_millis<span class="op">(</span>TIM15<span class="op">,</span> ms<span class="op">,</span> presc_dur<span class="op">);</span>  </span>
+<span id="cb5-208"><a href="#cb5-208" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb5-209"><a href="#cb5-209" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-210"><a href="#cb5-210" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-211"><a href="#cb5-211" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb5-212"><a href="#cb5-212" aria-hidden="true" tabindex="-1"></a> </span>
+<span id="cb5-213"><a href="#cb5-213" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="results" class="level2">
+<h2 class="anchored" data-anchor-id="results">Results</h2>
+<p>The lab worked as expected! Below are some oscilloscope traces, annotated with the desired vs actual frequency. Note that all are within 1% of the desired frequency</p>
+<p><img src="images\330_333.png" class="img-fluid" style="width:45.0%"> <img src="images\416_417.png" class="img-fluid" style="width:45.0%"> <img src="images\494_500.png" class="img-fluid" style="width:45.0%"> <img src="images\587_588.png" class="img-fluid" style="width:45.0%"> <img src="images\625_623.png" class="img-fluid" style="width:45.0%"></p>
+</section>
+<section id="summary" class="level2">
+<h2 class="anchored" data-anchor-id="summary">Summary</h2>
+<p>I have spent 25-30 hours on this lab. I learned a lot about timer configuration and interfacing with various features of the MCU.</p>
+</section>
+<section id="ai-reflection" class="level2">
+<h2 class="anchored" data-anchor-id="ai-reflection">AI Reflection</h2>
+<p>I asked copilot. The sample code it generated was helpful, but it didn’t cover the RCC config necessary to enable the timers and the GPIO pins. Also, I ended up ising Timer 16 and 17, which it did not cover. It seems clear that the AI is good, but it cannot read the datasheet.</p>
+<pre><code>To generate frequencies between 220 Hz and 1 kHz on the STM32L432KC and output them to a GPIO pin, here’s a complete breakdown of your best options and how to configure them:
+
+---
+
+### 🧠 Recommended Timers for Frequency Generation
+
+The STM32L432KC features several timers, but for outputting waveforms to GPIO pins, **general-purpose timers** are ideal:
+
+| Timer | Type              | Output to GPIO | Channels | Notes |
+|-------|-------------------|----------------|----------|-------|
+| TIM2  | General-purpose   | ✅ Yes          | 4        | 32-bit counter, flexible |
+| TIM5  | General-purpose   | ✅ Yes          | 4        | 32-bit counter, ideal for low frequencies |
+| TIM1  | Advanced-control  | ✅ Yes          | 4        | More complex, used for PWM |
+| TIM6/7| Basic timers      | ❌ No           | 0        | No direct GPIO output |
+| LPTIM1| Low-power timer   | ✅ Yes          | 1        | Good for ultra-low-power apps |
+
+🔧 **Best choice for GPIO output**: **TIM2 or TIM5**  
+These are general-purpose timers with multiple output channels and direct GPIO mapping via alternate function (AF) settings.
+
+---
+
+### 📐 Frequency Calculation Formula
+
+To generate a specific frequency, use this formula:
+</code></pre>
+<p>f_timer = SystemCoreClock / ((PSC + 1) × (ARR + 1))</p>
+<pre><code>
+Where:
+- `SystemCoreClock` is typically 80 MHz on STM32L432KC
+- `PSC` = Prescaler value
+- `ARR` = Auto-reload register value
+
+You can fix one value (usually keep `PSC` low for better resolution) and solve for the other.
+
+---
+
+### 🛠️ Key Registers to Configure
+
+To set up a timer for frequency output:
+
+1. **Enable Timer Clock**
+   - RCC-&gt;APB1ENR |= RCC_APB1ENR_TIM2EN;
+
+2. **Configure GPIO Pin for Alternate Function**
+   - Set GPIO mode to AF
+   - Choose correct AF (e.g., AF1 for TIM2_CH1 on PA0)
+
+3. **Set Prescaler and ARR**
+   ```c
+   TIM2-&gt;PSC = prescaler_value;
+   TIM2-&gt;ARR = auto_reload_value;</code></pre>
+<ol start="4" type="1">
+<li><p><strong>Configure Output Compare Mode</strong></p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode c code-with-copy"><code class="sourceCode c"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>TIM2<span class="op">-&gt;</span>CCMR1 <span class="op">|=</span> <span class="op">(</span><span class="dv">6</span> <span class="op">&lt;&lt;</span> TIM_CCMR1_OC1M_Pos<span class="op">);</span> <span class="co">// PWM mode 1</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>TIM2<span class="op">-&gt;</span>CCER <span class="op">|=</span> TIM_CCER_CC1E<span class="op">;</span>              <span class="co">// Enable output on CH1</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>TIM2<span class="op">-&gt;</span>CCR1 <span class="op">=</span> ARR <span class="op">/</span> <span class="dv">2</span><span class="op">;</span>                     <span class="co">// 50% duty cycle</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li><p><strong>Enable Timer</strong></p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode c code-with-copy"><code class="sourceCode c"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>TIM2<span class="op">-&gt;</span>CR1 <span class="op">|=</span> TIM_CR1_CEN<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+</ol>
+<hr>
+<section id="gpio-mapping-tips" class="level3">
+<h3 class="anchored" data-anchor-id="gpio-mapping-tips">🔌 GPIO Mapping Tips</h3>
+<p>To connect timer output to a GPIO pin: - Use the <strong>Alternate Function (AF)</strong> mapping in the datasheet. - Example: TIM2_CH1 is mapped to <strong>PA0</strong> with AF1. - Configure the pin: <code>c   GPIOA-&gt;MODER &amp;= ~(3 &lt;&lt; (0 * 2));   GPIOA-&gt;MODER |= (2 &lt;&lt; (0 * 2)); // Alternate function   GPIOA-&gt;AFR[0] |= (1 &lt;&lt; (0 * 4)); // AF1 for TIM2_CH1</code></p>
+<hr>
+</section>
+<section id="example-generating-440-hz-with-tim2" class="level3">
+<h3 class="anchored" data-anchor-id="example-generating-440-hz-with-tim2">🧮 Example: Generating 440 Hz with TIM2</h3>
+<p>Assuming SystemCoreClock = 80 MHz:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode c code-with-copy"><code class="sourceCode c"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>PSC <span class="op">=</span> <span class="dv">181</span><span class="op">;</span>        <span class="co">// Prescaler</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>ARR <span class="op">=</span> <span class="dv">999</span><span class="op">;</span>        <span class="co">// Auto-reload</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>f <span class="op">=</span> <span class="fl">80e6</span> <span class="op">/</span> <span class="op">((</span><span class="dv">181</span><span class="op">+</span><span class="dv">1</span><span class="op">)*(</span><span class="dv">999</span><span class="op">+</span><span class="dv">1</span><span class="op">))</span> <span class="op">=</span> <span class="op">~</span><span class="dv">440</span> Hz</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<hr>
+<p>Would you like help writing a full initialization function or configuring multiple frequencies dynamically?</p>
+<p>```</p>
 
 
+</section>
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
