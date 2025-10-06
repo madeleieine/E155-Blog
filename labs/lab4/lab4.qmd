@@ -14,6 +14,7 @@ The purpose of Lab 4 was to program an STM32 MCU to play a sequence of specified
 
 ## Schematic
 The circuit diagram is as follows:
+
 ![](images\schematic.png){width=50%}
 
 ## Calculations
@@ -503,7 +504,7 @@ The lab worked as expected! Below are some oscilloscope traces, annotated with t
 I have spent 25-30 hours on this lab. I learned a lot about timer configuration and interfacing with various features of the MCU.
 
 ## AI Reflection
-I asked copilot. The sample code it generated was helpful, but it didn't cover the RCC config necessary to enable the timers and the GPIO pins. Also, I ended up ising Timer 16 and 17, which it did not cover. It seems clear that the AI is good, but it cannot read the datasheet.
+I asked copilot. The sample code it generated was helpful, but it didn't cover the RCC config necessary to enable the timers and the GPIO pins. Also, I ended up ising Timer 16 and 17, which it did not cover. It seems clear that the AI can be informative, but it cannot read the datasheet. Here are the results:
 
 ```
 To generate frequencies between 220 Hz and 1 kHz on the STM32L432KC and output them to a GPIO pin, here’s a complete breakdown of your best options and how to configure them:
