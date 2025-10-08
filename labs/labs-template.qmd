@@ -1,0 +1,40 @@
+---
+title: "Labs Template"
+listing:
+    contents: labs\
+    sort: "date desc"
+    type: default
+    categories: false 
+navbar:
+    contents: labs
+draft: true
+--- 
+
+## Introduction
+Here I introduce the lab yay
+
+## Schematic
+The circuit diagram is as follows:
+
+![](images\img_url_here.png){width=50%}
+
+## Calculations
+Minimum and maximum duration and frequencies:
+
+![](images\img_url_here.png){width=45%}
+
+
+## Code:
+
+## Results
+The lab worked as expected! Below are some oscilloscope traces, annotated with the desired vs actual frequency. Note that all are within 1% of the desired frequency
+
+![](images\img_url_here.png){width=45%}
+
+
+## Summary
+I have spent XX hours on this lab. I learned a lot about BLABLABA
+
+## AI Reflection
+
+ai blablabal

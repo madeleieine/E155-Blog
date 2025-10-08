@@ -490,20 +490,7 @@ const int hopes[][2] = {
 ```
 
 
-## Results
-The lab worked as expected! Below are some oscilloscope traces, annotated with the desired vs actual frequency. Note that all are within 1% of the desired frequency
-
-![](images\330_333.png){width=45%}
-![](images\416_417.png){width=45%}
-![](images\494_500.png){width=45%}
-![](images\587_588.png){width=45%}
-![](images\625_623.png){width=45%}
-
-
-## Summary
-I have spent 25-30 hours on this lab. I learned a lot about timer configuration and interfacing with various features of the MCU.
-
-## AI Reflection
+1.
 I asked copilot. The sample code it generated was helpful, but it didn't cover the RCC config necessary to enable the timers and the GPIO pins. Also, I ended up ising Timer 16 and 17, which it did not cover. It seems clear that the AI can be informative, but it cannot read the datasheet. Here are the results:
 
 ```
