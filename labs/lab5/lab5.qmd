@@ -10,15 +10,15 @@ draft: false
 ---
 
 ## Introduction
-The purpose of this lab was to print out the speed of a brushed DC motor, in rpm, based on interrupt signals from a quadrature encoder.
+The purpose of this lab was to print out the speed of a brushed DC motor, in revolutions per second, based on interrupt signals from a quadrature encoder. These results were compared with the timing of using polling instead of interrupts.
 
 ## Schematic
 The circuit diagram is as follows:
 
-![](images\img_url_here.png){width=50%}
+![](images\schematic.png)
 
 A flow chart describing the flow of the program is as follows:
-![](images\img_url_here.png){width=50%}
+![](images\flowchart.png)
 
 ## Calculations
 Motor speed as a function of count (an integer which was incremented on every rising and falling edge of both quadrature encoders) was calcualted as follows:
@@ -103,6 +103,41 @@ void motorInterrupt(void){
     }
 }
 
+// Quad encoder A interrupt handler
+void EXTI1_IRQHandler(void){
+    // Check that quad_encoder_a was what triggered our interrupt
+    A = digitalRead(gpioPinOffset(QUAD_ENCODER_A));
+    B = digitalRead(gpioPinOffset(QUAD_ENCODER_B));
+    if (EXTI->PR1 & (1 << gpioPinOffset(QUAD_ENCODER_A))){
+        // If so, clear the interrupt (NB: Write 1 to reset.)
+        EXTI->PR1 |= (1 << gpioPinOffset(QUAD_ENCODER_A));
+        if (A != B){ // B lags after A
+          count++;
+        } else { // A lags after B
+          count--;
+        }
+        togglePin(INTERRUPT_A);
+    }
+}
+
+// Quad encoder B interrupt handler
+void EXTI2_IRQHandler(void){
+    // Check that quad_encoder_b was what triggered our interrupt
+    A = digitalRead(gpioPinOffset(QUAD_ENCODER_A));
+    B = digitalRead(gpioPinOffset(QUAD_ENCODER_B));
+    if (EXTI->PR1 & (1 << gpioPinOffset(QUAD_ENCODER_B))){
+        // If so, clear the interrupt (NB: Write 1 to reset.)
+        EXTI->PR1 |= (1 << gpioPinOffset(QUAD_ENCODER_B)); 
+        if (B == A){ // B lags after A
+          count++;
+        } else { // A lags after B
+          count--;
+        }
+        //togglePin(LED_PIN);
+
+    }
+}
+
 // Detects encoder pulses with polling
 void motorPoll(void){
     // Polling
@@ -166,42 +201,6 @@ void motorPoll(void){
     }
 }
 
-
-// Quad encoder A interrupt handler
-void EXTI1_IRQHandler(void){
-    // Check that quad_encoder_a was what triggered our interrupt
-    A = digitalRead(gpioPinOffset(QUAD_ENCODER_A));
-    B = digitalRead(gpioPinOffset(QUAD_ENCODER_B));
-    if (EXTI->PR1 & (1 << gpioPinOffset(QUAD_ENCODER_A))){
-        // If so, clear the interrupt (NB: Write 1 to reset.)
-        EXTI->PR1 |= (1 << gpioPinOffset(QUAD_ENCODER_A));
-        if (A != B){ // B lags after A
-          count++;
-        } else { // A lags after B
-          count--;
-        }
-        togglePin(INTERRUPT_A);
-    }
-}
-
-// Quad encoder B interrupt handler
-void EXTI2_IRQHandler(void){
-    // Check that quad_encoder_b was what triggered our interrupt
-    A = digitalRead(gpioPinOffset(QUAD_ENCODER_A));
-    B = digitalRead(gpioPinOffset(QUAD_ENCODER_B));
-    if (EXTI->PR1 & (1 << gpioPinOffset(QUAD_ENCODER_B))){
-        // If so, clear the interrupt (NB: Write 1 to reset.)
-        EXTI->PR1 |= (1 << gpioPinOffset(QUAD_ENCODER_B)); 
-        if (B == A){ // B lags after A
-          count++;
-        } else { // A lags after B
-          count--;
-        }
-        //togglePin(LED_PIN);
-
-    }
-}
-
 ```
 
 Accompanying header file, main.h:
@@ -237,16 +236,17 @@ The oscilloscope trace below shows the signal from quadrature encoder A (in blue
 
 ![](images\DS1Z_QuickPrint1.png)
 
-Based on this, I calculated the actual speed based on quad encoder A frequency. This resulted in an actual speed of 2.48 rev/sec, which is within 0.5% of the value of 2.49% calculated by the MCU.
+As shown in the distance between the vertical cursors, there is a delay between the encoder impulse and the interrupt signal of 260uS = 0.26 ms. Also, note that both signals have the same frequency of 1.01kHz. Based on this, I calculated the actual speed based on quad encoder A frequency. This resulted in an actual speed of 2.48 rev/sec, which is within 0.5% of the value of 2.49% calculated by the MCU.
+
 ![](images\oscope_calcs.png)
 
-Based on the vertical cursors, there is a delay between the encoder impulse and the interrupt signal of ~0.33 ms. Also, note that both signals have the same frequency of 1.01kHz.
 
-I then ran the script using polling, and obtained the following oscilloscope trace showing the same signal from quadratyure encoder A (in blue) and the corresponding polled signal (in blue).
+
+I then ran the script using polling, and obtained the following oscilloscope trace showing the same signal from quadrature encoder A (in blue) and the corresponding polled signal (in blue).
  
-![](images\DS1Z_QuickPrint2.png)
+![](images\DS1Z_QuickPrint4.png)
 
-As can be seen from the cursors, the delay between the encoder impulse and the polled signal of ~0.62 ms, which is almost twice as long as the interrupt delay. Also, note that the encoder impulse has a frequency of 1.01 kHz, while the polled signal has a frequency of 980 Hz.
+As can be seen from the cursors, the delay between the encoder impulse and the polled signal of 620 uS = 0.62 ms, which is more than double the interrupt delay. Also, note that the encoder impulse has a frequency of 1.01 kHz, while the polled signal has a frequency of 980 Hz.
 
 ## Summary
 I have spent ~10 hours on this lab. during this process, I learned a lot about interrupts, their advantage over polling, and quadrature encoders! It was really exciting to concretely compare the timing of the two methods. Additionally, I had fun developing a script to do something that felt tangible, and useful! Also, my classmates were super kind and helpful, which I really appreciated.
@@ -295,4 +295,4 @@ void TIM2_IRQHandler(void) {
 
 ```
 ## Resources
-Source code: https://github.com/madeleieine/e155-lab5/
+[Source code](https://github.com/madeleieine/e155-lab5/)
