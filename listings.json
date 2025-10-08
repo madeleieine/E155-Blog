@@ -1,5 +1,9 @@
 [
   {
+    "listing": "/labs/labs-overview.html",
+    "items": []
+  },
+  {
     "listing": "/blog.html",
     "items": [
       "/posts/lab2-reflection.html",
@@ -9,7 +13,7 @@
     ]
   },
   {
-    "listing": "/labs/labs-overview.html",
+    "listing": "/labs/labs-template.html",
     "items": []
   }
 ]

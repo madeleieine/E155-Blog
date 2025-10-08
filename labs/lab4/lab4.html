@@ -162,10 +162,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a></li>
   <li><a href="#schematic" id="toc-schematic" class="nav-link" data-scroll-target="#schematic">Schematic</a></li>
   <li><a href="#calculations" id="toc-calculations" class="nav-link" data-scroll-target="#calculations">Calculations</a></li>
-  <li><a href="#code" id="toc-code" class="nav-link" data-scroll-target="#code">Code:</a></li>
-  <li><a href="#results" id="toc-results" class="nav-link" data-scroll-target="#results">Results</a></li>
-  <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary">Summary</a></li>
-  <li><a href="#ai-reflection" id="toc-ai-reflection" class="nav-link" data-scroll-target="#ai-reflection">AI Reflection</a>
+  <li><a href="#code" id="toc-code" class="nav-link" data-scroll-target="#code">Code:</a>
   <ul class="collapse">
   <li><a href="#gpio-mapping-tips" id="toc-gpio-mapping-tips" class="nav-link" data-scroll-target="#gpio-mapping-tips">🔌 GPIO Mapping Tips</a></li>
   <li><a href="#example-generating-440-hz-with-tim2" id="toc-example-generating-440-hz-with-tim2" class="nav-link" data-scroll-target="#example-generating-440-hz-with-tim2">🧮 Example: Generating 440 Hz with TIM2</a></li>
@@ -678,19 +675,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb5-211"><a href="#cb5-211" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
 <span id="cb5-212"><a href="#cb5-212" aria-hidden="true" tabindex="-1"></a> </span>
 <span id="cb5-213"><a href="#cb5-213" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</section>
-<section id="results" class="level2">
-<h2 class="anchored" data-anchor-id="results">Results</h2>
-<p>The lab worked as expected! Below are some oscilloscope traces, annotated with the desired vs actual frequency. Note that all are within 1% of the desired frequency</p>
-<p><img src="images\330_333.png" class="img-fluid" style="width:45.0%"> <img src="images\416_417.png" class="img-fluid" style="width:45.0%"> <img src="images\494_500.png" class="img-fluid" style="width:45.0%"> <img src="images\587_588.png" class="img-fluid" style="width:45.0%"> <img src="images\625_623.png" class="img-fluid" style="width:45.0%"></p>
-</section>
-<section id="summary" class="level2">
-<h2 class="anchored" data-anchor-id="summary">Summary</h2>
-<p>I have spent 25-30 hours on this lab. I learned a lot about timer configuration and interfacing with various features of the MCU.</p>
-</section>
-<section id="ai-reflection" class="level2">
-<h2 class="anchored" data-anchor-id="ai-reflection">AI Reflection</h2>
-<p>I asked copilot. The sample code it generated was helpful, but it didn’t cover the RCC config necessary to enable the timers and the GPIO pins. Also, I ended up ising Timer 16 and 17, which it did not cover. It seems clear that the AI can be informative, but it cannot read the datasheet. Here are the results:</p>
+<ol type="1">
+<li>I asked copilot. The sample code it generated was helpful, but it didn’t cover the RCC config necessary to enable the timers and the GPIO pins. Also, I ended up ising Timer 16 and 17, which it did not cover. It seems clear that the AI can be informative, but it cannot read the datasheet. Here are the results:</li>
+</ol>
 <pre><code>To generate frequencies between 220 Hz and 1 kHz on the STM32L432KC and output them to a GPIO pin, here’s a complete breakdown of your best options and how to configure them:
 
 ---
