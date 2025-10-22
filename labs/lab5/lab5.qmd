@@ -246,7 +246,9 @@ I then ran the script using polling, and obtained the following oscilloscope tra
  
 ![](images\DS1Z_QuickPrint4.png)
 
-As can be seen from the cursors, the delay between the encoder impulse and the polled signal of 620 uS = 0.62 ms, which is more than double the interrupt delay. Also, note that the encoder impulse has a frequency of 1.01 kHz, while the polled signal has a frequency of 980 Hz.
+As can be seen from the cursors, the delay between the encoder impulse and the polled signal of 620 uS = 0.62 ms, which is more than double the interrupt delay. Also, note that the encoder impulse has a frequency of 1.01 kHz, while the polled signal has a frequency of 980 Hz. From this, we can calculate the max speed that polling can accurately sample according to Nyquist's sampling theorem. Note an inherent limitation of this calculation: the delay depends on how I specifically implemented polling in this quadrature encoder, also this does not account for the change in polling frequency as a function of motor speed. Ideally, I would perform this calculation by measuring the frequency of polling (i.e. by toggling a GPIO pin in a while loop with no delay). However, when I attempted this, I had difficulty reading the signal accurately (it was very noisy and hard to interpret). The actual maximum speed is likely much faster, since this actual polling frequency would be much quicker.
+
+![](images\max_speed_calcs.png)
 
 ## Summary
 I have spent ~10 hours on this lab. during this process, I learned a lot about interrupts, their advantage over polling, and quadrature encoders! It was really exciting to concretely compare the timing of the two methods. Additionally, I had fun developing a script to do something that felt tangible, and useful! Also, my classmates were super kind and helpful, which I really appreciated.
