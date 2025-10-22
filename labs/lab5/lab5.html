@@ -434,7 +434,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p><img src="images\oscope_calcs.png" class="img-fluid"></p>
 <p>I then ran the script using polling, and obtained the following oscilloscope trace showing the same signal from quadrature encoder A (in blue) and the corresponding polled signal (in blue).</p>
 <p><img src="images\DS1Z_QuickPrint4.png" class="img-fluid"></p>
-<p>As can be seen from the cursors, the delay between the encoder impulse and the polled signal of 620 uS = 0.62 ms, which is more than double the interrupt delay. Also, note that the encoder impulse has a frequency of 1.01 kHz, while the polled signal has a frequency of 980 Hz.</p>
+<p>As can be seen from the cursors, the delay between the encoder impulse and the polled signal of 620 uS = 0.62 ms, which is more than double the interrupt delay. Also, note that the encoder impulse has a frequency of 1.01 kHz, while the polled signal has a frequency of 980 Hz. From this, we can calculate the max speed that polling can accurately sample according to Nyquist’s sampling theorem. Note an inherent limitation of this calculation: the delay depends on how I specifically implemented polling in this quadrature encoder, also this does not account for the change in polling frequency as a function of motor speed. Ideally, I would perform this calculation by measuring the frequency of polling (i.e.&nbsp;by toggling a GPIO pin in a while loop with no delay). However, when I attempted this, I had difficulty reading the signal accurately (it was very noisy and hard to interpret). The actual maximum speed is likely much faster, since this actual polling frequency would be much quicker.</p>
+<p><img src="images\max_speed_calcs.png" class="img-fluid"></p>
 </section>
 <section id="summary" class="level2">
 <h2 class="anchored" data-anchor-id="summary">Summary</h2>
