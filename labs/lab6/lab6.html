@@ -23,6 +23,41 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -119,8 +154,19 @@ ul.task-list li input[type="checkbox"] {
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a></li>
+  <li><a href="#schematic" id="toc-schematic" class="nav-link" data-scroll-target="#schematic">Schematic</a></li>
+  <li><a href="#code" id="toc-code" class="nav-link" data-scroll-target="#code">Code:</a></li>
+  <li><a href="#results" id="toc-results" class="nav-link" data-scroll-target="#results">Results</a></li>
+  <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary">Summary</a></li>
+  <li><a href="#ai-reflection" id="toc-ai-reflection" class="nav-link" data-scroll-target="#ai-reflection">AI Reflection</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -165,8 +211,411 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
+<section id="introduction" class="level2">
+<h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
+<p>The goal of Lab 6 was to read a temperature using the SPI (serial peripheral interface) communication protocol. The resolution of this reading (as well as an on-board) LED were controlled with a web server using HTTP (hypertext transfer protocol), and the temperature is also displayed on the web server.</p>
+</section>
+<section id="schematic" class="level2">
+<h2 class="anchored" data-anchor-id="schematic">Schematic</h2>
+<p>The circuit diagram is as follows:<br>
+<img src="images\e155 lab6 schematic.jpg" class="img-fluid" style="width:75.0%"></p>
+</section>
+<section id="code" class="level2">
+<h2 class="anchored" data-anchor-id="code">Code:</h2>
+<div class="sourceCode" id="cb1"><pre class="sourceCode c code-with-copy"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">/**</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co">    Main Header: Contains general defines and selected portions of CMSIS files</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co">    </span><span class="an">@file</span><span class="co"> </span><span class="cv">main.h</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co">    </span><span class="an">@author</span><span class="co"> Madeleine Kan, adapted from Josh Brake</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co">    </span><span class="an">@version</span><span class="co"> </span><span class="cv">10/27/25</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co">*/</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="pp">#ifndef MAIN_H</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="pp">#define MAIN_H</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">"STM32L432KC.h"</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="pp">#define LED_PIN PA6 </span><span class="co">// LED pin for blinking on Port A pin 9</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="pp">#define BUFF_LEN </span><span class="dv">32</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="dt">char</span><span class="op">*</span> webpageStart <span class="op">=</span> <span class="st">"&lt;!DOCTYPE html&gt;&lt;html&gt;&lt;head&gt;&lt;title&gt;Madeleine Kan E155 Web Server Webpage&lt;/title&gt;</span><span class="op">\</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="st">    &lt;meta name=</span><span class="sc">\"</span><span class="st">viewport</span><span class="sc">\"</span><span class="st"> content=</span><span class="sc">\"</span><span class="st">width=device-width, initial-scale=1.0</span><span class="sc">\"</span><span class="st">&gt;</span><span class="op">\</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="st">    &lt;/head&gt;</span><span class="op">\</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="st">    &lt;body&gt;&lt;h1&gt;E155 Web Server Demo Webpage&lt;/h1&gt;"</span><span class="op">;</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="dt">char</span><span class="op">*</span> ledStr <span class="op">=</span> <span class="st">"&lt;p&gt;LED Control:&lt;/p&gt;&lt;form action=</span><span class="sc">\"</span><span class="st">ledon</span><span class="sc">\"</span><span class="st">&gt;&lt;input type=</span><span class="sc">\"</span><span class="st">submit</span><span class="sc">\"</span><span class="st"> value=</span><span class="sc">\"</span><span class="st">Turn the LED on!</span><span class="sc">\"</span><span class="st">&gt;&lt;/form&gt;</span><span class="op">\</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="st">    &lt;form action=</span><span class="sc">\"</span><span class="st">ledoff</span><span class="sc">\"</span><span class="st">&gt;&lt;input type=</span><span class="sc">\"</span><span class="st">submit</span><span class="sc">\"</span><span class="st"> value=</span><span class="sc">\"</span><span class="st">Turn the LED off!</span><span class="sc">\"</span><span class="st">&gt;&lt;/form&gt;"</span><span class="op">;</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="dt">char</span><span class="op">*</span> resolutionStr <span class="op">=</span> <span class="st">"&lt;p&gt;Resolution Control:&lt;/p&gt;&lt;form action=</span><span class="sc">\"</span><span class="st">8</span><span class="sc">\"</span><span class="st">&gt;&lt;input type=</span><span class="sc">\"</span><span class="st">submit</span><span class="sc">\"</span><span class="st"> value=</span><span class="sc">\"</span><span class="st">8 bits</span><span class="sc">\"</span><span class="st">&gt;&lt;/form&gt;</span><span class="op">\</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="st">      &lt;form action=</span><span class="sc">\"</span><span class="st">9</span><span class="sc">\"</span><span class="st">&gt;&lt;input type=</span><span class="sc">\"</span><span class="st">submit</span><span class="sc">\"</span><span class="st"> value=</span><span class="sc">\"</span><span class="st">9 bits</span><span class="sc">\"</span><span class="st">&gt;&lt;/form&gt;</span><span class="op">\</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="st">      &lt;form action=</span><span class="sc">\"</span><span class="st">10</span><span class="sc">\"</span><span class="st">&gt;&lt;input type=</span><span class="sc">\"</span><span class="st">submit</span><span class="sc">\"</span><span class="st"> value=</span><span class="sc">\"</span><span class="st">10 bits</span><span class="sc">\"</span><span class="st">&gt;&lt;/form&gt;</span><span class="op">\</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="st">      &lt;form action=</span><span class="sc">\"</span><span class="st">11</span><span class="sc">\"</span><span class="st">&gt;&lt;input type=</span><span class="sc">\"</span><span class="st">submit</span><span class="sc">\"</span><span class="st"> value=</span><span class="sc">\"</span><span class="st">11 bits</span><span class="sc">\"</span><span class="st">&gt;&lt;/form&gt;</span><span class="op">\</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="st">      &lt;form action=</span><span class="sc">\"</span><span class="st">12</span><span class="sc">\"</span><span class="st">&gt;&lt;input type=</span><span class="sc">\"</span><span class="st">submit</span><span class="sc">\"</span><span class="st"> value=</span><span class="sc">\"</span><span class="st">12 bits</span><span class="sc">\"</span><span class="st">&gt;&lt;/form&gt;"</span><span class="op">;</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="dt">char</span><span class="op">*</span> webpageEnd   <span class="op">=</span> <span class="st">"&lt;/body&gt;&lt;/html&gt;"</span><span class="op">;</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="pp">#endif </span><span class="co">// MAIN_H</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode c code-with-copy"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">/*</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co">File: lab6_mk.c</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co">Author: Madeleine Kan, adopted from Josh Brake</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co">Email: mkane@hmc.edu</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co">Date: 10/27/25</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co">*/</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;string.h&gt;</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;stdlib.h&gt;</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;stdio.h&gt;</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">"main.h"</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">"ds1722.h"</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="co">/////////////////////////////////////////////////////////////////</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="co">// Provided Constants and Functions</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="co">/////////////////////////////////////////////////////////////////</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="co">//determines whether a given character sequence is in a char array request, returning 1 if present, -1 if not present</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> inString<span class="op">(</span><span class="dt">char</span> request<span class="op">[],</span> <span class="dt">char</span> des<span class="op">[])</span> <span class="op">{</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>strstr<span class="op">(</span>request<span class="op">,</span> des<span class="op">)</span> <span class="op">!=</span> NULL<span class="op">)</span> <span class="op">{</span><span class="cf">return</span> <span class="dv">1</span><span class="op">;}</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="op">-</span><span class="dv">1</span><span class="op">;</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> updateLEDStatus<span class="op">(</span><span class="dt">char</span> request<span class="op">[])</span></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> led_status <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>    <span class="co">// The request has been received. now process to determine whether to turn the LED on or off</span></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>inString<span class="op">(</span>request<span class="op">,</span> <span class="st">"ledoff"</span><span class="op">)==</span><span class="dv">1</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>        digitalWrite<span class="op">(</span>LED_PIN<span class="op">,</span> PIO_LOW<span class="op">);</span></span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>                printf<span class="op">(</span><span class="st">"off </span><span class="sc">\n</span><span class="st">"</span><span class="op">);</span></span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>        led_status <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>inString<span class="op">(</span>request<span class="op">,</span> <span class="st">"ledon"</span><span class="op">)==</span><span class="dv">1</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>        digitalWrite<span class="op">(</span>LED_PIN<span class="op">,</span> PIO_HIGH<span class="op">);</span></span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>                printf<span class="op">(</span><span class="st">"on </span><span class="sc">\n</span><span class="st">"</span><span class="op">);</span></span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>        led_status <span class="op">=</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> led_status<span class="op">;</span></span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> updateResolution<span class="op">(</span><span class="dt">char</span> request<span class="op">[]){</span></span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>      <span class="dt">int</span> resolution <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>      <span class="co">// The request has been received. now process the resolution</span></span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>inString<span class="op">(</span>request<span class="op">,</span> <span class="st">"8"</span><span class="op">)==</span><span class="dv">1</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>                printf<span class="op">(</span><span class="st">"resolution = 8 </span><span class="sc">\n</span><span class="st">"</span><span class="op">);</span></span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>        resolution <span class="op">=</span> <span class="dv">8</span><span class="op">;</span></span>
+<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span> <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>inString<span class="op">(</span>request<span class="op">,</span> <span class="st">"9"</span><span class="op">)==</span><span class="dv">1</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a>                printf<span class="op">(</span><span class="st">"resolution = 9 </span><span class="sc">\n</span><span class="st">"</span><span class="op">);</span></span>
+<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a>        resolution <span class="op">=</span> <span class="dv">9</span><span class="op">;</span></span>
+<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span> <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>inString<span class="op">(</span>request<span class="op">,</span> <span class="st">"10"</span><span class="op">)==</span><span class="dv">1</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a>                printf<span class="op">(</span><span class="st">"resolution = 10 </span><span class="sc">\n</span><span class="st">"</span><span class="op">);</span></span>
+<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a>        resolution <span class="op">=</span> <span class="dv">10</span><span class="op">;</span></span>
+<span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span> <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>inString<span class="op">(</span>request<span class="op">,</span> <span class="st">"11"</span><span class="op">)==</span><span class="dv">1</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-57"><a href="#cb2-57" aria-hidden="true" tabindex="-1"></a>                printf<span class="op">(</span><span class="st">"resolution = 11 </span><span class="sc">\n</span><span class="st">"</span><span class="op">);</span></span>
+<span id="cb2-58"><a href="#cb2-58" aria-hidden="true" tabindex="-1"></a>        resolution <span class="op">=</span> <span class="dv">11</span><span class="op">;</span></span>
+<span id="cb2-59"><a href="#cb2-59" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span> <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>inString<span class="op">(</span>request<span class="op">,</span> <span class="st">"12"</span><span class="op">)==</span><span class="dv">1</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-60"><a href="#cb2-60" aria-hidden="true" tabindex="-1"></a>                printf<span class="op">(</span><span class="st">"resolution = 12 </span><span class="sc">\n</span><span class="st">"</span><span class="op">);</span></span>
+<span id="cb2-61"><a href="#cb2-61" aria-hidden="true" tabindex="-1"></a>        resolution <span class="op">=</span> <span class="dv">12</span><span class="op">;</span></span>
+<span id="cb2-62"><a href="#cb2-62" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb2-63"><a href="#cb2-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-64"><a href="#cb2-64" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> resolution<span class="op">;</span></span>
+<span id="cb2-65"><a href="#cb2-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-66"><a href="#cb2-66" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb2-67"><a href="#cb2-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-68"><a href="#cb2-68" aria-hidden="true" tabindex="-1"></a><span class="co">/////////////////////////////////////////////////////////////////</span></span>
+<span id="cb2-69"><a href="#cb2-69" aria-hidden="true" tabindex="-1"></a><span class="co">// Solution Functions</span></span>
+<span id="cb2-70"><a href="#cb2-70" aria-hidden="true" tabindex="-1"></a><span class="co">/////////////////////////////////////////////////////////////////</span></span>
+<span id="cb2-71"><a href="#cb2-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-72"><a href="#cb2-72" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-73"><a href="#cb2-73" aria-hidden="true" tabindex="-1"></a> <span class="co">//// internet ISO</span></span>
+<span id="cb2-74"><a href="#cb2-74" aria-hidden="true" tabindex="-1"></a> <span class="dt">int</span> main<span class="op">(</span><span class="dt">void</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-75"><a href="#cb2-75" aria-hidden="true" tabindex="-1"></a>   configureFlash<span class="op">();</span></span>
+<span id="cb2-76"><a href="#cb2-76" aria-hidden="true" tabindex="-1"></a>   configureClock<span class="op">();</span></span>
+<span id="cb2-77"><a href="#cb2-77" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-78"><a href="#cb2-78" aria-hidden="true" tabindex="-1"></a>   gpioEnable<span class="op">(</span>GPIO_PORT_A<span class="op">);</span></span>
+<span id="cb2-79"><a href="#cb2-79" aria-hidden="true" tabindex="-1"></a>   gpioEnable<span class="op">(</span>GPIO_PORT_B<span class="op">);</span></span>
+<span id="cb2-80"><a href="#cb2-80" aria-hidden="true" tabindex="-1"></a>   gpioEnable<span class="op">(</span>GPIO_PORT_C<span class="op">);</span></span>
+<span id="cb2-81"><a href="#cb2-81" aria-hidden="true" tabindex="-1"></a>   pinMode<span class="op">(</span>LED_PIN<span class="op">,</span> GPIO_OUTPUT<span class="op">);</span></span>
+<span id="cb2-82"><a href="#cb2-82" aria-hidden="true" tabindex="-1"></a>   digitalWrite<span class="op">(</span>LED_PIN<span class="op">,</span> PIO_LOW<span class="op">);</span></span>
+<span id="cb2-83"><a href="#cb2-83" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-84"><a href="#cb2-84" aria-hidden="true" tabindex="-1"></a>   <span class="co">//RCC-&gt;APB2ENR |= (RCC_APB2ENR_TIM15EN);</span></span>
+<span id="cb2-85"><a href="#cb2-85" aria-hidden="true" tabindex="-1"></a>   <span class="co">//initTIM(TIM15);</span></span>
+<span id="cb2-86"><a href="#cb2-86" aria-hidden="true" tabindex="-1"></a>   RCC<span class="op">-&gt;</span>APB1ENR1 <span class="op">|=</span> <span class="op">(</span>RCC_APB1ENR1_TIM2EN<span class="op">);</span></span>
+<span id="cb2-87"><a href="#cb2-87" aria-hidden="true" tabindex="-1"></a>    initTIM<span class="op">(</span>TIM2<span class="op">);</span></span>
+<span id="cb2-88"><a href="#cb2-88" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-89"><a href="#cb2-89" aria-hidden="true" tabindex="-1"></a>   USART_TypeDef <span class="op">*</span> USART <span class="op">=</span> initUSART<span class="op">(</span>USART1_ID<span class="op">,</span> <span class="dv">125000</span><span class="op">);</span></span>
+<span id="cb2-90"><a href="#cb2-90" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-91"><a href="#cb2-91" aria-hidden="true" tabindex="-1"></a>    <span class="co">// initialize SPI with (80 / 32 = ) 2.5 MHz baudrate,  cpol=0, cpha=1</span></span>
+<span id="cb2-92"><a href="#cb2-92" aria-hidden="true" tabindex="-1"></a>    initSPI<span class="op">(</span><span class="bn">0b100</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">1</span><span class="op">);</span></span>
+<span id="cb2-93"><a href="#cb2-93" aria-hidden="true" tabindex="-1"></a>    <span class="dt">volatile</span> <span class="dt">char</span> config<span class="op">;</span></span>
+<span id="cb2-94"><a href="#cb2-94" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-95"><a href="#cb2-95" aria-hidden="true" tabindex="-1"></a>    <span class="co">// printf("config settings: %x \n", config);</span></span>
+<span id="cb2-96"><a href="#cb2-96" aria-hidden="true" tabindex="-1"></a>    <span class="dt">volatile</span> <span class="dt">float</span> temp<span class="op">;</span></span>
+<span id="cb2-97"><a href="#cb2-97" aria-hidden="true" tabindex="-1"></a>   <span class="cf">while</span><span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-98"><a href="#cb2-98" aria-hidden="true" tabindex="-1"></a>     <span class="co">/* Wait for ESP8266 to send a request.</span></span>
+<span id="cb2-99"><a href="#cb2-99" aria-hidden="true" tabindex="-1"></a><span class="co">     Requests take the form of '/REQ:&lt;tag&gt;\n', with TAG begin &lt;= 10 characters.</span></span>
+<span id="cb2-100"><a href="#cb2-100" aria-hidden="true" tabindex="-1"></a><span class="co">     Therefore the request[] array must be able to contain 18 characters.</span></span>
+<span id="cb2-101"><a href="#cb2-101" aria-hidden="true" tabindex="-1"></a><span class="co">     */</span></span>
+<span id="cb2-102"><a href="#cb2-102" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-103"><a href="#cb2-103" aria-hidden="true" tabindex="-1"></a>     <span class="co">// Receive web request from the ESP</span></span>
+<span id="cb2-104"><a href="#cb2-104" aria-hidden="true" tabindex="-1"></a>     <span class="dt">char</span> request<span class="op">[</span>BUFF_LEN<span class="op">]</span> <span class="op">=</span> <span class="st">"                  "</span><span class="op">;</span> <span class="co">// initialize to known value</span></span>
+<span id="cb2-105"><a href="#cb2-105" aria-hidden="true" tabindex="-1"></a>     <span class="dt">int</span> charIndex <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb2-106"><a href="#cb2-106" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-107"><a href="#cb2-107" aria-hidden="true" tabindex="-1"></a>     <span class="co">// Keep going until you get end of line character</span></span>
+<span id="cb2-108"><a href="#cb2-108" aria-hidden="true" tabindex="-1"></a>     <span class="cf">while</span><span class="op">(</span>inString<span class="op">(</span>request<span class="op">,</span> <span class="st">"</span><span class="sc">\n</span><span class="st">"</span><span class="op">)</span> <span class="op">==</span> <span class="op">-</span><span class="dv">1</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-109"><a href="#cb2-109" aria-hidden="true" tabindex="-1"></a>       <span class="co">// Wait for a complete request to be transmitted before processing</span></span>
+<span id="cb2-110"><a href="#cb2-110" aria-hidden="true" tabindex="-1"></a>       <span class="cf">while</span><span class="op">(!(</span>USART<span class="op">-&gt;</span>ISR <span class="op">&amp;</span> USART_ISR_RXNE<span class="op">));</span></span>
+<span id="cb2-111"><a href="#cb2-111" aria-hidden="true" tabindex="-1"></a>       request<span class="op">[</span>charIndex<span class="op">++]</span> <span class="op">=</span> readChar<span class="op">(</span>USART<span class="op">);</span></span>
+<span id="cb2-112"><a href="#cb2-112" aria-hidden="true" tabindex="-1"></a>     <span class="op">}</span></span>
+<span id="cb2-113"><a href="#cb2-113" aria-hidden="true" tabindex="-1"></a>      <span class="co">// Update strings with current LED state and resolution</span></span>
+<span id="cb2-114"><a href="#cb2-114" aria-hidden="true" tabindex="-1"></a>     <span class="dt">int</span> led_status <span class="op">=</span> updateLEDStatus<span class="op">(</span>request<span class="op">);</span></span>
+<span id="cb2-115"><a href="#cb2-115" aria-hidden="true" tabindex="-1"></a>     <span class="dt">int</span> resolution <span class="op">=</span> updateResolution<span class="op">(</span>request<span class="op">);</span></span>
+<span id="cb2-116"><a href="#cb2-116" aria-hidden="true" tabindex="-1"></a>      <span class="co">// configure temp sensor</span></span>
+<span id="cb2-117"><a href="#cb2-117" aria-hidden="true" tabindex="-1"></a>      config <span class="op">=</span> configureTempSensor<span class="op">(</span>resolution<span class="op">);</span></span>
+<span id="cb2-118"><a href="#cb2-118" aria-hidden="true" tabindex="-1"></a>     <span class="co">// SPI code here for reading temperature</span></span>
+<span id="cb2-119"><a href="#cb2-119" aria-hidden="true" tabindex="-1"></a>     temp <span class="op">=</span> readTemp<span class="op">(</span>resolution<span class="op">);</span></span>
+<span id="cb2-120"><a href="#cb2-120" aria-hidden="true" tabindex="-1"></a>     </span>
+<span id="cb2-121"><a href="#cb2-121" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-122"><a href="#cb2-122" aria-hidden="true" tabindex="-1"></a>     <span class="dt">char</span> ledStatusStr<span class="op">[</span><span class="dv">20</span><span class="op">];</span></span>
+<span id="cb2-123"><a href="#cb2-123" aria-hidden="true" tabindex="-1"></a>     <span class="dt">char</span> tempStatusStr<span class="op">[</span><span class="dv">25</span><span class="op">];</span> <span class="co">// temp is double is 64 bits, or 8 bytes</span></span>
+<span id="cb2-124"><a href="#cb2-124" aria-hidden="true" tabindex="-1"></a>      <span class="dt">char</span> resolutionStatusStr<span class="op">[</span><span class="dv">25</span><span class="op">];</span></span>
+<span id="cb2-125"><a href="#cb2-125" aria-hidden="true" tabindex="-1"></a>     sprintf<span class="op">(</span>tempStatusStr<span class="op">,</span> <span class="st">"temp: </span><span class="sc">%.4f</span><span class="st"> deg C</span><span class="sc">\n</span><span class="st">"</span><span class="op">,</span> temp<span class="op">);</span></span>
+<span id="cb2-126"><a href="#cb2-126" aria-hidden="true" tabindex="-1"></a>     sprintf<span class="op">(</span>resolutionStatusStr<span class="op">,</span> <span class="st">"resolution = </span><span class="sc">%d</span><span class="st"> bits"</span><span class="op">,</span> resolution<span class="op">);</span></span>
+<span id="cb2-127"><a href="#cb2-127" aria-hidden="true" tabindex="-1"></a>     <span class="co">//printf("%f", temp);</span></span>
+<span id="cb2-128"><a href="#cb2-128" aria-hidden="true" tabindex="-1"></a>     <span class="co">//printf(tempStatusStr);</span></span>
+<span id="cb2-129"><a href="#cb2-129" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-130"><a href="#cb2-130" aria-hidden="true" tabindex="-1"></a>     <span class="cf">if</span> <span class="op">(</span>led_status <span class="op">==</span> <span class="dv">1</span><span class="op">){</span></span>
+<span id="cb2-131"><a href="#cb2-131" aria-hidden="true" tabindex="-1"></a>       sprintf<span class="op">(</span>ledStatusStr<span class="op">,</span><span class="st">"LED is on!"</span><span class="op">);</span></span>
+<span id="cb2-132"><a href="#cb2-132" aria-hidden="true" tabindex="-1"></a>     <span class="op">}</span> <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>led_status <span class="op">==</span> <span class="dv">0</span><span class="op">){</span></span>
+<span id="cb2-133"><a href="#cb2-133" aria-hidden="true" tabindex="-1"></a>       sprintf<span class="op">(</span>ledStatusStr<span class="op">,</span><span class="st">"LED is off!"</span><span class="op">);</span></span>
+<span id="cb2-134"><a href="#cb2-134" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb2-135"><a href="#cb2-135" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-136"><a href="#cb2-136" aria-hidden="true" tabindex="-1"></a>     <span class="co">// finally, transmit the webpage over UART</span></span>
+<span id="cb2-137"><a href="#cb2-137" aria-hidden="true" tabindex="-1"></a>     sendString<span class="op">(</span>USART<span class="op">,</span> webpageStart<span class="op">);</span> <span class="co">// webpage header code</span></span>
+<span id="cb2-138"><a href="#cb2-138" aria-hidden="true" tabindex="-1"></a>     sendString<span class="op">(</span>USART<span class="op">,</span> ledStr<span class="op">);</span> <span class="co">// button for controlling LED</span></span>
+<span id="cb2-139"><a href="#cb2-139" aria-hidden="true" tabindex="-1"></a>     sendString<span class="op">(</span>USART<span class="op">,</span> resolutionStr<span class="op">);</span> <span class="co">// buttons for controlling resolution</span></span>
+<span id="cb2-140"><a href="#cb2-140" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-141"><a href="#cb2-141" aria-hidden="true" tabindex="-1"></a>     sendString<span class="op">(</span>USART<span class="op">,</span> <span class="st">"&lt;h2&gt;LED Status&lt;/h2&gt;"</span><span class="op">);</span></span>
+<span id="cb2-142"><a href="#cb2-142" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-143"><a href="#cb2-143" aria-hidden="true" tabindex="-1"></a>     sendString<span class="op">(</span>USART<span class="op">,</span> <span class="st">"&lt;p&gt;"</span><span class="op">);</span></span>
+<span id="cb2-144"><a href="#cb2-144" aria-hidden="true" tabindex="-1"></a>     sendString<span class="op">(</span>USART<span class="op">,</span> ledStatusStr<span class="op">);</span></span>
+<span id="cb2-145"><a href="#cb2-145" aria-hidden="true" tabindex="-1"></a>     sendString<span class="op">(</span>USART<span class="op">,</span> <span class="st">"&lt;/p&gt;"</span><span class="op">);</span></span>
+<span id="cb2-146"><a href="#cb2-146" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-147"><a href="#cb2-147" aria-hidden="true" tabindex="-1"></a>     sendString<span class="op">(</span>USART<span class="op">,</span> <span class="st">"&lt;h2&gt;Temperature&lt;/h2&gt;"</span><span class="op">);</span></span>
+<span id="cb2-148"><a href="#cb2-148" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-149"><a href="#cb2-149" aria-hidden="true" tabindex="-1"></a>     sendString<span class="op">(</span>USART<span class="op">,</span> <span class="st">"&lt;p&gt;"</span><span class="op">);</span></span>
+<span id="cb2-150"><a href="#cb2-150" aria-hidden="true" tabindex="-1"></a>     sendString<span class="op">(</span>USART<span class="op">,</span> tempStatusStr<span class="op">);</span></span>
+<span id="cb2-151"><a href="#cb2-151" aria-hidden="true" tabindex="-1"></a>     sendString<span class="op">(</span>USART<span class="op">,</span> <span class="st">"&lt;/p&gt;"</span><span class="op">);</span></span>
+<span id="cb2-152"><a href="#cb2-152" aria-hidden="true" tabindex="-1"></a>     sendString<span class="op">(</span>USART<span class="op">,</span> <span class="st">"&lt;p&gt;"</span><span class="op">);</span></span>
+<span id="cb2-153"><a href="#cb2-153" aria-hidden="true" tabindex="-1"></a>     sendString<span class="op">(</span>USART<span class="op">,</span> resolutionStatusStr<span class="op">);</span></span>
+<span id="cb2-154"><a href="#cb2-154" aria-hidden="true" tabindex="-1"></a>     sendString<span class="op">(</span>USART<span class="op">,</span> <span class="st">"&lt;/p&gt;"</span><span class="op">);</span></span>
+<span id="cb2-155"><a href="#cb2-155" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-156"><a href="#cb2-156" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-157"><a href="#cb2-157" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-158"><a href="#cb2-158" aria-hidden="true" tabindex="-1"></a>     sendString<span class="op">(</span>USART<span class="op">,</span> webpageEnd<span class="op">);</span></span>
+<span id="cb2-159"><a href="#cb2-159" aria-hidden="true" tabindex="-1"></a>   <span class="op">}</span></span>
+<span id="cb2-160"><a href="#cb2-160" aria-hidden="true" tabindex="-1"></a> <span class="op">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode c code-with-copy"><code class="sourceCode c"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">// DS1722.h</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co">// Madeleine Kan</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co">// mkan@hmc.edu</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co">// 27 October 2025</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co">// Header file for DS1722 temperature sensor</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="pp">#ifndef DS1722_H</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="pp">#define DS1722_H</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">"STM32L432KC.h"</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="dt">volatile</span> <span class="dt">char</span> configureTempSensor<span class="op">(</span><span class="dt">int</span> resolution<span class="op">);</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="dt">volatile</span> <span class="dt">float</span> readTemp<span class="op">(</span><span class="dt">int</span> resolution<span class="op">);</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="pp">#endif</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode c code-with-copy"><code class="sourceCode c"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">// DS1722.c</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co">// Madeleine Kan</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co">// mkan@hmc.edu</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co">// 27 October 2025</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co">// Functionality for DS1722 temperature sensor</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">"STM32L432KC.h"</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="co">// configures and enables temperature sensor for 8-12 bits of resolution</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="co">// then, reads back configuration</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co">// returns int corresponding to configuration settingss</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="dt">volatile</span> <span class="dt">char</span> configureTempSensor<span class="op">(</span><span class="dt">int</span> resolution<span class="op">){</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  <span class="co">// first 4 bits of config status register will always be 1110 since we don't want one shot mode</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>  <span class="co">// last 4 bits will be 3'bresolution_SD</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>  <span class="co">// since we are enabling the temp sensor, we are writing 0 to SD</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>  <span class="dt">volatile</span> <span class="dt">char</span> result1<span class="op">;</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>  <span class="dt">volatile</span> <span class="dt">char</span> result2<span class="op">;</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>  <span class="dt">volatile</span> <span class="dt">char</span> config<span class="op">;</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>  <span class="dt">int</span> a <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>  digitalWrite<span class="op">(</span>CS<span class="op">,</span> PIO_HIGH<span class="op">);</span></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>   <span class="co">// config write address</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>  spiSendReceive<span class="op">(</span><span class="bn">0x80</span><span class="op">);</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>  <span class="cf">switch</span><span class="op">(</span>resolution<span class="op">){</span></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>    <span class="cf">case</span> <span class="dv">8</span><span class="op">:</span> </span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>      result2 <span class="op">=</span> spiSendReceive<span class="op">(</span><span class="bn">0xE0</span><span class="op">);</span></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>      <span class="cf">break</span><span class="op">;</span></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>    <span class="cf">case</span> <span class="dv">9</span><span class="op">:</span> </span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>      result2 <span class="op">=</span> spiSendReceive<span class="op">(</span><span class="bn">0xE2</span><span class="op">);</span></span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>      <span class="cf">break</span><span class="op">;</span></span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>    <span class="cf">case</span> <span class="dv">10</span><span class="op">:</span> </span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>      result2 <span class="op">=</span> spiSendReceive<span class="op">(</span><span class="bn">0xE4</span><span class="op">);</span></span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>      <span class="cf">break</span><span class="op">;</span></span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>    <span class="cf">case</span> <span class="dv">11</span><span class="op">:</span> </span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>      result2 <span class="op">=</span> spiSendReceive<span class="op">(</span><span class="bn">0xE6</span><span class="op">);</span></span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>      <span class="cf">break</span><span class="op">;</span></span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>    <span class="cf">case</span> <span class="dv">12</span><span class="op">:</span> </span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>      result2 <span class="op">=</span> spiSendReceive<span class="op">(</span><span class="bn">0xE8</span><span class="op">);</span></span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>      <span class="cf">break</span><span class="op">;</span></span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>    <span class="cf">default</span><span class="op">:</span></span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>    <span class="cf">break</span><span class="op">;</span></span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>  digitalWrite<span class="op">(</span>CS<span class="op">,</span> PIO_LOW<span class="op">);</span></span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a>  digitalWrite<span class="op">(</span>CS<span class="op">,</span>  PIO_HIGH<span class="op">);</span></span>
+<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a>  spiSendReceive<span class="op">(</span><span class="bn">0x0</span><span class="op">);</span></span>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a>  config <span class="op">=</span> spiSendReceive<span class="op">(</span><span class="bn">0x00</span><span class="op">);</span></span>
+<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a>  digitalWrite<span class="op">(</span>CS<span class="op">,</span>  PIO_LOW<span class="op">);</span></span>
+<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a>  printf<span class="op">(</span><span class="st">"old settings: </span><span class="sc">%x</span><span class="st"> </span><span class="sc">\n</span><span class="st">"</span><span class="op">,</span> result1<span class="op">);</span></span>
+<span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a>  printf<span class="op">(</span><span class="st">"other settings: </span><span class="sc">%x</span><span class="st"> </span><span class="sc">\n</span><span class="st">"</span><span class="op">,</span> result2<span class="op">);</span></span>
+<span id="cb4-51"><a href="#cb4-51" aria-hidden="true" tabindex="-1"></a>  printf<span class="op">(</span><span class="st">"new settings: </span><span class="sc">%x</span><span class="st"> </span><span class="sc">\n</span><span class="st">"</span><span class="op">,</span> config<span class="op">);</span></span>
+<span id="cb4-52"><a href="#cb4-52" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb4-53"><a href="#cb4-53" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> config<span class="op">;</span></span>
+<span id="cb4-54"><a href="#cb4-54" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb4-55"><a href="#cb4-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-56"><a href="#cb4-56" aria-hidden="true" tabindex="-1"></a><span class="dt">volatile</span> <span class="dt">float</span> readTemp<span class="op">(</span><span class="dt">int</span> resolution<span class="op">){</span></span>
+<span id="cb4-57"><a href="#cb4-57" aria-hidden="true" tabindex="-1"></a>  <span class="dt">volatile</span> <span class="dt">int16_t</span> temp_MSB <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb4-58"><a href="#cb4-58" aria-hidden="true" tabindex="-1"></a>  <span class="dt">volatile</span> <span class="dt">int16_t</span> temp_LSB <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb4-59"><a href="#cb4-59" aria-hidden="true" tabindex="-1"></a>  <span class="dt">volatile</span> <span class="dt">float</span> frac_temp_LSB <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb4-60"><a href="#cb4-60" aria-hidden="true" tabindex="-1"></a>  <span class="dt">volatile</span> <span class="dt">float</span> temp_raw <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb4-61"><a href="#cb4-61" aria-hidden="true" tabindex="-1"></a>  <span class="dt">volatile</span> <span class="dt">float</span> temp <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb4-62"><a href="#cb4-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-63"><a href="#cb4-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-64"><a href="#cb4-64" aria-hidden="true" tabindex="-1"></a>  <span class="dt">int</span> isPositive <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb4-65"><a href="#cb4-65" aria-hidden="true" tabindex="-1"></a>  digitalWrite<span class="op">(</span>CS<span class="op">,</span> PIO_HIGH<span class="op">);</span></span>
+<span id="cb4-66"><a href="#cb4-66" aria-hidden="true" tabindex="-1"></a>  spiSendReceive<span class="op">(</span><span class="bn">0x02</span><span class="op">);</span></span>
+<span id="cb4-67"><a href="#cb4-67" aria-hidden="true" tabindex="-1"></a>  temp_MSB <span class="op">=</span> <span class="op">(</span><span class="dt">uint16_t</span><span class="op">)</span> spiSendReceive<span class="op">(</span><span class="bn">0x00</span><span class="op">);</span></span>
+<span id="cb4-68"><a href="#cb4-68" aria-hidden="true" tabindex="-1"></a>  spiSendReceive<span class="op">(</span><span class="bn">0x00</span><span class="op">);</span></span>
+<span id="cb4-69"><a href="#cb4-69" aria-hidden="true" tabindex="-1"></a>  digitalWrite<span class="op">(</span>CS<span class="op">,</span> PIO_LOW<span class="op">);</span></span>
+<span id="cb4-70"><a href="#cb4-70" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-71"><a href="#cb4-71" aria-hidden="true" tabindex="-1"></a>  digitalWrite<span class="op">(</span>CS<span class="op">,</span> PIO_HIGH<span class="op">);</span></span>
+<span id="cb4-72"><a href="#cb4-72" aria-hidden="true" tabindex="-1"></a>  spiSendReceive<span class="op">(</span><span class="bn">0x01</span><span class="op">);</span></span>
+<span id="cb4-73"><a href="#cb4-73" aria-hidden="true" tabindex="-1"></a>  temp_LSB <span class="op">=</span> <span class="op">(</span><span class="dt">uint16_t</span><span class="op">)</span> spiSendReceive<span class="op">(</span><span class="bn">0x00</span><span class="op">);</span></span>
+<span id="cb4-74"><a href="#cb4-74" aria-hidden="true" tabindex="-1"></a>  spiSendReceive<span class="op">(</span><span class="bn">0x00</span><span class="op">);</span></span>
+<span id="cb4-75"><a href="#cb4-75" aria-hidden="true" tabindex="-1"></a>  digitalWrite<span class="op">(</span>CS<span class="op">,</span> PIO_LOW<span class="op">);</span></span>
+<span id="cb4-76"><a href="#cb4-76" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb4-77"><a href="#cb4-77" aria-hidden="true" tabindex="-1"></a>  temp_raw <span class="op">=</span> <span class="op">((</span>temp_MSB <span class="op">&lt;&lt;</span> <span class="dv">8</span><span class="op">)</span> <span class="op">|</span> temp_LSB<span class="op">);</span></span>
+<span id="cb4-78"><a href="#cb4-78" aria-hidden="true" tabindex="-1"></a>  temp <span class="op">=</span> temp_raw<span class="op">/</span><span class="dv">256</span><span class="op">;</span></span>
+<span id="cb4-79"><a href="#cb4-79" aria-hidden="true" tabindex="-1"></a>  printf<span class="op">(</span><span class="st">"temp LSB: </span><span class="sc">%x</span><span class="st"> </span><span class="sc">\n</span><span class="st">"</span><span class="op">,</span> temp_LSB<span class="op">);</span></span>
+<span id="cb4-80"><a href="#cb4-80" aria-hidden="true" tabindex="-1"></a>  printf<span class="op">(</span><span class="st">"temp MSB: </span><span class="sc">%x</span><span class="st"> </span><span class="sc">\n</span><span class="st">"</span><span class="op">,</span> temp_MSB<span class="op">);</span></span>
+<span id="cb4-81"><a href="#cb4-81" aria-hidden="true" tabindex="-1"></a>  printf<span class="op">(</span><span class="st">"temp: </span><span class="sc">% .4f\n</span><span class="st">"</span><span class="op">,</span> temp<span class="op">);</span></span>
+<span id="cb4-82"><a href="#cb4-82" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> temp<span class="op">;</span></span>
+<span id="cb4-83"><a href="#cb4-83" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>And the SPI code, from the interrupt-tutorial solution branch:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode c code-with-copy"><code class="sourceCode c"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">// STM32L432KC_SPI.h</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co">// Header for SPI functions</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="pp">#ifndef STM32L4_SPI_H</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="pp">#define STM32L4_SPI_H</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;stdint.h&gt;</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;stm32l432xx.h&gt;</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="pp">#define SCK PB3</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="pp">#define CIPO PB4</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="pp">#define COPI PB5</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="pp">#define CS PB1</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="co">///////////////////////////////////////////////////////////////////////////////</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a><span class="co">// Function prototypes</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a><span class="co">///////////////////////////////////////////////////////////////////////////////</span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a><span class="co">/* Enables the SPI peripheral and intializes its clock speed (baud rate), polarity, and phase.</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a><span class="co"> *    -- br: (0b000 - 0b111). The SPI clk will be the master clock / 2^(BR+1).</span></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a><span class="co"> *    -- cpol: clock polarity (0: inactive state is logical 0, 1: inactive state is logical 1).</span></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a><span class="co"> *    -- cpha: clock phase (0: data captured on leading edge of clk and changed on next edge, </span></span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a><span class="co"> *          1: data changed on leading edge of clk and captured on next edge)</span></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a><span class="co"> * Refer to the datasheet for more low-level details. */</span> </span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> initSPI<span class="op">(</span><span class="dt">int</span> br<span class="op">,</span> <span class="dt">int</span> cpol<span class="op">,</span> <span class="dt">int</span> cpha<span class="op">);</span></span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a><span class="co">/* Transmits a character (1 byte) over SPI and returns the received character.</span></span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a><span class="co"> *    -- send: the character to send over SPI</span></span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a><span class="co"> *    -- return: the character received over SPI */</span></span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a><span class="dt">char</span> spiSendReceive<span class="op">(</span><span class="dt">char</span> send<span class="op">);</span></span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a><span class="pp">#endif</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode c code-with-copy"><code class="sourceCode c"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">// STM32L432KC_SPI.c</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co">// Source code for SPI functions</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">"STM32L432KC.h"</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">"STM32L432KC_SPI.h"</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">"STM32L432KC_GPIO.h"</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">"STM32L432KC_RCC.h"</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="co">/* Enables the SPI peripheral and intializes its clock speed (baud rate), polarity, and phase.</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="co"> *    -- br: (0b000 - 0b111). The SPI clk will be the master clock / 2^(BR+1).</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="co"> *    -- cpol: clock polarity (0: inactive state is logical 0, 1: inactive state is logical 1).</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="co"> *    -- cpha: clock phase (0: data captured on leading edge of clk and changed on next edge, </span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="co"> *          1: data changed on leading edge of clk and captured on next edge)</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="co"> * Refer to the datasheet for more low-level details. */</span> </span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> initSPI<span class="op">(</span><span class="dt">int</span> br<span class="op">,</span> <span class="dt">int</span> cpol<span class="op">,</span> <span class="dt">int</span> cpha<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Turn on GPIOA and GPIOB clock domains (GPIOAEN and GPIOBEN bits in AHB1ENR)</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>    RCC<span class="op">-&gt;</span>AHB2ENR <span class="op">|=</span> <span class="op">(</span>RCC_AHB2ENR_GPIOAEN <span class="op">|</span> RCC_AHB2ENR_GPIOBEN<span class="op">);</span></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>    RCC<span class="op">-&gt;</span>APB2ENR <span class="op">|=</span> RCC_APB2ENR_SPI1EN<span class="op">;</span> <span class="co">// Turn on SPI1 clock domain (SPI1EN bit in APB2ENR)</span></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Initially assigning SPI pins</span></span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>    pinMode<span class="op">(</span>SCK<span class="op">,</span> GPIO_ALT<span class="op">);</span> <span class="co">// SPI1_SCK</span></span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>    pinMode<span class="op">(</span>CIPO<span class="op">,</span> GPIO_ALT<span class="op">);</span> <span class="co">// SPI1_MISO</span></span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>    pinMode<span class="op">(</span>COPI<span class="op">,</span> GPIO_ALT<span class="op">);</span> <span class="co">// SPI1_MOSI</span></span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>    pinMode<span class="op">(</span>CS<span class="op">,</span> GPIO_OUTPUT<span class="op">);</span> <span class="co">//  Manual CS</span></span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Set output speed type to high for SCK</span></span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>    GPIOB<span class="op">-&gt;</span>OSPEEDR <span class="op">|=</span> <span class="op">(</span>GPIO_OSPEEDR_OSPEED3<span class="op">);</span></span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Set to AF05 for SPI alternate functions</span></span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>    GPIOB<span class="op">-&gt;</span>AFR<span class="op">[</span><span class="dv">0</span><span class="op">]</span> <span class="op">|=</span> _VAL2FLD<span class="op">(</span>GPIO_AFRL_AFSEL3<span class="op">,</span> <span class="dv">5</span><span class="op">);</span></span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>    GPIOB<span class="op">-&gt;</span>AFR<span class="op">[</span><span class="dv">0</span><span class="op">]</span> <span class="op">|=</span> _VAL2FLD<span class="op">(</span>GPIO_AFRL_AFSEL4<span class="op">,</span> <span class="dv">5</span><span class="op">);</span></span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>    GPIOB<span class="op">-&gt;</span>AFR<span class="op">[</span><span class="dv">0</span><span class="op">]</span> <span class="op">|=</span> _VAL2FLD<span class="op">(</span>GPIO_AFRL_AFSEL5<span class="op">,</span> <span class="dv">5</span><span class="op">);</span></span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a>    SPI1<span class="op">-&gt;</span>CR1 <span class="op">|=</span> _VAL2FLD<span class="op">(</span>SPI_CR1_BR<span class="op">,</span> br<span class="op">);</span> <span class="co">// Set baud rate divider</span></span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a>    SPI1<span class="op">-&gt;</span>CR1 <span class="op">|=</span> <span class="op">(</span>SPI_CR1_MSTR<span class="op">);</span></span>
+<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a>    SPI1<span class="op">-&gt;</span>CR1 <span class="op">&amp;=</span> <span class="op">~(</span>SPI_CR1_CPOL <span class="op">|</span> SPI_CR1_CPHA <span class="op">|</span> SPI_CR1_LSBFIRST <span class="op">|</span> SPI_CR1_SSM<span class="op">);</span></span>
+<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a>    SPI1<span class="op">-&gt;</span>CR1 <span class="op">|=</span> _VAL2FLD<span class="op">(</span>SPI_CR1_CPHA<span class="op">,</span> cpha<span class="op">);</span></span>
+<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a>    SPI1<span class="op">-&gt;</span>CR1 <span class="op">|=</span> _VAL2FLD<span class="op">(</span>SPI_CR1_CPOL<span class="op">,</span> cpol<span class="op">);</span></span>
+<span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a>    SPI1<span class="op">-&gt;</span>CR2 <span class="op">|=</span> _VAL2FLD<span class="op">(</span>SPI_CR2_DS<span class="op">,</span> <span class="bn">0b0111</span><span class="op">);</span></span>
+<span id="cb6-42"><a href="#cb6-42" aria-hidden="true" tabindex="-1"></a>    SPI1<span class="op">-&gt;</span>CR2 <span class="op">|=</span> <span class="op">(</span>SPI_CR2_FRXTH <span class="op">|</span> SPI_CR2_SSOE<span class="op">);</span></span>
+<span id="cb6-43"><a href="#cb6-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-44"><a href="#cb6-44" aria-hidden="true" tabindex="-1"></a>    SPI1<span class="op">-&gt;</span>CR1 <span class="op">|=</span> <span class="op">(</span>SPI_CR1_SPE<span class="op">);</span> <span class="co">// Enable SPI</span></span>
+<span id="cb6-45"><a href="#cb6-45" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb6-46"><a href="#cb6-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-47"><a href="#cb6-47" aria-hidden="true" tabindex="-1"></a><span class="co">/* Transmits a character (1 byte) over SPI and returns the received character.</span></span>
+<span id="cb6-48"><a href="#cb6-48" aria-hidden="true" tabindex="-1"></a><span class="co"> *    -- send: the character to send over SPI</span></span>
+<span id="cb6-49"><a href="#cb6-49" aria-hidden="true" tabindex="-1"></a><span class="co"> *    -- return: the character received over SPI */</span></span>
+<span id="cb6-50"><a href="#cb6-50" aria-hidden="true" tabindex="-1"></a><span class="dt">char</span> spiSendReceive<span class="op">(</span><span class="dt">char</span> send<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb6-51"><a href="#cb6-51" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span><span class="op">(!(</span>SPI1<span class="op">-&gt;</span>SR <span class="op">&amp;</span> SPI_SR_TXE<span class="op">));</span> <span class="co">// Wait until the transmit buffer is empty</span></span>
+<span id="cb6-52"><a href="#cb6-52" aria-hidden="true" tabindex="-1"></a>    <span class="op">*(</span><span class="dt">volatile</span> <span class="dt">char</span> <span class="op">*)</span> <span class="op">(&amp;</span>SPI1<span class="op">-&gt;</span>DR<span class="op">)</span> <span class="op">=</span> send<span class="op">;</span> <span class="co">// Transmit the character over SPI</span></span>
+<span id="cb6-53"><a href="#cb6-53" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span><span class="op">(!(</span>SPI1<span class="op">-&gt;</span>SR <span class="op">&amp;</span> SPI_SR_RXNE<span class="op">));</span> <span class="co">// Wait until data has been received</span></span>
+<span id="cb6-54"><a href="#cb6-54" aria-hidden="true" tabindex="-1"></a>    <span class="dt">char</span> rec <span class="op">=</span> <span class="op">(</span><span class="dt">volatile</span> <span class="dt">char</span><span class="op">)</span> SPI1<span class="op">-&gt;</span>DR<span class="op">;</span></span>
+<span id="cb6-55"><a href="#cb6-55" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> rec<span class="op">;</span> <span class="co">// Return received character</span></span>
+<span id="cb6-56"><a href="#cb6-56" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="results" class="level2">
+<h2 class="anchored" data-anchor-id="results">Results</h2>
+<p>The lab worked as expected! The webserver succesfully turns the on board LED on and off, and the temperature (at the specified resoltuion) is displayed on the website.</p>
+<p>Below is an oscilloscope trace showing the SPI transaction where the temperature sensor is configured to read temperature with 9 bits of resoltuion:</p>
+<p><img src="images\config_trace.jpg" class="img-fluid" style="width:75.0%"></p>
+<p>And below is a trace of an SPI transaction where temperature data is being read from the temperature sensor. The address 0x02 pulls the upper bits of the temperature data (0x17), and the address 0x01 pulls the lower bits of the temperature data (0x10)</p>
+<p><img src="images\data_transfer_trace.jpg" class="img-fluid" style="width:75.0%"></p>
+</section>
+<section id="summary" class="level2">
+<h2 class="anchored" data-anchor-id="summary">Summary</h2>
+<p>I have spent around 20 hours on this lab. I learned a lot about the SPI protocol, using logic analyzers, and HTTP.</p>
+</section>
+<section id="ai-reflection" class="level2">
+<h2 class="anchored" data-anchor-id="ai-reflection">AI Reflection</h2>
+<p><img src="images\ai_webpage.png" class="img-fluid" style="width:75.0%"></p>
+<p>Webpage is pretty good! Doesn’t look amazing but it does have the functionality I was looking for. It used Javascript for its fake temperature calculation, so I had to comment that out. This would be a helpful place to start when building a website from scratch, although I would definitely modify it.</p>
+<p>Originally used HAL library rather than cmsis, which we do not have access to for this class unfortunately but it was still a reasonable assumption because that is what we did for clinic. I reprompted chatgpt and it gave me new code that uses the CMSIS library and interfaces with registers directly. ChatGPT gave a some useful Hardware &amp; Configuration notes, which I used to adapt the code for my pin assignments. However, the use of the CMSIS library was not super thorough, and things like GPIO bank addresses were hardcoded as registers which made it difficult to adjust the pin assignments. Additionally, the code configured all 3 pins into high speed mode, which seemed perhaps unecessary. The code was certainly useful to look at, but it was a few steps away from what I think would have been ideal.</p>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
