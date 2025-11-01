@@ -9,15 +9,12 @@ navbar:
     contents: labs
 --- 
 
-
-Here are the E155 Lab Reports.
-
-So far, I have completed Lab 1.
+Below is an outline of the Labs I have worked on for Microprocessor-Based Systems: Design and Applications. Labs 1-3 focus on FPGA programming (in both simulation and hardware), labs 4-6 focus on MCU programming, and lab 7 involves communication between the MCU and the FPGA (with the FPGA acting as an accelerator for encryption). 
 
 ## [Lab 1: FPGA and MCU Setup and Testing](lab1\lab1.qmd)
 ## [Lab 2: Multiplexed 7-segment Display](lab2\lab2.qmd)
 ## [Lab 3: Keypad Scanner](lab3\lab3.qmd)
-## [Lab 4: Digital Auto](lab4\lab4.qmd)
+## [Lab 4: Digital Audio](lab4\lab4.qmd)
 ## [Lab 5: Interrupts](lab5\lab5.qmd)
 ## [Lab 6: The Internet of Things and Serial Peripheral Interface](lab6\lab6.qmd)
 ## [Lab 7: The Advanced Encryption Standard](lab7\lab7.qmd)
