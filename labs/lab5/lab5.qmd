@@ -246,7 +246,11 @@ I then ran the script using polling, and obtained the following oscilloscope tra
  
 ![](images\DS1Z_QuickPrint4.png)
 
-As can be seen from the cursors, the delay between the encoder impulse and the polled signal of 620 uS = 0.62 ms, which is more than double the interrupt delay. Also, note that the encoder impulse has a frequency of 1.01 kHz, while the polled signal has a frequency of 980 Hz. From this, we can calculate the max speed that polling can accurately sample according to Nyquist's sampling theorem. Note an inherent limitation of this calculation: the delay depends on how I specifically implemented polling in this quadrature encoder, also this does not account for the change in polling frequency as a function of motor speed. Ideally, I would perform this calculation by measuring the frequency of polling (i.e. by toggling a GPIO pin in a while loop with no delay). However, when I attempted this, I had difficulty reading the signal accurately (it was very noisy and hard to interpret). The actual maximum speed is likely much faster, since this actual polling frequency would be much quicker.
+As can be seen from the cursors, the delay between the encoder impulse and the polled signal of 620 uS = 0.62 ms, which is more than double the interrupt delay. Also, note that the encoder impulse has a frequency of 1.01 kHz, while the polled signal has a frequency of 980 Hz. Compare this to the lack of frequency delay observed in interrupts. This ocurrs due to the fact that interrupts handle code in hardware -- when a trigger event happens, the MCU updates the program counter to point to the interrupt handler. This means, when the trigger event is not ocurring, the software experiences no delay from the interrupt handler. Any delays in interrupt handling are due to the length/intensity of the interrupt handler script. Polling, on the other hand, relies on software to repeatedly check for any trigger events. This inherently limits the frequency at which polling can occur. Investigating this further, I wrote a script that toggles a GPIO pin in a while loop with no trigger or hardcoded delay. This yielded a square wave captured in the following oscilloscope trace:
+
+![](images\polling_freq.png)
+
+The maximum possible polling frequency is 20.8 kHz. From this, we can calculate the max speed that polling can accurately sample according to Nyquist's sampling theorem. 
 
 ![](images\max_speed_calcs.png)
 
