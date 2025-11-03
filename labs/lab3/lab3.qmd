@@ -2,9 +2,1236 @@
 title: "Lab 3"
 description: "Keypad Scanner"
 author: "Madeleine Kan"
-date: 9/17/25
+date: 9/24/25
 categories:
     - reflection
     - labreport
 draft: false
 ---
+## Introduction
+The purpose of Lab3 was to develop a scanner to read two inputs from a keypad and display them on a seven-segment display.
+
+## Schematic
+The circuit diagram is as follows:
+![](images\circuit_schematic.png)
+
+The calculations for the current-limiting resistors are as follows:
+![](images\calculations.png)
+## Block Diagram
+Here is the block diagram for the overall software architecture:
+![](images\block_diagram.png)
+
+Here is the ScanFSM state transition diagram:
+![](images\scan_fsm.png)
+
+Here is the DebounceFSM state transition diagram:
+
+## Code:
+Here is the code implementation of the system described above:
+```systemverilog
+module lab3_top(
+	input logic reset,
+	input logic [3:0] row_in,
+	output logic [3:0] col_out,
+	output logic [6:0] seg,
+	output logic anode0, anode1, signal
+);
+	logic clk, clk_div, read;
+	logic [3:0] row_in_sync;
+	logic [3:0] num, num_out, num_old_out, num_out_next, num_old_out_next;
+	
+	// initialize default num values
+	/*
+	initial begin
+		num_out = 4'b0000;
+		num_old_out = 4'b0000;
+	end
+	*/
+	
+	// Internal high-speed oscillator
+	HSOSC #(.CLKHF_DIV(2'b00)) // 48MHz from clk divider
+	 hf_osc (.CLKHFPU(1'b1), .CLKHFEN(1'b1), .CLKHF(clk));
+	 
+	// Divided counter, changes ~91Hz
+	counter #(18) clock_divider(clk, reset, clk_div);
+	
+	// Syncronizer
+	always_ff @(posedge clk)
+	if(~reset) begin
+		row_in_sync <= 4'b0000;
+	end
+	else begin
+		row_in_sync <= row_in;
+	end
+	
+	// Scan FSM ... IS IT OKAY FOR THIS TO BE ON DIVIDED CLK?
+	scan_fsm scanner(clk_div , reset, row_in_sync, col_out, signal);
+	
+	// debounce
+	// debounce_fsm debouncer(clk, reset, signal, read);
+	
+	
+	// led processor ... could refactor to take some stuff out of here
+	// and put it in a mux up front
+	led_processor process(row_in_sync, col_out, num);
+
+	// nextstate logic
+	always_comb
+		// active low
+		
+		// if reading signal
+		if(signal) begin // should be read
+			num_out_next = num;
+			num_old_out_next = num_out;
+		end
+		// if not reading signal, display the same	
+		else begin
+			num_out_next = num_out;
+			num_old_out_next = num_old_out;
+		end
+	
+	// flop
+	always_ff @(posedge clk)
+		if(~reset) begin
+			num_out <= 4'b0000;
+			num_old_out <= 4'b0000;
+		end
+		else begin
+			num_out <= num_out_next;
+			num_old_out <= num_old_out_next;
+		end
+		
+
+	// led driver
+	led_driver driver(clk_div, num_out, num_old_out, seg, anode0, anode1);
+
+endmodule
+```
+
+```systemverilog
+/*
+counter.sv
+
+Takes in clk, clock signal
+Outputs clk_new, a new clock signal that rises every 2^N clk cycles
+Madeleine Kan
+mkan@hmc.edu
+3 September, 2025
+*/
+
+module counter #(parameter N = 17)
+	 (input logic clk, reset,
+	 output logic clk_div);
+	 
+	logic [N:0] counter;
+	always_ff @(posedge clk) begin
+		if (~reset) begin // active low
+			counter <= 1'b0;
+		end
+		else begin
+			counter <= counter + 1'b1;
+		end
+	end
+	assign clk_div = counter[N];
+endmodule
+
+```
+
+```systemverilog
+module scan_fsm
+	(input logic clk_div, reset,
+	input logic [3:0] row_in,
+	output logic [3:0] col,
+	output logic signal
+	);
+	
+	// logic clk_div;
+	typedef enum logic [8:0] {start, check0, check1, check2, check3, signal0, signal1, signal2, signal3} statetype;
+	statetype state, nextstate;
+	// 750 kHz divided clock
+	// counter #(6) scan_clk(clk, reset, clk_div);
+	
+	
+	// state register
+	always_ff @(posedge clk_div)
+		if (~reset) state <= start;
+		else state <= nextstate;
+	
+	// state transition + output logic
+	always_comb
+		case(state)
+			start: begin
+				nextstate = check0;
+				col = 4'b0000;
+				signal = 1'b0;
+			end
+			check0: begin
+				if (row_in == 4'b0000) nextstate = check1;
+				else nextstate = signal0;
+				col = 4'b0001;
+				signal = 1'b0;
+			end
+			check1: begin
+				if (row_in == 4'b0000) nextstate = check2;
+				else nextstate = signal1;
+				col = 4'b0010;
+				signal = 1'b0;
+			end
+			check2: begin
+				if (row_in == 4'b0000) nextstate = check3;
+				else nextstate = signal2;
+				col = 4'b0100;
+				signal = 1'b0;
+			end
+			check3: begin
+				if (row_in == 4'b0000) nextstate = check0;
+				else nextstate = signal3;
+				col = 4'b1000;
+				signal = 1'b0;
+			end
+			signal0: begin
+				if (row_in == 4'b0000) nextstate = check1;
+				else nextstate = signal0;
+				col = 4'b0001;
+				signal = 1'b1;
+			end
+			signal1: begin
+				if (row_in == 4'b0000) nextstate = check2;
+				else nextstate = signal1;
+				col = 4'b0010;
+				signal = 1'b1;
+			end
+			signal2: begin
+				if (row_in == 4'b0000) nextstate = check3;
+				else nextstate = signal2;
+				col = 4'b0100;
+				signal = 1'b1;
+			end
+			signal3: begin
+				if (row_in == 4'b0000) nextstate = check0;
+				else nextstate = signal3;
+				col = 4'b1000;
+				signal = 1'b1;
+			end
+			default: begin
+				nextstate = start;
+				col = 4'b0000;
+				signal = 1'b1;
+			end
+		endcase
+		
+endmodule
+```
+
+```systemverilog
+/*
+debounce_fsm.sv
+
+FSM that waits ~50 msec after recieving an input signal
+for the signal to stabilize. Outputs read=1 if, after 50 msec,
+the input signal is still high. Otherwise, outputs read=0.
+
+Madeleine Kan
+mkan@hmc.edu
+16 September, 2025
+*/
+module debounce_fsm(
+	input logic clk, reset, signal,
+	output logic read);
+	
+	logic tryToRead, clk_div;
+	typedef enum logic [4:0] {idle, count, readSignal, unReadSignal, noSignal} statetype;
+	statetype state, nextstate;
+	
+	// 11.44 Hz divided clock -> 43.69 msec until clk_div reaches 1
+	// resets on signal
+	counter #(21) scan_clk(clk, signal, clk_div);
+	
+	// state register
+	always_ff @(posedge clk)
+		if (~reset) state <= idle;
+		else state <= nextstate;
+		// tryToRead <= signal;
+		// logic tryToRead <= row_in_sync == row;
+	
+	// state transition logic
+	always_comb
+		case(state)
+			idle: if (signal) nextstate = count;
+				else nextstate = idle;
+			count: if (clk_div && signal) nextstate = readSignal;
+					else if (clk_div && (!signal)) nextstate = noSignal;
+					else nextstate = count;
+					// // previously had the following code:
+					// else if (signal) nextstate = count;
+					// else nextstate = idle;
+					// // I took it out in case the signal goes low
+					// // in the 50 msec due to debouncing
+			readSignal: nextstate = unReadSignal;
+			unReadSignal: if (signal) nextstate = unReadSignal;
+							else nextstate = idle;
+			noSignal: nextstate = idle;
+			default: nextstate = idle;
+		endcase
+		
+	// output logic
+	assign read = (state === readSignal);
+	
+	
+endmodule
+```
+
+```systemverilog
+
+/*
+led_processor.sv
+
+Combinational module, takes in the activated row and column of 
+the 4x4 numpad and otuputs the number corresponding to that button.
+Depends on the layout of the 4x4 numpad.
+
+Madeleine Kan
+mkan@hmc.edu
+16 September, 2025
+*/
+`timescale 1ns/1ns
+
+module led_processor(
+	input logic [3:0] row, col,
+	output logic [3:0] num
+);
+	always_comb
+		case({row, col})
+			8'b00010001: num = 4'h1;
+			8'b00010010: num = 4'h2;
+			8'b00010100: num = 4'h3;
+			8'b00011000: num = 4'hA;
+			8'b00100001: num = 4'h4;
+			8'b00100010: num = 4'h5;
+			8'b00100100: num = 4'h6;
+			8'b00101000: num = 4'hB;
+			8'b01000001: num = 4'h7;
+			8'b01000010: num = 4'h8;
+			8'b01000100: num = 4'h9;
+			8'b01001000: num = 4'hC;
+			8'b10000001: num = 4'hE;
+			8'b10000010: num = 4'h0;
+			8'b10000100: num = 4'hF;
+			8'b10001000: num = 4'hD;
+			default: num = 4'b1111;
+		endcase
+endmodule
+
+// 	typedef enum logic [2:0] {idle, process} statetype;
+// 	statetype state, nextstate;
+	
+// 	// state register
+// 	always_ff @(posedge clk)
+// 		if (~reset) state <= idle;
+// 		else state <= nextstate;
+	
+// 	// state transition + output logic
+// 	always_comb
+// 		case(state)
+// 			idle: if (read) nextstate = process;
+// 					else nextstate = idle;
+// 			process: nextstate = idle;
+// 			default: nextstate = idle;
+// 		endcase
+	
+// 	// output logic
+// 	always_comb
+// 		if (state == process) begin
+// 			case({row, col})
+// 				8'b00010001: num_out = 4'h1;
+// 				8'b00010010: num_out = 4'h2;
+// 				8'b00010100: num_out = 4'h3;
+// 				8'b00011000: num_out = 4'hA;
+// 				8'b00100001: num_out = 4'h4;
+// 				8'b00100010: num_out = 4'h5;
+// 				8'b00100100: num_out = 4'h6;
+// 				8'b00101000: num_out = 4'hB;
+// 				8'b01000001: num_out = 4'h7;
+// 				8'b01000010: num_out = 4'h8;
+// 				8'b01000100: num_out = 4'h9;
+// 				8'b01001000: num_out = 4'hC;
+// 				8'b10000001: num_out = 4'hE;
+// 				8'b10000010: num_out = 4'h0;
+// 				8'b10000100: num_out = 4'hF;
+// 				8'b10001000: num_out = 4'hD;
+// 				default: num_out = 4'b1111;
+// 				endcase
+// 			num_old_out = num_in;
+// 			end
+// 		// maybe replace this logic with enabled flop outside of function
+// 		// so like .. combinational module and enabled flop outside
+// 		else begin
+// 			num_out = num_in;
+// 			num_old_out = num_old_in;
+// 		end
+	
+// endmodule
+```
+
+```systemverilog
+
+/*
+led_driver.sv
+
+Drives give LEDs and two 7-segment displays based on inputs from
+eight switches. 7-segment displays count up from 0-F in hex based
+on the binary value encoded by the state of the switches: the first four
+correspond to the first 7-segment display, and the second four switches to
+the second 7-segment display. Which set of switches (s0 or s1)
+are read and which 7-seg display is visible (depending on anode0 and anode1)
+depends on if clk is 0 or 1
+
+Madeleine Kan
+mkan@hmc.edu
+9 September, 2025
+*/
+`timescale 1ns/1ns
+module led_driver(
+	input logic clk_div,
+	input logic [3:0] s0, s1,
+	output logic [6:0] seg,
+	output logic anode0, anode1
+);
+	logic [3:0] s_in;
+	logic [6:0] seg_out;
+	
+	// Mux input
+	mux mux0(s0, s1, clk_div, s_in); 
+	// Feed input to seven_segment_display
+	seven_segment_display display0(s_in, seg_out);
+
+	// Control seven-segment display common anodes
+	assign anode0 = ~clk_div;
+	assign anode1 = clk_div;
+	
+	// drive seven-segment displays
+	assign seg = seg_out;
+	
+	
+	
+endmodule
+```
+
+```systemverilog
+/*
+mux.sv
+
+Synchronous enabled mux with 2 inputs
+all inputs and outputs are 4 bits wide
+
+Madeleine Kan
+mkan@hmc.edu
+7 September, 2025
+*/
+
+`timescale 1ns/1ns
+
+module mux(
+	input logic [3:0] in0, [3:0] in1, 
+	input logic en,
+	output logic [3:0] out);
+	
+	assign out =  en ? in1 : in0;
+endmodule
+```
+
+```systemverilog
+/*
+seven_segment_display.sv
+Drives HDSP-521A Seven-Segment Display
+with common anode (meaining diodes are
+pulled to ground to activate)
+Madeleine Kan
+mkan@hmc.edu
+3 September, 2025
+*/
+
+module seven_segment_display(
+	input logic [3:0] s,
+	output logic [6:0] seg
+);
+	always_comb
+		case(s) 
+			//				  abcdefg
+			4'b0000: seg = 7'b0000001; // 0
+			4'b0001: seg = 7'b1001111; // 1
+			4'b0010: seg = 7'b0010010; // 2
+			4'b0011: seg = 7'b0000110; // 3
+			4'b0100: seg = 7'b1001100; // 4
+			4'b0101: seg = 7'b0100100; // 5
+			4'b0110: seg = 7'b0100000; // 6
+			4'b0111: seg = 7'b0001111; // 7
+			4'b1000: seg = 7'b0000000; // 8
+			4'b1001: seg = 7'b0001100; // 9
+			4'b1010: seg = 7'b0001000; // a
+			4'b1011: seg = 7'b1100000; // b
+			4'b1100: seg = 7'b0110001; // c
+			4'b1101: seg = 7'b1000010; // d
+			4'b1110: seg = 7'b0110000; // e
+			4'b1111: seg = 7'b0111000; // f
+			default: seg = 7'b1111111; // none
+		endcase
+endmodule
+```
+
+## Results
+Unfortunately, the hardware design did not work. However, the simulations did work! Here are the waveforms:
+lab3_top testbench:
+
+top-level testbench (didn't fully work due to timing issues):
+![](images\top_testbench.png)
+
+counter testbench:
+![](images\counter_testbench.png)
+
+scan_fsm testbench:
+![](images\scan_testbench.png)
+
+debounce_fsm testbench:
+![](images\debounce_testbench_zoom_in.png)
+![](images\debounce_testbench_zoom_out.png)
+
+led_processor testbench:
+![](images\led_processor_zoomed_in.png)
+![](images\led_processor_zoomed_out.png)
+
+led_driver testbench:
+![](images\led_driver.png)
+
+mux testbench:
+![](images\mux_testbench.png)
+
+seven_segment_display testbench:
+![](images\seven_seg_testbench.png)
+
+## Summary
+I have so far spent ~30 hours on this lab. I learned a lot about synchrounous design and partitioning complicated tasks into simultaneous finite state machines.
+
+## Testbench Code
+```systemverilog
+/*
+Testbench for lab3_top.sv
+16 September 2025
+Madeleine Kan
+mkan@g.hmc.edu
+*/
+`timescale 1ns/1ns
+
+module lab3_top_testbench();
+	logic reset;
+	logic [3:0] row_in;
+    logic [3:0] col_out, col_exp;
+    logic [6:0] seg, seg_exp;
+    logic anode0, anode0_exp, anode1, anode1_exp;
+	logic [31:0] errors;
+    lab3_top dut(reset, row_in, col_out, seg, anode0, anode1);
+
+    initial begin
+        errors=0;
+		// toggle reset, so clk_div starts at 0
+		reset = 0; #21;
+		reset = 1;
+        #1;
+        row_in=4'b0000;
+		
+        // #2621440; // 5*2^19
+		// clk_div runs at 48MHz/(2^19)
+		// seg = (equivalent of 0), col=0000, anode0 = 1, anode1 = 0
+		seg_exp = 7'b0000001;
+		col_exp = 4'b0000;
+		anode0_exp = 1'b1;
+		anode1_exp = 1'b0;
+		assert((seg === seg_exp) && (col_out === col_exp) && (anode0===anode0_exp) && (anode1===anode1_exp)) else begin // seg =0
+			$display("Error: row_in = %b , reset = %b ", row_in, reset);
+			$display(" outputs: col = %b , (%b expected), seg = %b (%b expected), anode0,1 = %b (%b expected)", col_out, col_exp, seg, seg_exp, {anode0, anode1}, {anode0_exp, anode1_exp});
+			errors = errors + 1;
+		end
+		// #2621440; // 5*2^19
+		#500000;
+		
+		// wait for clk_div to rise ,  no inputs
+        #5242880; // 10*2^19
+        // here, fsm should be in ???
+		// seg = (equivalent of 0), col=0000 anode0 = 0, anode1 = 1
+		seg_exp = 7'b0000001;
+		col_exp = 4'b0000;
+		anode0_exp = 1'b0;
+		anode1_exp = 1'b1;
+		// #2621440;
+		assert((seg === seg_exp) && (col_out === col_exp) && (anode0===anode0_exp) && (anode1===anode1_exp)) else begin // seg =0
+			$display("Error: row_in = %b , reset = %b ", row_in, reset);
+			$display(" outputs: col = %b , (%b expected), seg = %b (%b expected), anode0,1 = %b (%b expected)", col_out, col_exp, seg, seg_exp, {anode0, anode1}, {anode0_exp, anode1_exp});
+			errors = errors + 1;
+		end
+
+        // wait for clk_div to rise again, still no inputs
+		#5242880; // 10*2^19
+        // here, fsm should be in start
+		// seg = (equivalent of 0), col=0000, anode0 = 1, anode1 = 0
+		seg_exp = 7'b0000001;
+		col_exp = 4'b0000;
+		anode0_exp = 1'b1;
+		anode1_exp = 1'b0;
+		#5;
+		assert((seg === seg_exp) && (col_out === col_exp) && (anode0===anode0_exp) && (anode1===anode1_exp)) else begin // seg =0
+			$display("Error: row_in = %b , reset = %b ", row_in, reset);
+			$display(" outputs: col = %b , (%b expected), seg = %b (%b expected), anode0,1 = %b (%b expected)", col_out, col_exp, seg, seg_exp, {anode0, anode1}, {anode0_exp, anode1_exp});
+			errors = errors + 1;
+		end
+		  // wait for clk_div to rise again, still no inputs
+		#5242880; // 10*2^19
+        // here, fsm should be in check0
+		// seg = (equivalent of 0), col=0000, anode0 = 1, anode1 = 0
+		seg_exp = 7'b0000001;
+		col_exp = 4'b0000;
+		anode0_exp = 1'b0;
+		anode1_exp = 1'b1;
+		#5;
+		assert((seg === seg_exp) && (col_out === col_exp) && (anode0===anode0_exp) && (anode1===anode1_exp)) else begin // seg =0
+			$display("Error: row_in = %b , reset = %b ", row_in, reset);
+			$display(" outputs: col = %b , (%b expected), seg = %b (%b expected), anode0,1 = %b (%b expected)", col_out, col_exp, seg, seg_exp, {anode0, anode1}, {anode0_exp, anode1_exp});
+			errors = errors + 1;
+		end
+		
+        row_in=4'b0001;
+		// wait for clk_div to rise again, now with input
+        #5242880; // 10*2^19 
+        // should be more than enough time for the clk to rise (for syncrhonizer)
+        // here, fsm should be in signal0
+		// seg = (equivalent of 0), col=0001, anode0 = 0, anode1 = 1
+		seg_exp = 7'b0000001;
+		col_exp = 4'b0001;
+		anode0_exp = 1'b1;
+		anode1_exp = 1'b0;
+		#5;
+		assert((seg === seg_exp) && (col_out === col_exp) && (anode0===anode0_exp) && (anode1===anode1_exp)) else begin // seg =0
+			$display("Error: row_in = %b , reset = %b ", row_in, reset);
+			$display(" outputs: col = %b , (%b expected), seg = %b (%b expected), anode0,1 = %b (%b expected)", col_out, col_exp, seg, seg_exp, {anode0, anode1}, {anode0_exp, anode1_exp});
+			errors = errors + 1;
+		end
+ 
+		// here, read should = 1, so debounce_clk_div should start incrementing
+		// wait for debounce_fsm clk_div to rise (ie 50 ms) so that num can get the value 1
+		// this will take less long than the time until the next rising clk_div edge
+		// #10485760 // 5*2^21
+        // #1000005 // wait for clk to rise 
+		#5242880; // 10*2^19 
+		// fsm should still be in signal0
+		// seg = 1001111 (equivalent of 1), col=0001, anode0 = 1, anode1 = 0
+        // determine if led clk_div is 0 or 1. The following assumes it is 1
+		seg_exp = 7'b1001111;
+		col_exp = 4'b0001;
+		anode0_exp = 1'b0;
+		anode1_exp = 1'b1;
+		#5;
+		assert((seg === seg_exp) && (col_out === col_exp) && (anode0===anode0_exp) && (anode1===anode1_exp)) else begin // seg = 1
+			$display("Error: row_in = %b , reset = %b ", row_in, reset);
+			$display(" outputs: col = %b , (%b expected), seg = %b (%b expected), anode0,1 = %b (%b expected)", col_out, col_exp, seg, seg_exp, {anode0, anode1}, {anode0_exp, anode1_exp});
+			errors = errors + 1;
+		end
+		
+		row_in=4'b0000;
+		// wait for clk_div to rise again, now with no input, check that seg toggles with 0 
+        #5242880; // 10*2^19 
+		// fsm should be in start
+		// seg = (equivalent of 0), col=0001, anode0 = 0, anode1 = 1
+		seg_exp = 7'b0000001;
+		col_exp = 4'b0001;
+		anode0_exp = 1'b1;
+		anode1_exp = 1'b0;
+		#5;
+		assert((seg === seg_exp) && (col_out === col_exp) && (anode0===anode0_exp) && (anode1===anode1_exp)) else begin // seg = 0
+			$display("Error: row_in = %b , reset = %b ", row_in, reset);
+			$display(" outputs: col = %b , (%b expected), seg = %b (%b expected), anode0,1 = %b (%b expected)", col_out, col_exp, seg, seg_exp, {anode0, anode1}, {anode0_exp, anode1_exp});
+			errors = errors + 1;
+		end
+        #5242880; // 10*2^19 
+		// wait for clk_div to rise again, check that seg holds & toggles with 1
+        #5242880; // 10*2^19 
+		// fsm should be in check1
+		// seg = (equivalent of 0), col=0001, anode0 = 0, anode1 = 1
+		seg_exp = 7'b1001111;
+		col_exp = 4'b0010;
+		anode0_exp = 1'b0;
+		anode1_exp = 1'b1;
+		#5;
+		assert((seg === seg_exp) && (col_out === col_exp) && (anode0===anode0_exp) && (anode1===anode1_exp)) else begin // seg = 1
+			$display("Error: row_in = %b , reset = %b ", row_in, reset);
+			$display(" outputs: col = %b , (%b expected), seg = %b (%b expected), anode0,1 = %b (%b expected)", col_out, col_exp, seg, seg_exp, {anode0, anode1}, {anode0_exp, anode1_exp});
+			errors = errors + 1;
+		end
+        #1;
+ 
+	$display("7 tests completed with %d errors", errors);
+	$stop;
+	end
+endmodule
+```
+
+```systemverilog
+/*
+Testbench for lab3_top.sv
+16 September 2025
+Madeleine Kan
+mkan@g.hmc.edu
+*/
+`timescale 1ns/1ns
+
+module lab3_top_testbench();
+	logic reset;
+	logic [3:0] row_in;
+    logic [3:0] col_out, col_exp;
+    logic [6:0] seg, seg_exp;
+    logic anode0, anode0_exp, anode1, anode1_exp;
+	logic [31:0] errors;
+    lab3_top dut(reset, row_in, col_out, seg, anode0, anode1);
+
+    initial begin
+        errors=0;
+		// toggle reset, so clk_div starts at 0
+		reset = 0; #21;
+		reset = 1;
+        #1;
+        row_in=4'b0000;
+		
+        // #2621440; // 5*2^19
+		// clk_div runs at 48MHz/(2^19)
+		// seg = (equivalent of 0), col=0000, anode0 = 1, anode1 = 0
+		seg_exp = 7'b0000001;
+		col_exp = 4'b0000;
+		anode0_exp = 1'b1;
+		anode1_exp = 1'b0;
+		assert((seg === seg_exp) && (col_out === col_exp) && (anode0===anode0_exp) && (anode1===anode1_exp)) else begin // seg =0
+			$display("Error: row_in = %b , reset = %b ", row_in, reset);
+			$display(" outputs: col = %b , (%b expected), seg = %b (%b expected), anode0,1 = %b (%b expected)", col_out, col_exp, seg, seg_exp, {anode0, anode1}, {anode0_exp, anode1_exp});
+			errors = errors + 1;
+		end
+		// #2621440; // 5*2^19
+		#500000;
+		
+		// wait for clk_div to rise ,  no inputs
+        #5242880; // 10*2^19
+        // here, fsm should be in ???
+		// seg = (equivalent of 0), col=0000 anode0 = 0, anode1 = 1
+		seg_exp = 7'b0000001;
+		col_exp = 4'b0000;
+		anode0_exp = 1'b0;
+		anode1_exp = 1'b1;
+		// #2621440;
+		assert((seg === seg_exp) && (col_out === col_exp) && (anode0===anode0_exp) && (anode1===anode1_exp)) else begin // seg =0
+			$display("Error: row_in = %b , reset = %b ", row_in, reset);
+			$display(" outputs: col = %b , (%b expected), seg = %b (%b expected), anode0,1 = %b (%b expected)", col_out, col_exp, seg, seg_exp, {anode0, anode1}, {anode0_exp, anode1_exp});
+			errors = errors + 1;
+		end
+
+        // wait for clk_div to rise again, still no inputs
+		#5242880; // 10*2^19
+        // here, fsm should be in start
+		// seg = (equivalent of 0), col=0000, anode0 = 1, anode1 = 0
+		seg_exp = 7'b0000001;
+		col_exp = 4'b0000;
+		anode0_exp = 1'b1;
+		anode1_exp = 1'b0;
+		#5;
+		assert((seg === seg_exp) && (col_out === col_exp) && (anode0===anode0_exp) && (anode1===anode1_exp)) else begin // seg =0
+			$display("Error: row_in = %b , reset = %b ", row_in, reset);
+			$display(" outputs: col = %b , (%b expected), seg = %b (%b expected), anode0,1 = %b (%b expected)", col_out, col_exp, seg, seg_exp, {anode0, anode1}, {anode0_exp, anode1_exp});
+			errors = errors + 1;
+		end
+		  // wait for clk_div to rise again, still no inputs
+		#5242880; // 10*2^19
+        // here, fsm should be in check0
+		// seg = (equivalent of 0), col=0000, anode0 = 1, anode1 = 0
+		seg_exp = 7'b0000001;
+		col_exp = 4'b0000;
+		anode0_exp = 1'b0;
+		anode1_exp = 1'b1;
+		#5;
+		assert((seg === seg_exp) && (col_out === col_exp) && (anode0===anode0_exp) && (anode1===anode1_exp)) else begin // seg =0
+			$display("Error: row_in = %b , reset = %b ", row_in, reset);
+			$display(" outputs: col = %b , (%b expected), seg = %b (%b expected), anode0,1 = %b (%b expected)", col_out, col_exp, seg, seg_exp, {anode0, anode1}, {anode0_exp, anode1_exp});
+			errors = errors + 1;
+		end
+		
+        row_in=4'b0001;
+		// wait for clk_div to rise again, now with input
+        #5242880; // 10*2^19 
+        // should be more than enough time for the clk to rise (for syncrhonizer)
+        // here, fsm should be in signal0
+		// seg = (equivalent of 0), col=0001, anode0 = 0, anode1 = 1
+		seg_exp = 7'b0000001;
+		col_exp = 4'b0001;
+		anode0_exp = 1'b1;
+		anode1_exp = 1'b0;
+		#5;
+		assert((seg === seg_exp) && (col_out === col_exp) && (anode0===anode0_exp) && (anode1===anode1_exp)) else begin // seg =0
+			$display("Error: row_in = %b , reset = %b ", row_in, reset);
+			$display(" outputs: col = %b , (%b expected), seg = %b (%b expected), anode0,1 = %b (%b expected)", col_out, col_exp, seg, seg_exp, {anode0, anode1}, {anode0_exp, anode1_exp});
+			errors = errors + 1;
+		end
+ 
+		// here, read should = 1, so debounce_clk_div should start incrementing
+		// wait for debounce_fsm clk_div to rise (ie 50 ms) so that num can get the value 1
+		// this will take less long than the time until the next rising clk_div edge
+		// #10485760 // 5*2^21
+        // #1000005 // wait for clk to rise 
+		#5242880; // 10*2^19 
+		// fsm should still be in signal0
+		// seg = 1001111 (equivalent of 1), col=0001, anode0 = 1, anode1 = 0
+        // determine if led clk_div is 0 or 1. The following assumes it is 1
+		seg_exp = 7'b1001111;
+		col_exp = 4'b0001;
+		anode0_exp = 1'b0;
+		anode1_exp = 1'b1;
+		#5;
+		assert((seg === seg_exp) && (col_out === col_exp) && (anode0===anode0_exp) && (anode1===anode1_exp)) else begin // seg = 1
+			$display("Error: row_in = %b , reset = %b ", row_in, reset);
+			$display(" outputs: col = %b , (%b expected), seg = %b (%b expected), anode0,1 = %b (%b expected)", col_out, col_exp, seg, seg_exp, {anode0, anode1}, {anode0_exp, anode1_exp});
+			errors = errors + 1;
+		end
+		
+		row_in=4'b0000;
+		// wait for clk_div to rise again, now with no input, check that seg toggles with 0 
+        #5242880; // 10*2^19 
+		// fsm should be in start
+		// seg = (equivalent of 0), col=0001, anode0 = 0, anode1 = 1
+		seg_exp = 7'b0000001;
+		col_exp = 4'b0001;
+		anode0_exp = 1'b1;
+		anode1_exp = 1'b0;
+		#5;
+		assert((seg === seg_exp) && (col_out === col_exp) && (anode0===anode0_exp) && (anode1===anode1_exp)) else begin // seg = 0
+			$display("Error: row_in = %b , reset = %b ", row_in, reset);
+			$display(" outputs: col = %b , (%b expected), seg = %b (%b expected), anode0,1 = %b (%b expected)", col_out, col_exp, seg, seg_exp, {anode0, anode1}, {anode0_exp, anode1_exp});
+			errors = errors + 1;
+		end
+        #5242880; // 10*2^19 
+		// wait for clk_div to rise again, check that seg holds & toggles with 1
+        #5242880; // 10*2^19 
+		// fsm should be in check1
+		// seg = (equivalent of 0), col=0001, anode0 = 0, anode1 = 1
+		seg_exp = 7'b1001111;
+		col_exp = 4'b0010;
+		anode0_exp = 1'b0;
+		anode1_exp = 1'b1;
+		#5;
+		assert((seg === seg_exp) && (col_out === col_exp) && (anode0===anode0_exp) && (anode1===anode1_exp)) else begin // seg = 1
+			$display("Error: row_in = %b , reset = %b ", row_in, reset);
+			$display(" outputs: col = %b , (%b expected), seg = %b (%b expected), anode0,1 = %b (%b expected)", col_out, col_exp, seg, seg_exp, {anode0, anode1}, {anode0_exp, anode1_exp});
+			errors = errors + 1;
+		end
+        #1;
+ 
+	$display("7 tests completed with %d errors", errors);
+	$stop;
+	end
+endmodule
+```
+
+```systemverilog
+/*
+Testbench for counter.sv
+1 bit input, 1 bit output, output flips after 2^17 cycles of the input.
+3 September 2025
+Madeleine Kan
+mkan@g.hmc.edu
+*/
+module counter_testbench();
+	logic clk, reset, clk_div;
+	counter #(17) dut(clk, reset, clk_div);
+	always
+		begin
+			clk=1; #5; 
+			clk=0; #5;
+		end
+	initial begin
+		reset=0; #5; 
+		reset=1;
+		#7
+		assert(clk_div == 1'b0) else $display("Error: inputs = %b", clk, " outputs = %b(0 expected)", clk_div);
+		// #655365; // 5*2^17 + 5
+		#1310725 // 10*2^17+5
+		assert(clk_div == 1'b1) else $display("Error: inputs = %b", clk, " outputs = %b(1 expected)", clk_div);
+		$display("tests completed!");
+		$stop;
+	end
+endmodule
+```
+
+```systemverilog
+/*
+Testbench for scan_fsm.sv
+
+16 September 2025
+Madeleine Kan
+mkan@g.hmc.edu
+*/
+`timescale 1ns/1ns
+
+module scan_fsm_testbench();
+	logic clk, reset;
+	logic [3:0] row_in;
+	logic [3:0] col, col_exp;
+	logic signal, signal_exp;
+	logic [31:0] vectornum, errors;
+    logic [9:0] testvectors [10000:0];
+
+    scan_fsm dut(clk, reset, row_in, col, signal);
+
+    always begin
+        clk = 1; #5;
+        clk = 0; #5; 
+    end
+
+    initial
+        begin  
+            $readmemb("C:/Users/mkan/Documents/GitHub/e155-lab3/lab3/source/source/scan_fsm.tv", testvectors);
+            vectornum = 0;
+            errors = 0;
+			// reset = 0; #21;
+			// reset = 1;
+        end
+    
+    always @(posedge clk)
+        begin
+            #1;
+            {reset, row_in, col_exp, signal_exp} = testvectors[vectornum];
+            // #640; // 10*2^6
+        end
+    
+    always @(negedge clk)
+        begin
+            assert((col_exp === col) && (signal_exp === signal)) else begin
+                $display("Error: row_in = %b , reset = %b ", row_in, reset);
+                $display(" outputs: col = %b , (%b expected), signal = %b (%b expected)", col, col_exp, signal, signal_exp);
+                errors = errors + 1;
+            end
+        vectornum = vectornum + 1;
+        // #1280; // 10*2^6
+        if (testvectors[vectornum] === 10'bx) begin
+            $display("%d tests completed with %d errors", vectornum, errors);
+            $stop;
+		end
+		end
+endmodule
+```
+
+```systemverilog
+/*
+Testbench for debounce.sv
+16 September 2025
+Madeleine Kan
+mkan@g.hmc.edu
+*/
+`timescale 1ns/1ns
+
+module debounce_fsm_testbench();
+    logic clk, reset, signal;
+	logic read;
+	logic [31:0] errors;
+	//logic [3:0] tv;
+    debounce_fsm dut(clk, reset, signal, read);
+
+    always begin
+        clk = 1; #5;
+        clk = 0; #5; 
+    end
+
+    initial begin
+        errors=0;
+		reset = 0; #21;
+		reset = 1;
+        #1
+        // start in idle state
+        signal = 0;
+        #10
+        assert(read === 0) else begin
+            errors = errors+1;
+            $display("Error: read = %b, 0 expected", read);
+        end
+        #1
+
+        // get signal, start in idle state
+        signal = 1;
+        #10
+        assert(read === 0) else begin
+            errors = errors+1;
+            $display("Error: read = %b, 0 expected", read);
+        end
+        #20971520 // wait 2^21 - 10 cycles (10*2^21 - 15)
+
+        // move to readSignal state
+        assert(read === 1) else begin
+            errors = errors+1;
+            $display("Error: read = %b, 1 expected", read);
+        end
+
+        // wait another clock cycle, return to idle
+        #11
+        assert(read === 0) else begin
+            errors = errors+1;
+            $display("Error: read = %b, 0 expected", read);
+        end
+        #1
+        signal = 0;
+        #20971525 // wait 2^21 cycles (10*2^21 + 5)#10
+
+        // stay at idle bc no signal
+        assert(read === 0) else begin
+            errors = errors+1;
+            $display("Error: read = %b, 1 expected", read);
+        end
+        signal = 0;
+        #10
+        assert(read === 0) else begin
+            errors = errors+1;
+            $display("Error: read = %b, 1 expected", read);
+        end
+        
+        $display("6 tests completed with %d errors", errors);
+		$stop;
+    end
+endmodule
+```
+
+```systemverilog
+/*
+Testbench for led_processor.sv
+two 4-bit inputs, 4-bit output
+16 September 2025
+Madeleine Kan
+mkan@g.hmc.edu
+*/
+`timescale 1ns/1ns
+
+module led_processor_testbench();
+	logic [3:0] row, col;
+	logic [3:0] num, num_exp;
+	logic [31:0] errors, vectornum;
+	logic [7:0] tv;
+	led_processor dut(row, col, num);
+	
+	initial
+		begin
+			errors=0;
+			vectornum=0;
+			for(tv=8'b00000000; tv<=8'b11111111; tv = tv+1'b1) begin
+				row = tv[7:4];
+                col = tv[3:0];
+                vectornum = vectornum + 1;
+				#1
+				case({row, col})
+					 8'b00010001: num_exp = 4'h1;
+                    8'b00010010: num_exp = 4'h2;
+                    8'b00010100: num_exp = 4'h3;
+                    8'b00011000: num_exp = 4'hA;
+                    8'b00100001: num_exp = 4'h4;
+                    8'b00100010: num_exp = 4'h5;
+                    8'b00100100: num_exp = 4'h6;
+                    8'b00101000: num_exp = 4'hB;
+                    8'b01000001: num_exp = 4'h7;
+                    8'b01000010: num_exp = 4'h8;
+                    8'b01000100: num_exp = 4'h9;
+                    8'b01001000: num_exp = 4'hC;
+                    8'b10000001: num_exp = 4'hE;
+                    8'b10000010: num_exp = 4'h0;
+                    8'b10000100: num_exp = 4'hF;
+                    8'b10001000: num_exp = 4'hD;
+                    default: num_exp = 4'b1111;
+				endcase
+				#5;
+				assert(num === num_exp) else begin
+					$display("Error: row = %b, col = %b", row, col);
+					$display(" output: num = %b(%b expected)", num, num_exp);
+					errors = errors + 1;
+				end
+				if (tv == 8'b11111111) begin
+					vectornum = vectornum + 1;
+					$display("%d tests completed with %d errors", vectornum, errors);
+					$stop;
+				end
+			end
+			$display("%d tests completed with %d errors", vectornum, errors);
+			$stop;
+		end
+endmodule
+```
+
+```systemverilog
+/*
+Testbench for led_driver.sv
+3-bit input, 1-bit output
+7 September 2025
+Madeleine Kan
+mkan@g.hmc.edu
+*/
+`timescale 1ns/1ns
+
+module led_driver_testbench();
+	logic clk_div;
+	logic [3:0] s0, s1, s_exp;
+	logic [4:0] led, led_exp;
+	logic [6:0] seg, seg_exp;
+	logic anode0, anode1, anode0_exp, anode1_exp;
+	logic [31:0] errors, vectornum;
+	logic [6:0] tv;
+	led_driver dut(clk_div, s0, s1, led, seg, anode0, anode1);
+	
+	initial
+		begin
+			errors=0;
+			vectornum=0;
+			for(tv=9'b000000000; tv<=9'b111111111; tv = tv+1'b1) begin
+				clk_div = tv[0];
+				#1
+				s1 = tv[8:5];
+				s0 = tv[4:1];
+				assign led_exp = s0+s1;
+				assign anode0_exp = ~clk_div;
+				assign anode1_exp = clk_div;   
+				assign s_exp = clk_div?s1:s0;
+				#1
+				case(s_exp)
+					//				  abcdefg
+					4'b0000: seg_exp = 7'b0000001; // 0
+					4'b0001: seg_exp = 7'b1001111; // 1
+					4'b0010: seg_exp = 7'b0010010; // 2
+					4'b0011: seg_exp = 7'b0000110; // 3
+					4'b0100: seg_exp = 7'b1001100; // 4
+					4'b0101: seg_exp = 7'b0100100; // 5
+					4'b0110: seg_exp = 7'b0100000; // 6
+					4'b0111: seg_exp = 7'b0001111; // 7
+					4'b1000: seg_exp = 7'b0000000; // 8
+					4'b1001: seg_exp = 7'b0001100; // 9
+					4'b1010: seg_exp = 7'b0001000; // a
+					4'b1011: seg_exp = 7'b1100000; // b
+					4'b1100: seg_exp = 7'b0110001; // c
+					4'b1101: seg_exp = 7'b1000010; // d
+					4'b1110: seg_exp = 7'b0110000; // e
+					4'b1111: seg_exp = 7'b0111000; // f
+					default: seg_exp = 7'b1111111; // none
+				endcase
+				#5;
+				assert({led, seg, anode0, anode1} === {led_exp, seg_exp, anode0_exp, anode1_exp}) else begin
+					$display("Error: clk_div = %b, s0 = %b, s1 = %b", clk_div, s0, s1);
+					$display(" outputs: (led, seg, anode0, anode1) = %b(%b expected)", {led, seg, anode0, anode1}, {led_exp, seg_exp, anode0_exp, anode1_exp});
+					errors = errors + 1;
+				end
+				if (tv == 7'b1111111) begin
+					vectornum = vectornum + 1;
+					$display("%d tests completed with %d errors", vectornum, errors);
+					$stop;
+				end
+				else begin
+					vectornum = vectornum + 1;
+				end
+			end
+			$display("%d tests completed with %d errors", vectornum, errors);
+			$stop;
+		end
+endmodule
+```
+
+```systemverilog
+/*
+Testbench for mux.sv
+3-bit input, 1-bit output
+7 September 2025
+Madeleine Kan
+mkan@g.hmc.edu
+*/
+`timescale 1ns/1ns
+
+module mux_testbench();
+	logic [3:0] in0, in1;
+	logic en;
+	logic [3:0] out, out_exp;
+	logic [31:0] errors, vectornum;
+	logic [8:0] tv;
+	mux dut(in0, in1, en, out);
+	initial
+		begin
+			errors=0;
+			vectornum=0;
+			for(tv=9'b000000000; tv<=9'b111111111; tv = tv+1'b1) begin
+				en = tv[0];
+				#5;
+				in1 = tv[8:5];
+				in0 = tv[4:1];
+				assign out_exp = en? in1 : in0;
+				#5;
+				assert(out == out_exp) else begin
+					$display("Error: inputs = %b", tv);
+					$display(" outputs = %b(%b expected)", out, in1);
+					errors = errors + 1;
+				end
+				if (tv == 9'b111111111) begin
+					vectornum = vectornum + 1;
+					$display("%d tests completed with %d errors", vectornum, errors);
+					$stop;
+				end
+				else begin
+					vectornum = vectornum + 1;
+				end
+			end
+			$display("%d tests completed with %d errors", vectornum, errors);
+			$stop;
+		end
+endmodule
+```
+
+```systemverilog
+/*
+Testbench for seven_segment_display.sv
+4-bit input, 7-bit output
+3 September 2025
+Madeleine Kan
+mkan@g.hmc.edu
+*/
+module seven_segment_display_testbench();
+	logic clk, reset;
+	logic [3:0] s;
+	logic [6:0] seg, seg_exp;
+	logic [31:0] vectornum, errors;
+	logic [10:0] testvectors[10000:0];
+	seven_segment_display dut(s, seg);
+	always
+		begin
+			clk=1; #5; 
+			clk=0; #5;
+		end
+	initial
+		begin
+			$readmemb("C:/Users/mkan/Documents/GitHub/e155-lab2/lab2/source/impl_1/seg_exp.tv", testvectors);
+			vectornum=0; 
+			errors=0;
+			reset=1; #5; 
+			reset=0;
+		end
+	always @(posedge clk)
+		begin
+			#1;
+			{s, seg_exp} = testvectors[vectornum];
+		end
+	always @(negedge clk)
+		if (~reset) begin
+			if (seg !== seg_exp) begin
+				$display("Error: inputs = %b", seg);
+				$display(" outputs = %b(%b expected)", seg, seg_exp);
+				errors = errors + 1;
+			end
+			vectornum = vectornum + 1;
+			if (testvectors[vectornum] === 11'bx) begin
+				$display("%d tests completed with %d errors", vectornum, errors);
+				$stop;
+			end
+		end
+endmodule
+```
+
+## AI Reflection
