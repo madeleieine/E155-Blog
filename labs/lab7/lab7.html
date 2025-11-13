@@ -10,7 +10,7 @@
 <meta name="dcterms.date" content="2025-10-29">
 <meta name="description" content="The Advanced Encryption Standard">
 
-<title>Lab 6 – E155 Portfolio</title>
+<title>Lab 7 – E155 Portfolio</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -22,6 +22,41 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -119,15 +154,26 @@ ul.task-list li input[type="checkbox"] {
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a></li>
+  <li><a href="#block-diagrams" id="toc-block-diagrams" class="nav-link" data-scroll-target="#block-diagrams">Block Diagrams</a></li>
+  <li><a href="#code" id="toc-code" class="nav-link" data-scroll-target="#code">Code:</a></li>
+  <li><a href="#results" id="toc-results" class="nav-link" data-scroll-target="#results">Results</a></li>
+  <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary">Summary</a></li>
+  <li><a href="#ai-reflection" id="toc-ai-reflection" class="nav-link" data-scroll-target="#ai-reflection">AI Reflection</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Lab 6</h1>
+<h1 class="title">Lab 7</h1>
   <div class="quarto-categories">
     <div class="quarto-category">reflection</div>
     <div class="quarto-category">labreport</div>
@@ -165,8 +211,420 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
+<section id="introduction" class="level2">
+<h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
+<p>Lab 7 uses the MCU and the FPGA together to perform encryption on a 128-bit long string according to AES-128. There, the FPGA serves an accelerator for the 10 rounds of encryption. Information is communicated between the MCU and the FPGA over SPI.</p>
+</section>
+<section id="block-diagrams" class="level2">
+<h2 class="anchored" data-anchor-id="block-diagrams">Block Diagrams</h2>
+<p>The block diagrams for the design are as follows:</p>
+<p>top-level aes module (performs aes encrpytion and transmits results over spi)</p>
+<p><img src="images\aes.jpg" class="img-fluid"></p>
+<p>aes core module (performs aes encrpytion using aes datapath, controller FSM, and counter FSM):</p>
+<p><img src="images\aes_core.jpg" class="img-fluid"></p>
+<p>aes datapath (performs one round of aes encryption):</p>
+<p><img src="images\aes_datapath.jpg" class="img-fluid"></p>
+<p>controller fsm (controller for aes datapath):</p>
+<p><img src="images\controller fsm.jpg" class="img-fluid"></p>
+<p>counter fsm (counts rounds of encryption, up to 10 for AES-128):</p>
+<p><img src="images\count fsm.jpg" class="img-fluid"></p>
+</section>
+<section id="code" class="level2">
+<h2 class="anchored" data-anchor-id="code">Code:</h2>
+<div class="sourceCode" id="cb1"><pre class="sourceCode systemverilog code-with-copy"><code class="sourceCode systemverilog"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co">/////////////////////////////////////////////</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co">// aes</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co">//   Top level module with SPI interface and SPI core</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co">/////////////////////////////////////////////</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> aes(<span class="kw">input</span>  <span class="kw">logic</span> sck, </span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>           <span class="kw">input</span>  <span class="kw">logic</span> sdi,</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>           <span class="kw">output</span> <span class="kw">logic</span> sdo,</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>           <span class="kw">input</span>  <span class="kw">logic</span> load,</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>           <span class="kw">output</span> <span class="kw">logic</span> done,</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>           <span class="kw">output</span> <span class="kw">logic</span> led);</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="kw">logic</span> [<span class="dv">127</span>:<span class="dv">0</span>] key, plaintext, cyphertext;</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    <span class="co">// sck = pB3 = P21</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    <span class="co">// cipo = sdo = pb4 = p12</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    <span class="co">// copi = sdi = pb5 = p10</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    <span class="co">// load = pa5 = p26</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    <span class="co">// done = pa6 = p27</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    <span class="kw">logic</span> clk;</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    hsosc clock(clk);</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    aes_spi spi(sck, sdi, sdo, done, key, plaintext, cyphertext);   </span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    aes_core core(clk, load, key, plaintext, done, cyphertext);</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    <span class="kw">logic</span> [<span class="dv">23</span>:<span class="dv">0</span>] counter;</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>    <span class="kw">always_ff</span> @(<span class="kw">posedge</span> clk)</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>        counter &lt;= counter + <span class="bn">24'b1</span>;</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    <span class="kw">assign</span> led = counter[<span class="dv">23</span>];</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="kw">endmodule</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode systemverilog code-with-copy"><code class="sourceCode systemverilog"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">/////////////////////////////////////////////</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co">// aes_core</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co">//   top level AES encryption module</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co">//   when load is asserted, takes the current key and plaintext</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co">//   generates cyphertext and asserts done when complete 11 cycles later</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co">// </span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co">//   See FIPS-197 with Nk = 4, Nb = 4, Nr = 10</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co">//</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co">//   The key and message are 128-bit values packed into an array of 16 bytes as</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co">//   shown below</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="co">//        [127:120] [95:88] [63:56] [31:24]     S0,0    S0,1    S0,2    S0,3</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="co">//        [119:112] [87:80] [55:48] [23:16]     S1,0    S1,1    S1,2    S1,3</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="co">//        [111:104] [79:72] [47:40] [15:8]      S2,0    S2,1    S2,2    S2,3</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="co">//        [103:96]  [71:64] [39:32] [7:0]       S3,0    S3,1    S3,2    S3,3</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="co">//</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="co">//   Equivalently, the values are packed into four words as given</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="co">//        [127:96]  [95:64] [63:32] [31:0]      w[0]    w[1]    w[2]    w[3]</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="co">/////////////////////////////////////////////</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> aes_core(<span class="kw">input</span>  <span class="kw">logic</span>         clk, </span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>                <span class="kw">input</span>  <span class="kw">logic</span>         load,</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>                <span class="kw">input</span>  <span class="kw">logic</span> [<span class="dv">127</span>:<span class="dv">0</span>] key_in, </span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>                <span class="kw">input</span>  <span class="kw">logic</span> [<span class="dv">127</span>:<span class="dv">0</span>] plaintext, </span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>                <span class="kw">output</span> <span class="kw">logic</span>         done,</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>                <span class="kw">output</span> <span class="kw">logic</span> [<span class="dv">127</span>:<span class="dv">0</span>] cyphertext);</span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a><span class="kw">logic</span> inc_roundnum, <span class="ot">start</span>, update, bypasscols;</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a><span class="kw">logic</span> [<span class="dv">3</span>:<span class="dv">0</span>] roundnum;</span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a><span class="kw">logic</span> [<span class="dv">127</span>:<span class="dv">0</span>] <span class="ot">state</span>, key, newstate, newkey, oldstate, oldkey;</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a><span class="kw">always_ff</span> @(<span class="kw">posedge</span> clk) <span class="kw">begin</span></span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>        <span class="kw">if</span> (<span class="ot">start</span>) <span class="kw">begin</span></span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>            key &lt;= key_in;</span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>            <span class="ot">state</span> &lt;= (plaintext ^ key_in);</span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>        <span class="kw">end</span> <span class="kw">else</span> <span class="kw">if</span> (update) <span class="kw">begin</span></span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>            key &lt;= newkey;</span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>            <span class="ot">state</span> &lt;= newstate;</span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>        <span class="kw">end</span></span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>        <span class="kw">else</span> <span class="kw">begin</span></span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>            key &lt;= key;</span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>            <span class="ot">state</span> &lt;= <span class="ot">state</span>; <span class="co">// will become an issue in later rounds</span></span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>        <span class="kw">end</span></span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>    <span class="kw">end</span></span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>aes_controller_fsm controller(clk, load, roundnum, <span class="ot">start</span>, update, bypasscols, done, inc_roundnum);</span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>aes_counter_fsm counter(clk, inc_roundnum, load, roundnum);</span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>aes_datapath dp(clk, bypasscols, done, roundnum, <span class="ot">state</span>, key, newstate, newkey);</span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a><span class="kw">assign</span> cyphertext = done? newstate : <span class="bn">128'b0</span>;</span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a><span class="kw">endmodule</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode systemverilog code-with-copy"><code class="sourceCode systemverilog"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">/////////////////////////////////////////////</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co">// aes_datapath</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co">//   </span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co">//   See FIPS-197 with Nk = 4, Nb = 4, Nr = 10</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co">//</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co">//   The key and message are 128-bit values packed into an array of 16 bytes as</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co">//   shown below</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co">//        [127:120] [95:88] [63:56] [31:24]     S0,0    S0,1    S0,2    S0,3</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co">//        [119:112] [87:80] [55:48] [23:16]     S1,0    S1,1    S1,2    S1,3</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co">//        [111:104] [79:72] [47:40] [15:8]      S2,0    S2,1    S2,2    S2,3</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="co">//        [103:96]  [71:64] [39:32] [7:0]       S3,0    S3,1    S3,2    S3,3</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="co">//</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="co">//   Equivalently, the values are packed into four words as given</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="co">//        [127:96]  [95:64] [63:32] [31:0]      w[0]    w[1]    w[2]    w[3]</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="co">/////////////////////////////////////////////</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> aes_datapath(<span class="kw">input</span>  <span class="kw">logic</span> clk, </span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>                <span class="kw">input</span>  <span class="kw">logic</span> bypassCols, done,</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>                <span class="kw">input</span> <span class="kw">logic</span> [<span class="dv">3</span>:<span class="dv">0</span>] roundNum,</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>                <span class="kw">input</span>  <span class="kw">logic</span> [<span class="dv">127</span>:<span class="dv">0</span>] <span class="ot">state</span>, </span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>                <span class="kw">input</span>  <span class="kw">logic</span> [<span class="dv">127</span>:<span class="dv">0</span>] key,</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>                <span class="kw">output</span> <span class="kw">logic</span> [<span class="dv">127</span>:<span class="dv">0</span>] newstate,</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>                <span class="kw">output</span> <span class="kw">logic</span> [<span class="dv">127</span>:<span class="dv">0</span>] newkey);</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>    <span class="kw">logic</span> [<span class="dv">127</span>:<span class="dv">0</span>] state_subbytes, state_shiftrows, state_shiftedrows, state_mixcols, state_readyforkeys;</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>    <span class="kw">logic</span> [<span class="dv">31</span>:<span class="dv">0</span>] w0, w1, w2, w3;</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>    keyexpansion k(clk, key, roundNum, newkey);</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>    <span class="co">// key is ready 2 rising edges after rising edge is loaded</span></span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>    <span class="kw">assign</span> {w0, w1, w2, w3} = newkey;</span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>    subbytes sb(<span class="ot">state</span>, clk, state_subbytes); <span class="co">// takes a clk cycle</span></span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>    shiftrows sr(state_subbytes, state_shiftrows);</span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>    <span class="kw">always_ff</span> @(<span class="kw">posedge</span> clk) <span class="kw">begin</span></span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>        state_shiftedrows &lt;= state_shiftrows;</span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>    <span class="kw">end</span></span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>    mixcolumns mc(state_shiftedrows, state_mixcols);</span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>    <span class="kw">assign</span> state_readyforkeys = bypassCols? state_shiftedrows : state_mixcols;</span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>    <span class="co">//addkeys</span></span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>    <span class="kw">assign</span> newstate = state_readyforkeys ^ newkey;</span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a><span class="kw">endmodule</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode systemverilog code-with-copy"><code class="sourceCode systemverilog"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">// FSM for controller for AES datapath</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> aes_controller_fsm(<span class="kw">input</span>  <span class="kw">logic</span> clk, load,</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>                          <span class="kw">input</span> <span class="kw">logic</span> [<span class="dv">3</span>:<span class="dv">0</span>] roundnum,</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>                          <span class="kw">output</span> <span class="kw">logic</span> <span class="ot">start</span>, update, bypasscols, done, inc_roundnum);</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">typedef</span> <span class="kw">enum</span> <span class="kw">logic</span> [<span class="dv">3</span>:<span class="dv">0</span>] {idle, ready, start_first, start_cont, shiftrows, subbytes, mixcols, dontmix, <span class="ot">finish</span>} statetype;</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    statetype <span class="ot">state</span>, nextstate;</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    <span class="co">// assign nextstate = idle;</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    <span class="co">// state register</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">always_ff</span> @(<span class="kw">posedge</span> clk)</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>        <span class="ot">state</span> &lt;= nextstate;</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    <span class="co">// state transition + output logic</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    <span class="kw">always_comb</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>        <span class="kw">case</span>(<span class="ot">state</span>)</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>            idle: <span class="kw">begin</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>                <span class="ot">start</span> = <span class="bn">1'b0</span>;</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>                update = <span class="bn">1'b0</span>;</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>                inc_roundnum = <span class="bn">1'b0</span>;</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>                bypasscols = <span class="bn">1'b0</span>;</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>                done = <span class="bn">1'b0</span>;</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>                <span class="kw">if</span> (load) <span class="kw">begin</span></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>                    nextstate = ready;</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>                <span class="kw">end</span> <span class="kw">else</span> <span class="kw">begin</span> </span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>                    nextstate = idle;</span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>                <span class="kw">end</span></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>            <span class="kw">end</span></span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>            ready: <span class="kw">begin</span></span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>                <span class="ot">start</span> = <span class="bn">1'b0</span>;</span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>                update = <span class="bn">1'b0</span>;</span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>                inc_roundnum = <span class="bn">1'b0</span>;</span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>                bypasscols = <span class="bn">1'b0</span>;</span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>                done = <span class="bn">1'b0</span>;</span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>                <span class="kw">if</span> (!load) <span class="kw">begin</span></span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>                    nextstate = start_first;</span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>                <span class="kw">end</span> <span class="kw">else</span> <span class="kw">begin</span> </span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>                    nextstate = ready;</span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>                <span class="kw">end</span></span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>            <span class="kw">end</span></span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>            start_first: <span class="kw">begin</span></span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>                <span class="ot">start</span> = <span class="bn">1'b1</span>;</span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a>                update = <span class="bn">1'b0</span>;</span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a>                inc_roundnum = <span class="bn">1'b1</span>;</span>
+<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a>                bypasscols = <span class="bn">1'b0</span>;</span>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a>                done = <span class="bn">1'b0</span>;</span>
+<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a>                nextstate = subbytes;</span>
+<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a>            <span class="kw">end</span></span>
+<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a>            start_cont: <span class="kw">begin</span></span>
+<span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a>                <span class="ot">start</span> = <span class="bn">1'b0</span>;</span>
+<span id="cb4-51"><a href="#cb4-51" aria-hidden="true" tabindex="-1"></a>                update = <span class="bn">1'b1</span>;      </span>
+<span id="cb4-52"><a href="#cb4-52" aria-hidden="true" tabindex="-1"></a>                inc_roundnum = <span class="bn">1'b1</span>;</span>
+<span id="cb4-53"><a href="#cb4-53" aria-hidden="true" tabindex="-1"></a>                bypasscols = <span class="bn">1'b0</span>;</span>
+<span id="cb4-54"><a href="#cb4-54" aria-hidden="true" tabindex="-1"></a>                done = <span class="bn">1'b0</span>;</span>
+<span id="cb4-55"><a href="#cb4-55" aria-hidden="true" tabindex="-1"></a>                nextstate = subbytes;</span>
+<span id="cb4-56"><a href="#cb4-56" aria-hidden="true" tabindex="-1"></a>            <span class="kw">end</span></span>
+<span id="cb4-57"><a href="#cb4-57" aria-hidden="true" tabindex="-1"></a>            subbytes: <span class="kw">begin</span></span>
+<span id="cb4-58"><a href="#cb4-58" aria-hidden="true" tabindex="-1"></a>                <span class="ot">start</span> = <span class="bn">1'b0</span>;</span>
+<span id="cb4-59"><a href="#cb4-59" aria-hidden="true" tabindex="-1"></a>                update = <span class="bn">1'b0</span>;</span>
+<span id="cb4-60"><a href="#cb4-60" aria-hidden="true" tabindex="-1"></a>                inc_roundnum = <span class="bn">1'b0</span>;</span>
+<span id="cb4-61"><a href="#cb4-61" aria-hidden="true" tabindex="-1"></a>                bypasscols = <span class="bn">1'b0</span>;</span>
+<span id="cb4-62"><a href="#cb4-62" aria-hidden="true" tabindex="-1"></a>                done = <span class="bn">1'b0</span>;</span>
+<span id="cb4-63"><a href="#cb4-63" aria-hidden="true" tabindex="-1"></a>            nextstate = shiftrows;</span>
+<span id="cb4-64"><a href="#cb4-64" aria-hidden="true" tabindex="-1"></a>            <span class="kw">end</span></span>
+<span id="cb4-65"><a href="#cb4-65" aria-hidden="true" tabindex="-1"></a>            shiftrows: <span class="kw">begin</span></span>
+<span id="cb4-66"><a href="#cb4-66" aria-hidden="true" tabindex="-1"></a>                <span class="ot">start</span> = <span class="bn">1'b0</span>;</span>
+<span id="cb4-67"><a href="#cb4-67" aria-hidden="true" tabindex="-1"></a>                update = <span class="bn">1'b0</span>;</span>
+<span id="cb4-68"><a href="#cb4-68" aria-hidden="true" tabindex="-1"></a>                inc_roundnum = <span class="bn">1'b0</span>;</span>
+<span id="cb4-69"><a href="#cb4-69" aria-hidden="true" tabindex="-1"></a>                bypasscols = <span class="bn">1'b0</span>;</span>
+<span id="cb4-70"><a href="#cb4-70" aria-hidden="true" tabindex="-1"></a>                done = <span class="bn">1'b0</span>;</span>
+<span id="cb4-71"><a href="#cb4-71" aria-hidden="true" tabindex="-1"></a>                <span class="kw">if</span> (roundnum &gt;= <span class="bn">4'd10</span>) <span class="kw">begin</span></span>
+<span id="cb4-72"><a href="#cb4-72" aria-hidden="true" tabindex="-1"></a>                    nextstate = dontmix;</span>
+<span id="cb4-73"><a href="#cb4-73" aria-hidden="true" tabindex="-1"></a>                <span class="kw">end</span> <span class="kw">else</span> <span class="kw">begin</span></span>
+<span id="cb4-74"><a href="#cb4-74" aria-hidden="true" tabindex="-1"></a>                    nextstate = mixcols;</span>
+<span id="cb4-75"><a href="#cb4-75" aria-hidden="true" tabindex="-1"></a>                <span class="kw">end</span></span>
+<span id="cb4-76"><a href="#cb4-76" aria-hidden="true" tabindex="-1"></a>            <span class="kw">end</span></span>
+<span id="cb4-77"><a href="#cb4-77" aria-hidden="true" tabindex="-1"></a>            mixcols: <span class="kw">begin</span></span>
+<span id="cb4-78"><a href="#cb4-78" aria-hidden="true" tabindex="-1"></a>                <span class="ot">start</span> = <span class="bn">1'b0</span>;</span>
+<span id="cb4-79"><a href="#cb4-79" aria-hidden="true" tabindex="-1"></a>                update = <span class="bn">1'b0</span>;</span>
+<span id="cb4-80"><a href="#cb4-80" aria-hidden="true" tabindex="-1"></a>                inc_roundnum = <span class="bn">1'b0</span>;</span>
+<span id="cb4-81"><a href="#cb4-81" aria-hidden="true" tabindex="-1"></a>                bypasscols = <span class="bn">1'b0</span>;</span>
+<span id="cb4-82"><a href="#cb4-82" aria-hidden="true" tabindex="-1"></a>                done = <span class="bn">1'b0</span>;</span>
+<span id="cb4-83"><a href="#cb4-83" aria-hidden="true" tabindex="-1"></a>                nextstate = start_cont;</span>
+<span id="cb4-84"><a href="#cb4-84" aria-hidden="true" tabindex="-1"></a>            <span class="kw">end</span></span>
+<span id="cb4-85"><a href="#cb4-85" aria-hidden="true" tabindex="-1"></a>            dontmix: <span class="kw">begin</span></span>
+<span id="cb4-86"><a href="#cb4-86" aria-hidden="true" tabindex="-1"></a>                <span class="ot">start</span> = <span class="bn">1'b0</span>;</span>
+<span id="cb4-87"><a href="#cb4-87" aria-hidden="true" tabindex="-1"></a>                update = <span class="bn">1'b0</span>;</span>
+<span id="cb4-88"><a href="#cb4-88" aria-hidden="true" tabindex="-1"></a>                inc_roundnum = <span class="bn">1'b0</span>;</span>
+<span id="cb4-89"><a href="#cb4-89" aria-hidden="true" tabindex="-1"></a>                bypasscols = <span class="bn">1'b1</span>;</span>
+<span id="cb4-90"><a href="#cb4-90" aria-hidden="true" tabindex="-1"></a>                done = <span class="bn">1'b0</span>;</span>
+<span id="cb4-91"><a href="#cb4-91" aria-hidden="true" tabindex="-1"></a>                nextstate = <span class="ot">finish</span>;</span>
+<span id="cb4-92"><a href="#cb4-92" aria-hidden="true" tabindex="-1"></a>            <span class="kw">end</span> </span>
+<span id="cb4-93"><a href="#cb4-93" aria-hidden="true" tabindex="-1"></a>            <span class="ot">finish</span>: <span class="kw">begin</span></span>
+<span id="cb4-94"><a href="#cb4-94" aria-hidden="true" tabindex="-1"></a>                <span class="ot">start</span> = <span class="bn">1'b0</span>;</span>
+<span id="cb4-95"><a href="#cb4-95" aria-hidden="true" tabindex="-1"></a>                update = <span class="bn">1'b0</span>;</span>
+<span id="cb4-96"><a href="#cb4-96" aria-hidden="true" tabindex="-1"></a>                inc_roundnum = <span class="bn">1'b0</span>;</span>
+<span id="cb4-97"><a href="#cb4-97" aria-hidden="true" tabindex="-1"></a>                bypasscols = <span class="bn">1'b1</span>;</span>
+<span id="cb4-98"><a href="#cb4-98" aria-hidden="true" tabindex="-1"></a>                done = <span class="bn">1'b1</span>;</span>
+<span id="cb4-99"><a href="#cb4-99" aria-hidden="true" tabindex="-1"></a>                nextstate = <span class="ot">finish</span>;</span>
+<span id="cb4-100"><a href="#cb4-100" aria-hidden="true" tabindex="-1"></a>            <span class="kw">end</span></span>
+<span id="cb4-101"><a href="#cb4-101" aria-hidden="true" tabindex="-1"></a>            <span class="kw">default</span>: <span class="kw">begin</span></span>
+<span id="cb4-102"><a href="#cb4-102" aria-hidden="true" tabindex="-1"></a>                <span class="ot">start</span> = <span class="bn">1'b0</span>;</span>
+<span id="cb4-103"><a href="#cb4-103" aria-hidden="true" tabindex="-1"></a>                update = <span class="bn">1'b0</span>;</span>
+<span id="cb4-104"><a href="#cb4-104" aria-hidden="true" tabindex="-1"></a>                inc_roundnum = <span class="bn">1'b0</span>;</span>
+<span id="cb4-105"><a href="#cb4-105" aria-hidden="true" tabindex="-1"></a>                bypasscols = <span class="bn">1'b0</span>;</span>
+<span id="cb4-106"><a href="#cb4-106" aria-hidden="true" tabindex="-1"></a>                done = <span class="bn">1'b0</span>;</span>
+<span id="cb4-107"><a href="#cb4-107" aria-hidden="true" tabindex="-1"></a>                nextstate = idle;</span>
+<span id="cb4-108"><a href="#cb4-108" aria-hidden="true" tabindex="-1"></a>                <span class="co">// try staying at finish</span></span>
+<span id="cb4-109"><a href="#cb4-109" aria-hidden="true" tabindex="-1"></a>            <span class="kw">end</span></span>
+<span id="cb4-110"><a href="#cb4-110" aria-hidden="true" tabindex="-1"></a>        <span class="kw">endcase</span></span>
+<span id="cb4-111"><a href="#cb4-111" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb4-112"><a href="#cb4-112" aria-hidden="true" tabindex="-1"></a><span class="kw">endmodule</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode systemverilog code-with-copy"><code class="sourceCode systemverilog"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">// FSM to count how many rounds of cipher algorithm</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co">// have been executed in AES</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> aes_counter_fsm(<span class="kw">input</span>  <span class="kw">logic</span> clk, inc_roundnum, load,</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>                        <span class="kw">output</span> <span class="kw">logic</span> [<span class="dv">3</span>:<span class="dv">0</span>] roundnum);</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">typedef</span> <span class="kw">enum</span> <span class="kw">logic</span> [<span class="dv">3</span>:<span class="dv">0</span>] {s0, s1, s2, s3, s4, s5, s6, s7, s8, s9, s10} statetype;</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    statetype <span class="ot">state</span>, nextstate;</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="co">// state register</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">always_ff</span> @(<span class="kw">posedge</span> clk)</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>        <span class="kw">if</span> (load) <span class="ot">state</span> &lt;= s0;</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>        <span class="kw">else</span> <span class="ot">state</span> &lt;= nextstate;</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    <span class="co">// state transition + output logic</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    <span class="kw">always_comb</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>        <span class="kw">case</span>(<span class="ot">state</span>)</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>            s0: <span class="kw">begin</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>                <span class="kw">if</span> (inc_roundnum) nextstate = s1;</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>                <span class="kw">else</span> nextstate = s0;</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>                roundnum = <span class="bn">4'd0</span>;</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>            <span class="kw">end</span></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>            s1: <span class="kw">begin</span></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>                <span class="kw">if</span> (inc_roundnum) nextstate = s2;</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>                <span class="kw">else</span> nextstate = s1;</span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>                roundnum = <span class="bn">4'd1</span>;</span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>            <span class="kw">end</span></span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>            s2: <span class="kw">begin</span></span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>                <span class="kw">if</span> (inc_roundnum) nextstate = s3;</span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>                <span class="kw">else</span> nextstate = s2;</span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>                roundnum = <span class="bn">4'd2</span>;</span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>            <span class="kw">end</span></span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>            s3: <span class="kw">begin</span></span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a>                <span class="kw">if</span> (inc_roundnum) nextstate = s4;</span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a>                <span class="kw">else</span> nextstate = s3;</span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a>                roundnum = <span class="bn">4'd3</span>;</span>
+<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>            <span class="kw">end</span></span>
+<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a>            s4: <span class="kw">begin</span></span>
+<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a>                <span class="kw">if</span> (inc_roundnum) nextstate = s5;</span>
+<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a>                <span class="kw">else</span> nextstate = s4;</span>
+<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a>                roundnum = <span class="bn">4'd4</span>;</span>
+<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a>            <span class="kw">end</span></span>
+<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a>            s5: <span class="kw">begin</span></span>
+<span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a>                <span class="kw">if</span> (inc_roundnum) nextstate = s6;</span>
+<span id="cb5-43"><a href="#cb5-43" aria-hidden="true" tabindex="-1"></a>                <span class="kw">else</span> nextstate = s5;</span>
+<span id="cb5-44"><a href="#cb5-44" aria-hidden="true" tabindex="-1"></a>                roundnum = <span class="bn">4'd5</span>;</span>
+<span id="cb5-45"><a href="#cb5-45" aria-hidden="true" tabindex="-1"></a>            <span class="kw">end</span></span>
+<span id="cb5-46"><a href="#cb5-46" aria-hidden="true" tabindex="-1"></a>            s6: <span class="kw">begin</span></span>
+<span id="cb5-47"><a href="#cb5-47" aria-hidden="true" tabindex="-1"></a>                <span class="kw">if</span> (inc_roundnum) nextstate = s7;</span>
+<span id="cb5-48"><a href="#cb5-48" aria-hidden="true" tabindex="-1"></a>                <span class="kw">else</span> nextstate = s6;</span>
+<span id="cb5-49"><a href="#cb5-49" aria-hidden="true" tabindex="-1"></a>                roundnum = <span class="bn">4'd6</span>;</span>
+<span id="cb5-50"><a href="#cb5-50" aria-hidden="true" tabindex="-1"></a>            <span class="kw">end</span></span>
+<span id="cb5-51"><a href="#cb5-51" aria-hidden="true" tabindex="-1"></a>            s7: <span class="kw">begin</span></span>
+<span id="cb5-52"><a href="#cb5-52" aria-hidden="true" tabindex="-1"></a>                <span class="kw">if</span> (inc_roundnum) nextstate = s8;</span>
+<span id="cb5-53"><a href="#cb5-53" aria-hidden="true" tabindex="-1"></a>                <span class="kw">else</span> nextstate = s7;</span>
+<span id="cb5-54"><a href="#cb5-54" aria-hidden="true" tabindex="-1"></a>                roundnum = <span class="bn">4'd7</span>;</span>
+<span id="cb5-55"><a href="#cb5-55" aria-hidden="true" tabindex="-1"></a>            <span class="kw">end</span></span>
+<span id="cb5-56"><a href="#cb5-56" aria-hidden="true" tabindex="-1"></a>            s8: <span class="kw">begin</span></span>
+<span id="cb5-57"><a href="#cb5-57" aria-hidden="true" tabindex="-1"></a>                <span class="kw">if</span> (inc_roundnum) nextstate = s9;</span>
+<span id="cb5-58"><a href="#cb5-58" aria-hidden="true" tabindex="-1"></a>                <span class="kw">else</span> nextstate = s8;</span>
+<span id="cb5-59"><a href="#cb5-59" aria-hidden="true" tabindex="-1"></a>                roundnum = <span class="bn">4'd8</span>;</span>
+<span id="cb5-60"><a href="#cb5-60" aria-hidden="true" tabindex="-1"></a>            <span class="kw">end</span></span>
+<span id="cb5-61"><a href="#cb5-61" aria-hidden="true" tabindex="-1"></a>            s9: <span class="kw">begin</span></span>
+<span id="cb5-62"><a href="#cb5-62" aria-hidden="true" tabindex="-1"></a>                <span class="kw">if</span> (inc_roundnum) nextstate = s10;</span>
+<span id="cb5-63"><a href="#cb5-63" aria-hidden="true" tabindex="-1"></a>                <span class="kw">else</span> nextstate = s9;</span>
+<span id="cb5-64"><a href="#cb5-64" aria-hidden="true" tabindex="-1"></a>                roundnum = <span class="bn">4'd9</span>;</span>
+<span id="cb5-65"><a href="#cb5-65" aria-hidden="true" tabindex="-1"></a>            <span class="kw">end</span></span>
+<span id="cb5-66"><a href="#cb5-66" aria-hidden="true" tabindex="-1"></a>            s10: <span class="kw">begin</span></span>
+<span id="cb5-67"><a href="#cb5-67" aria-hidden="true" tabindex="-1"></a>                <span class="co">// if (done) nextstate = s0;</span></span>
+<span id="cb5-68"><a href="#cb5-68" aria-hidden="true" tabindex="-1"></a>                <span class="co">// else </span></span>
+<span id="cb5-69"><a href="#cb5-69" aria-hidden="true" tabindex="-1"></a>                nextstate = s10;</span>
+<span id="cb5-70"><a href="#cb5-70" aria-hidden="true" tabindex="-1"></a>                roundnum = <span class="bn">4'd10</span>;</span>
+<span id="cb5-71"><a href="#cb5-71" aria-hidden="true" tabindex="-1"></a>            <span class="kw">end</span></span>
+<span id="cb5-72"><a href="#cb5-72" aria-hidden="true" tabindex="-1"></a>            <span class="kw">default</span>: <span class="kw">begin</span></span>
+<span id="cb5-73"><a href="#cb5-73" aria-hidden="true" tabindex="-1"></a>                nextstate = s0;</span>
+<span id="cb5-74"><a href="#cb5-74" aria-hidden="true" tabindex="-1"></a>                roundnum = <span class="bn">4'd0</span>;</span>
+<span id="cb5-75"><a href="#cb5-75" aria-hidden="true" tabindex="-1"></a>            <span class="kw">end</span></span>
+<span id="cb5-76"><a href="#cb5-76" aria-hidden="true" tabindex="-1"></a>        <span class="kw">endcase</span></span>
+<span id="cb5-77"><a href="#cb5-77" aria-hidden="true" tabindex="-1"></a><span class="kw">endmodule</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode systemverilog code-with-copy"><code class="sourceCode systemverilog"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">/////////////////////////////////////////////</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co">// subbytes</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co">//   apply sbox_sync to all elements of input</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co">/////////////////////////////////////////////</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> subbytes(<span class="kw">input</span>  <span class="kw">logic</span> [<span class="dv">127</span>:<span class="dv">0</span>] a,</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>                <span class="kw">input</span> <span class="kw">logic</span> clk,</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>                <span class="kw">output</span> <span class="kw">logic</span> [<span class="dv">127</span>:<span class="dv">0</span>] y);</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    sbox_sync sb[<span class="dv">15</span>:<span class="dv">0</span>] (a, clk, y);</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="kw">endmodule</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode systemverilog code-with-copy"><code class="sourceCode systemverilog"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">/////////////////////////////////////////////</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co">// shiftrows</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co">//   Perform shiftrow on all 4 rows of the input</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="co">//   Section 5.1.2, Figure 3</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="co">/////////////////////////////////////////////</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> shiftrows(<span class="kw">input</span>  <span class="kw">logic</span> [<span class="dv">127</span>:<span class="dv">0</span>] a, <span class="kw">output</span> <span class="kw">logic</span> [<span class="dv">127</span>:<span class="dv">0</span>] y);</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="co">// each row is 4 bytes or 32 bits long</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">logic</span> [<span class="dv">31</span>:<span class="dv">0</span>] row0in, row1in, row2in, row3in;</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">logic</span> [<span class="dv">31</span>:<span class="dv">0</span>] row0out, row1out, row2out, row3out;</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>    <span class="kw">assign</span> row0in = {a[<span class="dv">127</span>:<span class="dv">120</span>], a[<span class="dv">95</span>:<span class="dv">88</span>], a[<span class="dv">63</span>:<span class="dv">56</span>], a[<span class="dv">31</span>:<span class="dv">24</span>]};</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>    <span class="kw">assign</span> row1in = {a[<span class="dv">119</span>:<span class="dv">112</span>], a[<span class="dv">87</span>:<span class="dv">80</span>], a[<span class="dv">55</span>:<span class="dv">48</span>], a[<span class="dv">23</span>:<span class="dv">16</span>]};</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>    <span class="kw">assign</span> row2in = {a[<span class="dv">111</span>:<span class="dv">104</span>], a[<span class="dv">79</span>:<span class="dv">72</span>], a[<span class="dv">47</span>:<span class="dv">40</span>], a[<span class="dv">15</span>:<span class="dv">8</span>]};</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>    <span class="kw">assign</span> row3in = {a[<span class="dv">103</span>:<span class="dv">96</span>], a[<span class="dv">71</span>:<span class="dv">64</span>], a[<span class="dv">39</span>:<span class="dv">32</span>], a[<span class="dv">7</span>:<span class="dv">0</span>]};</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>    shiftrow sr0(row0in, <span class="bn">2'b00</span>, row0out);</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>    shiftrow sr1(row1in, <span class="bn">2'b01</span>, row1out);</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>    shiftrow sr2(row2in, <span class="bn">2'b10</span>, row2out);</span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>    shiftrow sr3(row3in, <span class="bn">2'b11</span>, row3out);</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>    <span class="kw">assign</span> {y[<span class="dv">127</span>:<span class="dv">120</span>], y[<span class="dv">95</span>:<span class="dv">88</span>], y[<span class="dv">63</span>:<span class="dv">56</span>], y[<span class="dv">31</span>:<span class="dv">24</span>]} = row0out;</span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>    <span class="kw">assign</span> {y[<span class="dv">119</span>:<span class="dv">112</span>], y[<span class="dv">87</span>:<span class="dv">80</span>], y[<span class="dv">55</span>:<span class="dv">48</span>], y[<span class="dv">23</span>:<span class="dv">16</span>]} = row1out;</span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>    <span class="kw">assign</span> {y[<span class="dv">111</span>:<span class="dv">104</span>], y[<span class="dv">79</span>:<span class="dv">72</span>], y[<span class="dv">47</span>:<span class="dv">40</span>], y[<span class="dv">15</span>:<span class="dv">8</span>]} = row2out;</span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>    <span class="kw">assign</span> {y[<span class="dv">103</span>:<span class="dv">96</span>], y[<span class="dv">71</span>:<span class="dv">64</span>], y[<span class="dv">39</span>:<span class="dv">32</span>], y[<span class="dv">7</span>:<span class="dv">0</span>]} = row3out;</span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a><span class="kw">endmodule</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="results" class="level2">
+<h2 class="anchored" data-anchor-id="results">Results</h2>
+<p>The lab worked as expected! Below are testbenches and their associated waveforms.</p>
+<p>Core testbench, zoomed out:</p>
+<p><img src="images\core_tb_out.png" class="img-fluid"></p>
+<p>Core testbench, zoomed in:</p>
+<p><img src="images\core_tb_in.png" class="img-fluid"></p>
+<p>alternate core test case, zoomed out:</p>
+<p><img src="images\core_tb_out_alt.png" class="img-fluid"></p>
+<p>alternate core test case, zoomed in:</p>
+<p><img src="images\core_tb_in_alt.png" class="img-fluid"></p>
+<p>datapath round 1, zoomed in</p>
+<p><img src="images\datapath_tb_round1.png" class="img-fluid"></p>
+<p>datapath round 10, zoomed in</p>
+<p><img src="images\datapath_tb_roundA.png" class="img-fluid"></p>
+<p>spi, zoomed in</p>
+<p><img src="images\spi_tb_in.png" class="img-fluid"></p>
+<p>spi, zoomed out</p>
+<p><img src="images\spi_tb_out.png" class="img-fluid"></p>
+<p>keyexpansion, zoomed out</p>
+<p><img src="images\keyexpansion_tb_out.png" class="img-fluid"></p>
+<p>keyexpansion, zoomed in</p>
+<p><img src="images\keyexpansion_tb_in.png" class="img-fluid"></p>
+<p>shiftrows</p>
+<p><img src="images\shiftrows_tb.png" class="img-fluid"></p>
+<p>subbytes</p>
+<p><img src="images\subbytes_tb.png" class="img-fluid"></p>
+</section>
+<section id="summary" class="level2">
+<h2 class="anchored" data-anchor-id="summary">Summary</h2>
+<p>I probably spent ~30 hours on this lab!</p>
+</section>
+<section id="ai-reflection" class="level2">
+<h2 class="anchored" data-anchor-id="ai-reflection">AI Reflection</h2>
+<p>With context:</p>
+<p>For the AI reflection, I prompted chatgpt to essentially impelment part of the key expansion module, given otherwise defined rotword and subword modules. For one prompt, I uploaded the FIPS 197 AES specifications pdf, and I asked ChatGPT to implement key expansion based on it. For another, I provided ChatGPT with the keyexpansion pseudocode, but all submodules were abstracted and I specifically asked ChatGPT not to use existing knowledge of AES specifications. The interactions are linked below:</p>
+<p>https://chatgpt.com/share/6914f4ea-0a20-8006-b30a-0c86622abffa compiles! just doesn’t know what subword module is (since it isn’t defined lol) function automatic logic new</p>
+<p>Without context: https://chatgpt.com/share/6914f69c-2e14-8006-892a-a21d3f702864 same as above</p>
+<p>The first implementation of AES encryption key word generation that ChatGPT generated (With the AES specification as context) was quite good! When I added it to Radiant and specified it as the top-level module, it mostly compiled (aside from the rotword and subbytes modules not being recognized, as expected). One thing to note is that ChatGPT did assume subword to be combinational, which was not the case in my implementation due to the limits of FPGA memory. However, the response came with comments (both in and out of the code) that made this assumption clear. I’m sure this could have been remedied by specifying the architecture that the algorithm is being written for, outlining memory capacity concerns, or including my implementation of subword for reference. The code that ChatGPT generated also used a “function automatic logic”, which is new to me! The script also outlined a proposed implementation for the RotWord and SubWord modules, as well as an example function call using the keyWordGen module.</p>
+<p>The second implementation of the AES encryption key word generation function was generated without prior knowledge of the AES encryption standard. Similar to above, once I specified the top level module, it compiled as expected, with the exception of missing the undefined module1 and module2. It also used genvar, which was new to me, but I had heard of it in passing for this class (unlike function automatic logic). Additionally, ChatGPT provided a helpful explanation on the genvar. While the in-line comments were useful, the lack of AES encryption context did hinder the readability/comprehensability of the code. However, it seems like the AI still did a good job implementing the pseudocode in SystemVerilog.</p>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
