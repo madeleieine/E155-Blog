@@ -35,5 +35,8 @@ The lab worked as expected! Below are some oscilloscope traces, annotated with t
 I have spent XX hours on this lab. I learned a lot about BLABLABA
 
 ## AI Reflection
+With context:
+https://chatgpt.com/share/6914f4ea-0a20-8006-b30a-0c86622abffa
 
-ai blablabal
+Without context:
+https://chatgpt.com/share/6914f69c-2e14-8006-892a-a21d3f702864 
