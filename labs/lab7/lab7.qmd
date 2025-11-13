@@ -1,5 +1,5 @@
 ---
-title: "Lab 6"
+title: "Lab 7"
 description: "The Advanced Encryption Standard"
 author: "Madeleine Kan"
 date: 10/29/25
@@ -12,31 +12,473 @@ draft: false
 ## Introduction
 Lab 7 uses the MCU and the FPGA together to perform encryption on a 128-bit long string according to AES-128. There, the FPGA serves an accelerator for the 10 rounds of encryption. Information is communicated between the MCU and the FPGA over SPI.
 
-## Schematic
-The circuit diagram is as follows:
+## Block Diagrams
+The block diagrams for the design are as follows:
 
-![](images\img_url_here.png){width=50%}
+top-level aes module (performs aes encrpytion and transmits results over spi)
 
-## Calculations
-Minimum and maximum duration and frequencies:
+![](images\aes.jpg)
 
-![](images\img_url_here.png){width=45%}
+aes core module (performs aes encrpytion using aes datapath, controller FSM, and counter FSM):
+
+![](images\aes_core.jpg)
+
+aes datapath (performs one round of aes encryption):
+
+![](images\aes_datapath.jpg)
+
+controller fsm (controller for aes datapath):
+
+![](images\controller fsm.jpg)
+
+counter fsm (counts rounds of encryption, up to 10 for AES-128):
+
+![](images\count fsm.jpg)
 
 
 ## Code:
 
-## Results
-The lab worked as expected! Below are some oscilloscope traces, annotated with the desired vs actual frequency. Note that all are within 1% of the desired frequency
+```systemverilog
 
-![](images\img_url_here.png){width=45%}
+/////////////////////////////////////////////
+// aes
+//   Top level module with SPI interface and SPI core
+/////////////////////////////////////////////
+
+module aes(input  logic sck, 
+           input  logic sdi,
+           output logic sdo,
+           input  logic load,
+           output logic done,
+		   output logic led);
+    logic [127:0] key, plaintext, cyphertext;
+	// sck = pB3 = P21
+	// cipo = sdo = pb4 = p12
+	// copi = sdi = pb5 = p10
+	// load = pa5 = p26
+	// done = pa6 = p27
+	
+	logic clk;
+	
+	hsosc clock(clk);
+    aes_spi spi(sck, sdi, sdo, done, key, plaintext, cyphertext);   
+    aes_core core(clk, load, key, plaintext, done, cyphertext);
+	
+	logic [23:0] counter;
+	always_ff @(posedge clk)
+		counter <= counter + 24'b1;
+	assign led = counter[23];
+endmodule
+
+
+```
+
+```systemverilog
+/////////////////////////////////////////////
+// aes_core
+//   top level AES encryption module
+//   when load is asserted, takes the current key and plaintext
+//   generates cyphertext and asserts done when complete 11 cycles later
+// 
+//   See FIPS-197 with Nk = 4, Nb = 4, Nr = 10
+//
+//   The key and message are 128-bit values packed into an array of 16 bytes as
+//   shown below
+//        [127:120] [95:88] [63:56] [31:24]     S0,0    S0,1    S0,2    S0,3
+//        [119:112] [87:80] [55:48] [23:16]     S1,0    S1,1    S1,2    S1,3
+//        [111:104] [79:72] [47:40] [15:8]      S2,0    S2,1    S2,2    S2,3
+//        [103:96]  [71:64] [39:32] [7:0]       S3,0    S3,1    S3,2    S3,3
+//
+//   Equivalently, the values are packed into four words as given
+//        [127:96]  [95:64] [63:32] [31:0]      w[0]    w[1]    w[2]    w[3]
+/////////////////////////////////////////////
+
+module aes_core(input  logic         clk, 
+                input  logic         load,
+                input  logic [127:0] key_in, 
+                input  logic [127:0] plaintext, 
+				output logic 		 done,
+                output logic [127:0] cyphertext);
+logic inc_roundnum, start, update, bypasscols;
+logic [3:0] roundnum;
+logic [127:0] state, key, newstate, newkey, oldstate, oldkey;
+
+
+always_ff @(posedge clk) begin
+		if (start) begin
+            key <= key_in;
+            state <= (plaintext ^ key_in);
+        end else if (update) begin
+            key <= newkey;
+            state <= newstate;
+        end
+        else begin
+            key <= key;
+            state <= state; // will become an issue in later rounds
+        end
+    end
+aes_controller_fsm controller(clk, load, roundnum, start, update, bypasscols, done, inc_roundnum);
+aes_counter_fsm counter(clk, inc_roundnum, load, roundnum);
+aes_datapath dp(clk, bypasscols, done, roundnum, state, key, newstate, newkey);
+
+assign cyphertext = done? newstate : 128'b0;
+            
+endmodule
+```
+
+```systemverilog
+/////////////////////////////////////////////
+// aes_datapath
+//   
+//   See FIPS-197 with Nk = 4, Nb = 4, Nr = 10
+//
+//   The key and message are 128-bit values packed into an array of 16 bytes as
+//   shown below
+//        [127:120] [95:88] [63:56] [31:24]     S0,0    S0,1    S0,2    S0,3
+//        [119:112] [87:80] [55:48] [23:16]     S1,0    S1,1    S1,2    S1,3
+//        [111:104] [79:72] [47:40] [15:8]      S2,0    S2,1    S2,2    S2,3
+//        [103:96]  [71:64] [39:32] [7:0]       S3,0    S3,1    S3,2    S3,3
+//
+//   Equivalently, the values are packed into four words as given
+//        [127:96]  [95:64] [63:32] [31:0]      w[0]    w[1]    w[2]    w[3]
+/////////////////////////////////////////////
+
+module aes_datapath(input  logic clk, 
+                input  logic bypassCols, done,
+                input logic [3:0] roundNum,
+                input  logic [127:0] state, 
+				input  logic [127:0] key,
+                output logic [127:0] newstate,
+				output logic [127:0] newkey);
+    logic [127:0] state_subbytes, state_shiftrows, state_shiftedrows, state_mixcols, state_readyforkeys;
+    logic [31:0] w0, w1, w2, w3;
+
+    keyexpansion k(clk, key, roundNum, newkey);
+
+	// key is ready 2 rising edges after rising edge is loaded
+    assign {w0, w1, w2, w3} = newkey;
+    subbytes sb(state, clk, state_subbytes); // takes a clk cycle
+    shiftrows sr(state_subbytes, state_shiftrows);
+    always_ff @(posedge clk) begin
+        state_shiftedrows <= state_shiftrows;
+	end
+    mixcolumns mc(state_shiftedrows, state_mixcols);
+	assign state_readyforkeys = bypassCols? state_shiftedrows : state_mixcols;
+	
+	//addkeys
+    assign newstate = state_readyforkeys ^ newkey;
+    
+endmodule
+```
+
+```systemverilog
+// FSM for controller for AES datapath
+module aes_controller_fsm(input  logic clk, load,
+						  input logic [3:0] roundnum,
+                          output logic start, update, bypasscols, done, inc_roundnum);
+	typedef enum logic [3:0] {idle, ready, start_first, start_cont, shiftrows, subbytes, mixcols, dontmix, finish} statetype;
+	statetype state, nextstate;
+	// assign nextstate = idle;
+	
+	// state register
+	always_ff @(posedge clk)
+		state <= nextstate;
+
+	
+	// state transition + output logic
+	always_comb
+		case(state)
+			idle: begin
+                start = 1'b0;
+                update = 1'b0;
+                inc_roundnum = 1'b0;
+                bypasscols = 1'b0;
+                done = 1'b0;
+                if (load) begin
+                    nextstate = ready;
+                end else begin 
+                    nextstate = idle;
+                end
+			end
+			ready: begin
+                start = 1'b0;
+                update = 1'b0;
+                inc_roundnum = 1'b0;
+                bypasscols = 1'b0;
+                done = 1'b0;
+                if (!load) begin
+                    nextstate = start_first;
+                end else begin 
+                    nextstate = ready;
+                end
+			end
+            start_first: begin
+                start = 1'b1;
+                update = 1'b0;
+                inc_roundnum = 1'b1;
+                bypasscols = 1'b0;
+                done = 1'b0;
+                nextstate = subbytes;
+			end
+            start_cont: begin
+                start = 1'b0;
+                update = 1'b1; 	 	
+                inc_roundnum = 1'b1;
+                bypasscols = 1'b0;
+                done = 1'b0;
+                nextstate = subbytes;
+			end
+			subbytes: begin
+				start = 1'b0;
+                update = 1'b0;
+                inc_roundnum = 1'b0;
+                bypasscols = 1'b0;
+                done = 1'b0;
+			nextstate = shiftrows;
+			end
+            shiftrows: begin
+                start = 1'b0;
+				update = 1'b0;
+                inc_roundnum = 1'b0;
+                bypasscols = 1'b0;
+                done = 1'b0;
+                if (roundnum >= 4'd10) begin
+                    nextstate = dontmix;
+                end else begin
+                    nextstate = mixcols;
+                end
+			end
+            mixcols: begin
+                start = 1'b0;
+                update = 1'b0;
+                inc_roundnum = 1'b0;
+                bypasscols = 1'b0;
+                done = 1'b0;
+                nextstate = start_cont;
+			end
+            dontmix: begin
+                start = 1'b0;
+                update = 1'b0;
+                inc_roundnum = 1'b0;
+                bypasscols = 1'b1;
+                done = 1'b0;
+                nextstate = finish;
+			end 
+            finish: begin
+                start = 1'b0;
+                update = 1'b0;
+                inc_roundnum = 1'b0;
+                bypasscols = 1'b1;
+                done = 1'b1;
+                nextstate = finish;
+			end
+			default: begin
+				start = 1'b0;
+                update = 1'b0;
+                inc_roundnum = 1'b0;
+                bypasscols = 1'b0;
+                done = 1'b0;
+				nextstate = idle;
+                // try staying at finish
+			end
+		endcase
+		
+endmodule
+```
+
+```systemverilog
+// FSM to count how many rounds of cipher algorithm
+// have been executed in AES
+module aes_counter_fsm(input  logic clk, inc_roundnum, load,
+                        output logic [3:0] roundnum);
+	typedef enum logic [3:0] {s0, s1, s2, s3, s4, s5, s6, s7, s8, s9, s10} statetype;
+	statetype state, nextstate;
+    // state register
+	always_ff @(posedge clk)
+		if (load) state <= s0;
+		else state <= nextstate;
+
+
+	// state transition + output logic
+	always_comb
+		case(state)
+			s0: begin
+				if (inc_roundnum) nextstate = s1;
+                else nextstate = s0;
+				roundnum = 4'd0;
+			end
+            s1: begin
+				if (inc_roundnum) nextstate = s2;
+                else nextstate = s1;
+				roundnum = 4'd1;
+			end
+            s2: begin
+				if (inc_roundnum) nextstate = s3;
+                else nextstate = s2;
+				roundnum = 4'd2;
+			end
+            s3: begin
+				if (inc_roundnum) nextstate = s4;
+                else nextstate = s3;
+				roundnum = 4'd3;
+			end
+            s4: begin
+				if (inc_roundnum) nextstate = s5;
+                else nextstate = s4;
+				roundnum = 4'd4;
+			end
+            s5: begin
+				if (inc_roundnum) nextstate = s6;
+                else nextstate = s5;
+				roundnum = 4'd5;
+			end
+            s6: begin
+				if (inc_roundnum) nextstate = s7;
+                else nextstate = s6;
+				roundnum = 4'd6;
+			end
+            s7: begin
+				if (inc_roundnum) nextstate = s8;
+                else nextstate = s7;
+				roundnum = 4'd7;
+			end
+            s8: begin
+				if (inc_roundnum) nextstate = s9;
+                else nextstate = s8;
+				roundnum = 4'd8;
+			end
+            s9: begin
+				if (inc_roundnum) nextstate = s10;
+                else nextstate = s9;
+				roundnum = 4'd9;
+			end
+            s10: begin
+				// if (done) nextstate = s0;
+				// else 
+				nextstate = s10;
+				roundnum = 4'd10;
+			end
+            default: begin
+				nextstate = s0;
+				roundnum = 4'd0;
+			end
+        endcase
+endmodule
+```
+
+```systemverilog
+/////////////////////////////////////////////
+// subbytes
+//   apply sbox_sync to all elements of input
+/////////////////////////////////////////////
+
+module subbytes(input  logic [127:0] a,
+                input logic clk,
+                output logic [127:0] y);
+    sbox_sync sb[15:0] (a, clk, y);
+
+endmodule
+```
+
+```systemverilog
+/////////////////////////////////////////////
+// shiftrows
+//   Perform shiftrow on all 4 rows of the input
+//   Section 5.1.2, Figure 3
+/////////////////////////////////////////////
+
+module shiftrows(input  logic [127:0] a, output logic [127:0] y);
+// each row is 4 bytes or 32 bits long
+	logic [31:0] row0in, row1in, row2in, row3in;
+	logic [31:0] row0out, row1out, row2out, row3out;
+
+	assign row0in = {a[127:120], a[95:88], a[63:56], a[31:24]};
+	assign row1in = {a[119:112], a[87:80], a[55:48], a[23:16]};
+	assign row2in = {a[111:104], a[79:72], a[47:40], a[15:8]};
+	assign row3in = {a[103:96], a[71:64], a[39:32], a[7:0]};
+
+	shiftrow sr0(row0in, 2'b00, row0out);
+	shiftrow sr1(row1in, 2'b01, row1out);
+	shiftrow sr2(row2in, 2'b10, row2out);
+	shiftrow sr3(row3in, 2'b11, row3out);
+
+	assign {y[127:120], y[95:88], y[63:56], y[31:24]} = row0out;
+	assign {y[119:112], y[87:80], y[55:48], y[23:16]} = row1out;
+	assign {y[111:104], y[79:72], y[47:40], y[15:8]} = row2out;
+	assign {y[103:96], y[71:64], y[39:32], y[7:0]} = row3out;
+	
+endmodule
+```
+
+
+## Results
+The lab worked as expected! Below are testbenches and their associated waveforms.
+
+Core testbench, zoomed out:
+
+![](images\core_tb_out.png)
+
+Core testbench, zoomed in:
+
+![](images\core_tb_in.png)
+
+alternate core test case, zoomed out:
+
+![](images\core_tb_out_alt.png)
+
+alternate core test case, zoomed in:
+
+![](images\core_tb_in_alt.png)
+
+datapath round 1, zoomed in
+
+![](images\datapath_tb_round1.png)
+
+datapath round 10, zoomed in
+
+![](images\datapath_tb_roundA.png)
+
+spi, zoomed in
+
+![](images\spi_tb_in.png)
+
+spi, zoomed out
+
+![](images\spi_tb_out.png)
+
+keyexpansion, zoomed out
+
+![](images\keyexpansion_tb_out.png)
+
+keyexpansion, zoomed in
+
+![](images\keyexpansion_tb_in.png)
+
+shiftrows
+
+![](images\shiftrows_tb.png)
+
+subbytes
+
+![](images\subbytes_tb.png)
 
 
 ## Summary
-I have spent XX hours on this lab. I learned a lot about BLABLABA
+I probably spent ~30 hours on this lab!
 
 ## AI Reflection
 With context:
+
+For the AI reflection, I prompted chatgpt to essentially impelment part of the key expansion module, given otherwise defined rotword and subword modules. For one prompt, I uploaded the FIPS 197 AES specifications pdf, and I asked ChatGPT to implement key expansion based on it. For another, I provided ChatGPT with the keyexpansion pseudocode, but all submodules were abstracted and I specifically asked ChatGPT not to use existing knowledge of AES specifications. The interactions are linked below:
+
 https://chatgpt.com/share/6914f4ea-0a20-8006-b30a-0c86622abffa
+compiles! just doesn't know what subword module is (since it isn't defined lol)
+function automatic logic new
 
 Without context:
 https://chatgpt.com/share/6914f69c-2e14-8006-892a-a21d3f702864 
+same as above
+
+The first implementation of AES encryption key word generation that ChatGPT generated (With the AES specification as context) was quite good! When I added it to Radiant and specified it as the top-level module, it mostly compiled (aside from the rotword and subbytes modules not being recognized, as expected). One thing to note is that ChatGPT did assume subword to be combinational, which was not the case in my implementation due to the limits of FPGA memory. However, the response came with comments (both in and out of the code) that made this assumption clear. I'm sure this could have been remedied by specifying the architecture that the algorithm is being written for, outlining memory capacity concerns, or including my implementation of subword for reference. The code that ChatGPT generated also used a "function automatic logic", which is new to me! The script also outlined a proposed implementation for the RotWord and SubWord modules, as well as an example function call using the keyWordGen module. 
+
+The second implementation of the AES encryption key word generation function was generated without prior knowledge of the AES encryption standard. Similar to above, once I specified the top level module, it compiled as expected, with the exception of missing the undefined module1 and module2. It also used genvar, which was new to me, but I had heard of it in passing for this class (unlike function automatic logic). Additionally, ChatGPT provided a helpful explanation on the genvar. While the in-line comments were useful, the lack of AES encryption context did hinder the readability/comprehensability of the code. However, it seems like the AI still did a good job implementing the pseudocode in SystemVerilog.
