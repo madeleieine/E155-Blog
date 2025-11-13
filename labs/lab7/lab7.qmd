@@ -8,3 +8,32 @@ categories:
     - labreport
 draft: false
 ---
+
+## Introduction
+Lab 7 uses the MCU and the FPGA together to perform encryption on a 128-bit long string according to AES-128. There, the FPGA serves an accelerator for the 10 rounds of encryption. Information is communicated between the MCU and the FPGA over SPI.
+
+## Schematic
+The circuit diagram is as follows:
+
+![](images\img_url_here.png){width=50%}
+
+## Calculations
+Minimum and maximum duration and frequencies:
+
+![](images\img_url_here.png){width=45%}
+
+
+## Code:
+
+## Results
+The lab worked as expected! Below are some oscilloscope traces, annotated with the desired vs actual frequency. Note that all are within 1% of the desired frequency
+
+![](images\img_url_here.png){width=45%}
+
+
+## Summary
+I have spent XX hours on this lab. I learned a lot about BLABLABA
+
+## AI Reflection
+
+ai blablabal
