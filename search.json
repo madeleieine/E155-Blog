@@ -242,7 +242,14 @@
     "href": "index.html",
     "title": "E155 Portfolio",
     "section": "",
-    "text": "Here is Madeleine Kan’s portfolio for E155 coursework! Reports on the labs she completed can be found at the Labs Page, and a report on her and Sarah Yandell’s joint final project can be found at E155 Final Project: Spinning Synth.\nAbout Madeleine Kan is a senior engineering major at Harvey Mudd College. She is studying general engineering with a focus on computer engineering with biomedical applications. She has experience in supply chain process engineering, FPGA and microcontroller programming, and mechanical design and analysis. In the spring of 2025, she worked as part of the UC Berkeley clinic team to upgrade the communication protocol for a low-cost air quality sensor. Since the start of 2024, she has worked in the Quantum Quasars Lab to develop an astronomical random number generator for Bell-type tests of quantum entanglement. She also has tutored for a variety of engineering courses and labs. She is part of the CMS Swim team, specializing in sprint freestyle and butterfly. In her free time, she likes to crochet, learn the piano, and spend time with her friends and family."
+    "text": "See Course Labs and E155 Final Project: Spinning Synth"
+  },
+  {
+    "objectID": "index.html#about",
+    "href": "index.html#about",
+    "title": "E155 Portfolio",
+    "section": "About",
+    "text": "About\nMadeleine Kan is a senior engineering major at Harvey Mudd College. She is studying general engineering with a focus on computer engineering with biomedical applications. She has experience in supply chain process engineering, FPGA and microcontroller programming, and mechanical design and analysis. In the spring of 2025, she worked as part of the UC Berkeley clinic team to upgrade the communication protocol for a low-cost air quality sensor. Since the start of 2024, she has worked in the Quantum Quasars Lab to develop an astronomical random number generator for Bell-type tests of quantum entanglement. She also has tutored for a variety of engineering courses and labs. She is part of the CMS Swim team, specializing in sprint freestyle and butterfly. In her free time, she likes to crochet, learn the piano, and spend time with her friends and family."
   },
   {
     "objectID": "blog.html",
