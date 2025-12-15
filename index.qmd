@@ -11,6 +11,11 @@ about:
           text: Github
           href: https://github.com/madeleieine
 ---
+
+Here is Madeleine Kan's portfolio for E155 coursework! Reports on the labs she completed can be found at the [Labs Page](https://madeleieine.github.io/E155-Blog/labs/labs-overview.html), and a report on her and Sarah Yandell's joint final project can be found at [E155 Final Project: Spinning Synth](https://sxyandell.github.io/e155-final-website/).
+
+
+**About**
 Madeleine Kan is a senior engineering major at [Harvey Mudd College](https://hmc.edu). She is studying
 general engineering with a focus on computer engineering with biomedical applications. She has experience
 in supply chain process engineering, FPGA and microcontroller programming, and mechanical design and analysis. 
