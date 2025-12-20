@@ -340,7 +340,14 @@
     "href": "labs/lab3/lab3.html#schematic",
     "title": "Lab 3",
     "section": "Schematic",
-    "text": "Schematic\nThe circuit diagram is as follows: \nThe calculations for the current-limiting resistors are as follows:  ## Block Diagram Here is the block diagram for the overall software architecture: \nHere is the ScanFSM state transition diagram: \nHere is the DebounceFSM state transition diagram:"
+    "text": "Schematic\nThe circuit diagram is as follows: \nThe calculations for the current-limiting resistors are as follows:"
+  },
+  {
+    "objectID": "labs/lab3/lab3.html#block-diagram",
+    "href": "labs/lab3/lab3.html#block-diagram",
+    "title": "Lab 3",
+    "section": "Block Diagram",
+    "text": "Block Diagram\nHere is the block diagram for the overall software architecture: \nHere is the ScanFSM state transition diagram: \nHere is the DebounceFSM state transition diagram:"
   },
   {
     "objectID": "labs/lab3/lab3.html#code",
