@@ -502,10 +502,10 @@ led_processor testbench:
 ![](images\led_processor_zoomed_out.png)
 
 led_driver testbench:
-![](images\led_driver.png)
+![](images\led_driver_testbench_better.png)
 
 mux testbench:
-![](images\mux_testbench.png)
+![](images\mux_testbench_better.png)
 
 seven_segment_display testbench:
 ![](images\seven_seg_testbench.png)
@@ -1234,5 +1234,3 @@ module seven_segment_display_testbench();
 		end
 endmodule
 ```
-
-## AI Reflection
