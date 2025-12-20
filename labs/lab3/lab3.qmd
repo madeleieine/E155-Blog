@@ -17,6 +17,7 @@ The circuit diagram is as follows:
 
 The calculations for the current-limiting resistors are as follows:
 ![](images\calculations.png)
+
 ## Block Diagram
 Here is the block diagram for the overall software architecture:
 ![](images\block_diagram.png)
